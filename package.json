@@ -32,7 +32,13 @@
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-stylus": "^1.0.3",
+    "rollup-plugin-vue": "^2.4.0",
     "rollup-watch": "^4.0.0",
     "stylus": "^0.54.5"
+  },
+  "dependencies": {
+    "eslint": "^4.0.0",
+    "lodash": "^4.17.4"
   }
 }

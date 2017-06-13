@@ -26,6 +26,7 @@ module.exports = [
     format: 'umd',
     moduleName: 'Croppa',
     dest: 'example/croppa/vue-croppa.js',
+    sourceMap: true,
     plugins: [
       commentjs(),
       resolve(),

@@ -5,19 +5,86 @@
 }(this, (function () { 'use strict';
 
 var u = {
-  getPointerCoords: function getPointerCoords(evt, canvas) {
+  getPointerCoords: function getPointerCoords(evt, cropperVM) {
+    var canvas = cropperVM.canvas,
+        quality = cropperVM.quality;
+
     var rect = canvas.getBoundingClientRect();
     var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: (clientX - rect.left) * quality,
+      y: (clientY - rect.top) * quality
     };
   }
 };
 
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+var _freeGlobal = freeGlobal;
+
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = _freeGlobal || freeSelf || Function('return this')();
+
+/** Used for built-in method references. */
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+
 var cropper = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.hasTarget ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", attrs: { "width": _vm.canvasWidth, "height": _vm.canvasHeight }, on: { "click": _vm.selectFile, "touchstart": _vm.handlePointerStart, "mousedown": _vm.handlePointerStart, "pointerstart": _vm.handlePointerStart, "touchend": _vm.handlePointerEnd, "touchcancel": _vm.handlePointerEnd, "mouseup": _vm.handlePointerEnd, "pointerend": _vm.handlePointerEnd, "pointercancel": _vm.handlePointerEnd, "touchmove": _vm.handlePointerMove, "mousemove": _vm.handlePointerMove, "pointermove": _vm.handlePointerMove } })]);
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.hasTarget ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", attrs: { "width": _vm.canvasWidth, "height": _vm.canvasHeight }, on: { "click": _vm.selectFile, "touchstart": _vm.handlePointerStart, "mousedown": _vm.handlePointerStart, "pointerstart": _vm.handlePointerStart, "touchend": _vm.handlePointerEnd, "touchcancel": _vm.handlePointerEnd, "mouseup": _vm.handlePointerEnd, "pointerend": _vm.handlePointerEnd, "pointercancel": _vm.handlePointerEnd, "touchmove": _vm.handlePointerMove, "mousemove": _vm.handlePointerMove, "pointermove": _vm.handlePointerMove, "DOMMouseScroll": _vm.handleWheel, "mousewheel": _vm.handleWheel } })]);
   }, staticRenderFns: [],
   props: {
     width: Number,
@@ -25,9 +92,16 @@ var cropper = { render: function render() {
     placeholder: String,
     placeholderColor: String,
     canvasColor: String,
-    scalingRatio: {
+    quality: {
       default: 2,
       type: Number
+    },
+    zoomSpeed: {
+      default: 3,
+      type: Number,
+      validator: function validator(val) {
+        return val > 0;
+      }
     }
   },
 
@@ -39,17 +113,18 @@ var cropper = { render: function render() {
       hasTarget: false,
       dragging: false,
       lastMovingCoord: null,
-      imgData: {}
+      imgData: {},
+      dataUrl: ''
     };
   },
 
 
   computed: {
     canvasWidth: function canvasWidth() {
-      return this.width * this.scalingRatio;
+      return this.width * this.quality;
     },
     canvasHeight: function canvasHeight() {
-      return this.height * this.scalingRatio;
+      return this.height * this.quality;
     }
   },
 
@@ -66,6 +141,11 @@ var cropper = { render: function render() {
       this.canvas.style.height = this.height + 'px';
       this.ctx = this.canvas.getContext('2d');
       this.unset();
+      this.$emit('init', {
+        reset: this.unset,
+        selectFile: this.selectFile,
+        generateDataUrl: this.generateDataUrl
+      });
     },
     unset: function unset() {
       var ctx = this.ctx;
@@ -115,6 +195,7 @@ var cropper = { render: function render() {
       fd.readAsDataURL(file);
     },
     handlePointerStart: function handlePointerStart(evt) {
+      if (evt.which && evt.which > 1) return;
       this.dragging = true;
     },
     handlePointerEnd: function handlePointerEnd(evt) {
@@ -123,7 +204,7 @@ var cropper = { render: function render() {
     },
     handlePointerMove: function handlePointerMove(evt) {
       if (!this.dragging) return;
-      var coord = u.getPointerCoords(evt, this.canvas);
+      var coord = u.getPointerCoords(evt, this);
       if (this.lastMovingCoord) {
         this.move({
           x: coord.x - this.lastMovingCoord.x,
@@ -132,11 +213,38 @@ var cropper = { render: function render() {
       }
       this.lastMovingCoord = coord;
     },
+    handleWheel: function handleWheel(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      var coord = u.getPointerCoords(evt, this);
+      if (evt.wheelDelta < 0 || evt.detail < 0) {
+        // 手指向上
+        this.zoom(true, coord);
+      } else if (evt.wheelDelta > 0 || evt.detail > 0) {
+        // 手指向下
+        this.zoom(false, coord);
+      }
+    },
     move: function move(offset) {
-      console.log(offset);
       if (!offset) return;
-      this.imgData.startX += offset.x * this.scalingRatio;
-      this.imgData.startY += offset.y * this.scalingRatio;
+      this.imgData.startX += offset.x;
+      this.imgData.startY += offset.y;
+      this.draw();
+    },
+    zoom: function zoom(zoomIn, pos) {
+      var speed = this.canvasWidth / 100000 * this.zoomSpeed;
+      var x = 1;
+      if (zoomIn) {
+        x = 1 + speed;
+      } else if (this.imgData.width > 20) {
+        x = 1 - speed;
+      }
+      this.imgData.width = this.imgData.width * x;
+      this.imgData.height = this.imgData.height * x;
+      var offsetX = (x - 1) * (pos.x - this.imgData.startX);
+      var offsetY = (x - 1) * (pos.y - this.imgData.startY);
+      this.imgData.startX = this.imgData.startX - offsetX;
+      this.imgData.startY = this.imgData.startY - offsetY;
       this.draw();
     },
     draw: function draw() {
@@ -149,9 +257,12 @@ var cropper = { render: function render() {
           height = _imgData.height;
 
       ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-      ctx.drawImage(this.img, startX, startY, width, height
-      // console.log(this.canvas.toDataURL())
-      );this.hasTarget = true;
+      ctx.drawImage(this.img, startX, startY, width, height);
+      this.hasTarget = true;
+    },
+    generateDataUrl: function generateDataUrl() {
+      if (!this.hasTarget) return '';
+      return this.canvas.toDataURL();
     }
   }
 };

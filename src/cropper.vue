@@ -19,12 +19,15 @@
             @pointercancel="handlePointerEnd"
             @touchmove="handlePointerMove"
             @mousemove="handlePointerMove"
-            @pointermove="handlePointerMove"></canvas>
+            @pointermove="handlePointerMove"
+            @DOMMouseScroll="handleWheel"
+            @mousewheel="handleWheel"></canvas>
   </div>
 </template>
 
 <script>
   import u from './util'
+  import debounce from 'lodash/debounce'
 
   export default {
     props: {
@@ -33,9 +36,16 @@
       placeholder: String,
       placeholderColor: String,
       canvasColor: String,
-      scalingRatio: {
+      quality: {
         default: 2,
         type: Number
+      },
+      zoomSpeed: {
+        default: 3,
+        type: Number,
+        validator: function (val) {
+          return val > 0
+        }
       }
     },
 
@@ -47,17 +57,18 @@
         hasTarget: false,
         dragging: false,
         lastMovingCoord: null,
-        imgData: {}
+        imgData: {},
+        dataUrl: ''
       }
     },
 
     computed: {
       canvasWidth () {
-        return this.width * this.scalingRatio
+        return this.width * this.quality
       },
 
       canvasHeight () {
-        return this.height * this.scalingRatio
+        return this.height * this.quality
       }
     },
 
@@ -73,6 +84,11 @@
         this.canvas.style.height = this.height + 'px'
         this.ctx = this.canvas.getContext('2d')
         this.unset()
+        this.$emit('init', {
+          reset: this.unset,
+          selectFile: this.selectFile,
+          generateDataUrl: this.generateDataUrl
+        })
       },
 
       unset () {
@@ -124,6 +140,7 @@
       },
 
       handlePointerStart (evt) {
+        if (evt.which && evt.which > 1) return
         this.dragging = true
       },
 
@@ -134,7 +151,7 @@
 
       handlePointerMove (evt) {
         if (!this.dragging) return
-        let coord = u.getPointerCoords(evt, this.canvas)
+        let coord = u.getPointerCoords(evt, this)
         if (this.lastMovingCoord) {
           this.move({
             x: coord.x - this.lastMovingCoord.x,
@@ -144,11 +161,40 @@
         this.lastMovingCoord = coord
       },
 
+      handleWheel (evt) {
+        evt.preventDefault()
+        evt.stopPropagation()
+        let coord = u.getPointerCoords(evt, this)
+        if (evt.wheelDelta < 0 || evt.detail < 0) {
+          // 手指向上
+          this.zoom(true, coord)
+        } else if (evt.wheelDelta > 0 || evt.detail > 0) {
+          // 手指向下
+          this.zoom(false, coord)
+        }
+      },
+
       move (offset) {
-        console.log(offset)
         if (!offset) return
-        this.imgData.startX += offset.x * this.scalingRatio
-        this.imgData.startY += offset.y * this.scalingRatio
+        this.imgData.startX += offset.x
+        this.imgData.startY += offset.y
+        this.draw()
+      },
+
+      zoom (zoomIn, pos) {
+        let speed = (this.canvasWidth / 100000) * this.zoomSpeed
+        let x = 1
+        if (zoomIn) {
+          x = 1 + speed
+        } else if (this.imgData.width > 20) {
+          x = 1 - speed
+        }
+        this.imgData.width = this.imgData.width * x
+        this.imgData.height = this.imgData.height * x
+        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        this.imgData.startX = this.imgData.startX - offsetX
+        this.imgData.startY = this.imgData.startY - offsetY
         this.draw()
       },
 
@@ -158,8 +204,12 @@
         let { startX, startY, width, height } = this.imgData
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
         ctx.drawImage(this.img, startX, startY, width, height)
-        // console.log(this.canvas.toDataURL())
         this.hasTarget = true
+      },
+
+      generateDataUrl () {
+        if (!this.hasTarget) return ''
+        return this.canvas.toDataURL()
       }
     }
   }
