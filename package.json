@@ -1,0 +1,38 @@
+{
+  "name": "vue-croppa",
+  "version": "1.0.0",
+  "description": "A simple straightforward image cropper for vue.js.",
+  "main": "dist/vue-croppa.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhanziyang/vue-croppa.git"
+  },
+  "keywords": [
+    "cropper",
+    "vue",
+    "image",
+    "crop"
+  ],
+  "author": "zhanziyang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhanziyang/vue-croppa/issues"
+  },
+  "homepage": "https://github.com/zhanziyang/vue-croppa#readme",
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-latest": "^6.24.1",
+    "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-json": "^2.3.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-watch": "^4.0.0",
+    "stylus": "^0.54.5"
+  }
+}

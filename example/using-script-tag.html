@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="croppa/vue-croppa.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="example1">
+    {{ message }}
+    <croppa :width="200" :height="200" placeholder="上传图片"></croppa>
+  </div>
+</body>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="croppa/vue-croppa.js"></script>
+<script>
+  Vue.use(Croppa)
+
+  var app = new Vue({
+    el: '#example1',
+    data: {
+      message: 'Hello Vue!'
+    }
+  })
+
+</script>
+
+</html>

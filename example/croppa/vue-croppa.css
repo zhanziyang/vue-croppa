@@ -1,0 +1,19 @@
+.croppa-container {
+  display: inline-block;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+.croppa-container:hover {
+  opacity: 0.7;
+}
+.croppa-container.croppa--has-target {
+  cursor: move;
+}
+.croppa-container.croppa--has-target:hover {
+  opacity: 1;
+}
+.image {
+  max-width: 100%;
+  max-height: 100%;
+}
+
