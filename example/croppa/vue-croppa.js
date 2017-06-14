@@ -84,13 +84,14 @@ var root = _freeGlobal || freeSelf || Function('return this')();
  */
 
 var cropper = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.hasTarget ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", attrs: { "width": _vm.canvasWidth, "height": _vm.canvasHeight }, on: { "click": _vm.selectFile, "touchstart": _vm.handlePointerStart, "mousedown": _vm.handlePointerStart, "pointerstart": _vm.handlePointerStart, "touchend": _vm.handlePointerEnd, "touchcancel": _vm.handlePointerEnd, "mouseup": _vm.handlePointerEnd, "pointerend": _vm.handlePointerEnd, "pointercancel": _vm.handlePointerEnd, "touchmove": _vm.handlePointerMove, "mousemove": _vm.handlePointerMove, "pointermove": _vm.handlePointerMove, "DOMMouseScroll": _vm.handleWheel, "mousewheel": _vm.handleWheel } })]);
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", on: { "click": _vm.selectFile, "touchstart": _vm.handlePointerStart, "mousedown": _vm.handlePointerStart, "pointerstart": _vm.handlePointerStart, "touchend": _vm.handlePointerEnd, "touchcancel": _vm.handlePointerEnd, "mouseup": _vm.handlePointerEnd, "pointerend": _vm.handlePointerEnd, "pointercancel": _vm.handlePointerEnd, "touchmove": _vm.handlePointerMove, "mousemove": _vm.handlePointerMove, "pointermove": _vm.handlePointerMove, "DOMMouseScroll": _vm.handleWheel, "mousewheel": _vm.handleWheel } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.width / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "t": "1497460039530", "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "p-id": "1074", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.width / 10, "height": _vm.width / 10 }, on: { "click": _vm.unset } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "p-id": "1075", "fill": "red" } })]) : _vm._e()]);
   }, staticRenderFns: [],
   props: {
     width: Number,
     height: Number,
     placeholder: String,
     placeholderColor: String,
+    placeholderFontSize: Number,
     canvasColor: String,
     quality: {
       default: 2,
@@ -102,7 +103,9 @@ var cropper = { render: function render() {
       validator: function validator(val) {
         return val > 0;
       }
-    }
+    },
+    noWhiteSpace: Boolean,
+    showRemoveButton: Boolean
   },
 
   data: function data() {
@@ -110,7 +113,6 @@ var cropper = { render: function render() {
       canvas: null,
       ctx: null,
       img: null,
-      hasTarget: false,
       dragging: false,
       lastMovingCoord: null,
       imgData: {},
@@ -133,10 +135,22 @@ var cropper = { render: function render() {
   },
 
 
+  watch: {
+    canvasWidth: 'init',
+    canvasHeight: 'init',
+    canvasColor: 'init',
+    placeholder: 'init',
+    placeholderColor: 'init',
+    placeholderFontSize: 'init',
+    noWhiteSpace: 'imgContentInit'
+  },
+
   methods: {
     init: function init() {
       this.canvas = this.$refs.canvas;
-      this.canvas.style.backgroundColor = this.canvasColor || '#e6e6e6';
+      this.canvas.width = this.canvasWidth;
+      this.canvas.height = this.canvasHeight;
+      this.canvas.style.backgroundColor = this.canvasColor == 'default' ? '#e6e6e6' : this.canvasColor || '#e6e6e6';
       this.canvas.style.width = this.width + 'px';
       this.canvas.style.height = this.height + 'px';
       this.ctx = this.canvas.getContext('2d');
@@ -152,13 +166,17 @@ var cropper = { render: function render() {
       ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.font = this.canvasWidth / 2 / this.placeholder.length + 'px sans-serif';
-      ctx.fillStyle = this.placeholderColor || '#606060';
+      var defaultFontSize = this.canvasWidth / 1.5 / this.placeholder.length;
+      var fontSize = this.placeholderFontSize == 0 ? defaultFontSize : this.placeholderFontSize || defaultFontSize;
+      ctx.font = fontSize + 'px sans-serif';
+      ctx.fillStyle = this.placeholderColor == 'default' ? '#606060' : this.placeholderColor || '#606060';
       ctx.fillText(this.placeholder, this.canvasWidth / 2, this.canvasHeight / 2);
-      this.hasTarget = false;
+      this.img = null;
+      this.$refs.fileInput.value = '';
+      this.imgData = {};
     },
     selectFile: function selectFile() {
-      if (this.hasTarget) return;
+      if (this.img) return;
       // this.$refs.fileInput.value = ''
       this.$refs.fileInput.click();
     },
@@ -175,24 +193,29 @@ var cropper = { render: function render() {
         img.src = fileData;
         img.onload = function () {
           _this.img = img;
-          _this.imgData.startX = 0;
-          _this.imgData.startY = 0;
-          var imgWidth = img.naturalWidth;
-          var imgHeight = img.naturalHeight;
-          if (imgWidth > imgHeight) {
-            var ratio = imgHeight / _this.canvasHeight;
-            _this.imgData.width = imgWidth / ratio;
-            _this.imgData.height = _this.canvasHeight;
-          } else {
-            var _ratio = imgWidth / _this.canvasWidth;
-            _this.imgData.width = _this.canvasWidth;
-            _this.imgData.height = imgHeight / _ratio;
-          }
-          _this.draw();
+          _this.imgContentInit();
         };
       };
 
       fd.readAsDataURL(file);
+    },
+    imgContentInit: function imgContentInit() {
+      this.imgData.startX = 0;
+      this.imgData.startY = 0;
+      var imgWidth = this.img.naturalWidth;
+      var imgHeight = this.img.naturalHeight;
+      if (imgWidth > imgHeight) {
+        var ratio = imgHeight / this.canvasHeight;
+        this.imgData.width = imgWidth / ratio;
+        this.imgData.startX = -(this.imgData.width - this.canvasWidth) / 2;
+        this.imgData.height = this.canvasHeight;
+      } else {
+        var _ratio = imgWidth / this.canvasWidth;
+        this.imgData.height = imgHeight / _ratio;
+        this.imgData.startY = -(this.imgData.height - this.canvasHeight) / 2;
+        this.imgData.width = this.canvasWidth;
+      }
+      this.draw();
     },
     handlePointerStart: function handlePointerStart(evt) {
       if (evt.which && evt.which > 1) return;
@@ -229,6 +252,18 @@ var cropper = { render: function render() {
       if (!offset) return;
       this.imgData.startX += offset.x;
       this.imgData.startY += offset.y;
+      var stopit = false;
+      if (this.noWhiteSpace) {
+        if (this.imgData.startX > 0 || this.canvasWidth - this.imgData.startX > this.imgData.width) {
+          this.imgData.startX -= offset.x;
+          stopit = true;
+        }
+        if (this.imgData.startY > 0 || this.canvasHeight - this.imgData.startY > this.imgData.height) {
+          this.imgData.startY -= offset.y;
+          stopit = true;
+        }
+      }
+      if (stopit) return;
       this.draw();
     },
     zoom: function zoom(zoomIn, pos) {
@@ -245,11 +280,27 @@ var cropper = { render: function render() {
       var offsetY = (x - 1) * (pos.y - this.imgData.startY);
       this.imgData.startX = this.imgData.startX - offsetX;
       this.imgData.startY = this.imgData.startY - offsetY;
+
+      if (this.noWhiteSpace) {
+        if (this.imgData.width < this.canvasWidth) {
+          var _x = this.canvasWidth / this.imgData.width;
+          this.imgData.width = this.canvasWidth;
+          this.imgData.height = this.imgData.height * _x;
+          this.imgData.startX = this.imgData.startY = 0;
+        }
+
+        if (this.imgData.height < this.canvasHeight) {
+          var _x2 = this.canvasHeight / this.imgData.height;
+          this.imgData.width = this.canvasHeight;
+          this.imgData.height = this.imgData.height * _x2;
+          this.imgData.startX = this.imgData.startY = 0;
+        }
+      }
       this.draw();
     },
     draw: function draw() {
       var ctx = this.ctx;
-      if (!this.imgData || !this.imgData.width) return;
+      if (!this.img) return;
       var _imgData = this.imgData,
           startX = _imgData.startX,
           startY = _imgData.startY,
@@ -258,10 +309,9 @@ var cropper = { render: function render() {
 
       ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       ctx.drawImage(this.img, startX, startY, width, height);
-      this.hasTarget = true;
     },
     generateDataUrl: function generateDataUrl() {
-      if (!this.hasTarget) return '';
+      if (!this.img) return '';
       return this.canvas.toDataURL();
     }
   }

@@ -2,6 +2,7 @@
   display: inline-block;
   cursor: pointer;
   transition: opacity 0.3s;
+  position: relative;
 }
 .croppa-container:hover {
   opacity: 0.7;
@@ -11,6 +12,14 @@
 }
 .croppa-container.croppa--has-target:hover {
   opacity: 1;
+}
+.croppa-container svg.icon-remove {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: -2px 2px 6px #808080;
+  z-index: 10;
+  cursor: pointer;
 }
 .image {
   max-width: 100%;
