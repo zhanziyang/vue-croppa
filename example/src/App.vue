@@ -232,12 +232,12 @@
 </script>
 
 <style lang="stylus">
-  // /* latin-ext */
+  /* latin-ext */
   // @font-face {
   //   font-family: 'Black Ops One';
   //   font-style: normal;
   //   font-weight: 400;
-  //   src: local('Black Ops One'), local('BlackOpsOne-Regular'), url('assets/BlackOpsOne-Regular.ttf') format('ttf');
+  //   src: local('Black Ops One'), local('BlackOpsOne-Regular'), url('~/assets/BlackOpsOne-Regular.ttf') format('truetype');
   //   unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
   // }
   /* latin */
