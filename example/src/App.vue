@@ -1,8 +1,9 @@
 <template>
   <v-app>
     <h2>
-      <span>Vue</span>
-      <span>Croppa</span>
+      <span class="header">Vue</span>
+      <span class="header">Croppa</span>
+      <span class="subheader">A simple straightforward customizable image cropper for vue.js.</span>
     </h2>
     <v-layout row
               wrap>
@@ -250,11 +251,16 @@
   #app
     padding: 16px
     h2
-      font-family: 'Black Ops One', cursive
-      span:first-child
+      span.header
+        font-family: 'Black Ops One', cursive
+      span.header:first-child
         color: #41b883
-      span:last-child
+      span.header:nth-child(2)
         color: #35495e
+    .subheader
+      // font-family: 
+      padding: 0
+      font-size: 22px
     code
       font-size: 14px
       font-family: Consolas, Monaco, monospace
