@@ -35,7 +35,8 @@
     "rollup-plugin-stylus": "^1.0.3",
     "rollup-plugin-vue": "^2.4.0",
     "rollup-watch": "^4.0.0",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "url-loader": "^0.5.9"
   },
   "dependencies": {
     "eslint": "^4.0.0",

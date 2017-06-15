@@ -84,9 +84,40 @@ var root = _freeGlobal || freeSelf || Function('return this')();
  */
 
 var cropper = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", on: { "click": _vm.selectFile, "touchstart": _vm.handlePointerStart, "mousedown": _vm.handlePointerStart, "pointerstart": _vm.handlePointerStart, "touchend": _vm.handlePointerEnd, "touchcancel": _vm.handlePointerEnd, "mouseup": _vm.handlePointerEnd, "pointerend": _vm.handlePointerEnd, "pointercancel": _vm.handlePointerEnd, "touchmove": _vm.handlePointerMove, "mousemove": _vm.handlePointerMove, "pointermove": _vm.handlePointerMove, "DOMMouseScroll": _vm.handleWheel, "mousewheel": _vm.handleWheel } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.width / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "t": "1497460039530", "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "p-id": "1074", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.width / 10, "height": _vm.width / 10 }, on: { "click": _vm.unset } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "p-id": "1075", "fill": "red" } })]) : _vm._e()]);
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": "image/*", "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", on: { "click": _vm.selectFile, "touchstart": function touchstart($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
+        }, "mousedown": function mousedown($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
+        }, "pointerstart": function pointerstart($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
+        }, "touchend": function touchend($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
+        }, "touchcancel": function touchcancel($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
+        }, "mouseup": function mouseup($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
+        }, "pointerend": function pointerend($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
+        }, "pointercancel": function pointercancel($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
+        }, "touchmove": function touchmove($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
+        }, "mousemove": function mousemove($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
+        }, "pointermove": function pointermove($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
+        }, "DOMMouseScroll": function DOMMouseScroll($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
+        }, "mousewheel": function mousewheel($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
+        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "t": "1497460039530", "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "p-id": "1074", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.width / 10, "height": _vm.width / 10 }, on: { "click": _vm.unset } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "p-id": "1075", "fill": "red" } })]) : _vm._e()]);
   }, staticRenderFns: [],
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
+    value: Object,
     width: Number,
     height: Number,
     placeholder: String,
@@ -104,12 +135,14 @@ var cropper = { render: function render() {
         return val > 0;
       }
     },
-    noWhiteSpace: Boolean,
+    reverseZoomingGesture: Boolean,
+    preventWhiteSpace: Boolean,
     showRemoveButton: Boolean
   },
 
   data: function data() {
     return {
+      instance: null,
       canvas: null,
       ctx: null,
       img: null,
@@ -136,17 +169,22 @@ var cropper = { render: function render() {
 
 
   watch: {
+    value: function value(val) {
+      this.instance = val;
+    },
     canvasWidth: 'init',
     canvasHeight: 'init',
     canvasColor: 'init',
     placeholder: 'init',
     placeholderColor: 'init',
     placeholderFontSize: 'init',
-    noWhiteSpace: 'imgContentInit'
+    preventWhiteSpace: 'imgContentInit'
   },
 
   methods: {
     init: function init() {
+      var _this = this;
+
       this.canvas = this.$refs.canvas;
       this.canvas.width = this.canvasWidth;
       this.canvas.height = this.canvasHeight;
@@ -155,7 +193,19 @@ var cropper = { render: function render() {
       this.canvas.style.height = this.height + 'px';
       this.ctx = this.canvas.getContext('2d');
       this.unset();
-      this.$emit('init', {
+      this.$emit('change', {
+        getCanvas: function getCanvas() {
+          return _this.canvas;
+        },
+        getContext: function getContext() {
+          return _this.ctx;
+        },
+        getImage: function getImage() {
+          return _this.img;
+        },
+        getImageData: function getImageData() {
+          return _this.imgData;
+        },
         reset: this.unset,
         selectFile: this.selectFile,
         generateDataUrl: this.generateDataUrl
@@ -181,7 +231,7 @@ var cropper = { render: function render() {
       this.$refs.fileInput.click();
     },
     handleInputChange: function handleInputChange() {
-      var _this = this;
+      var _this2 = this;
 
       var input = this.$refs.fileInput;
       if (!input.files.length) return;
@@ -192,8 +242,8 @@ var cropper = { render: function render() {
         var img = new Image();
         img.src = fileData;
         img.onload = function () {
-          _this.img = img;
-          _this.imgContentInit();
+          _this2.img = img;
+          _this2.imgContentInit();
         };
       };
 
@@ -204,7 +254,9 @@ var cropper = { render: function render() {
       this.imgData.startY = 0;
       var imgWidth = this.img.naturalWidth;
       var imgHeight = this.img.naturalHeight;
-      if (imgWidth > imgHeight) {
+      var imgRatio = imgHeight / imgWidth;
+      var canvasRatio = this.canvasHeight / this.canvasWidth;
+      if (imgRatio < canvasRatio) {
         var ratio = imgHeight / this.canvasHeight;
         this.imgData.width = imgWidth / ratio;
         this.imgData.startX = -(this.imgData.width - this.canvasWidth) / 2;
@@ -220,6 +272,34 @@ var cropper = { render: function render() {
     handlePointerStart: function handlePointerStart(evt) {
       if (evt.which && evt.which > 1) return;
       this.dragging = true;
+
+      if (document) {
+        var cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel'];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = cancelEvents[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var e = _step.value;
+
+            document.addEventListener(e, this.handlePointerEnd);
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      }
     },
     handlePointerEnd: function handlePointerEnd(evt) {
       this.dragging = false;
@@ -237,34 +317,37 @@ var cropper = { render: function render() {
       this.lastMovingCoord = coord;
     },
     handleWheel: function handleWheel(evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
       var coord = u.getPointerCoords(evt, this);
       if (evt.wheelDelta < 0 || evt.detail < 0) {
         // 手指向上
-        this.zoom(true, coord);
+        this.zoom(this.reverseZoomingGesture, coord);
       } else if (evt.wheelDelta > 0 || evt.detail > 0) {
         // 手指向下
-        this.zoom(false, coord);
+        this.zoom(!this.reverseZoomingGesture, coord);
       }
     },
     move: function move(offset) {
       if (!offset) return;
       this.imgData.startX += offset.x;
       this.imgData.startY += offset.y;
-      var stopit = false;
-      if (this.noWhiteSpace) {
-        if (this.imgData.startX > 0 || this.canvasWidth - this.imgData.startX > this.imgData.width) {
-          this.imgData.startX -= offset.x;
-          stopit = true;
-        }
-        if (this.imgData.startY > 0 || this.canvasHeight - this.imgData.startY > this.imgData.height) {
-          this.imgData.startY -= offset.y;
-          stopit = true;
-        }
+      if (this.preventWhiteSpace) {
+        this.preventMovingToWhiteSpace();
       }
-      if (stopit) return;
       this.draw();
+    },
+    preventMovingToWhiteSpace: function preventMovingToWhiteSpace() {
+      if (this.imgData.startX > 0) {
+        this.imgData.startX = 0;
+      }
+      if (this.imgData.startY > 0) {
+        this.imgData.startY = 0;
+      }
+      if (this.canvasWidth - this.imgData.startX > this.imgData.width) {
+        this.imgData.startX = -(this.imgData.width - this.canvasWidth);
+      }
+      if (this.canvasHeight - this.imgData.startY > this.imgData.height) {
+        this.imgData.startY = -(this.imgData.height - this.canvasHeight);
+      }
     },
     zoom: function zoom(zoomIn, pos) {
       var speed = this.canvasWidth / 100000 * this.zoomSpeed;
@@ -281,20 +364,19 @@ var cropper = { render: function render() {
       this.imgData.startX = this.imgData.startX - offsetX;
       this.imgData.startY = this.imgData.startY - offsetY;
 
-      if (this.noWhiteSpace) {
+      if (this.preventWhiteSpace) {
         if (this.imgData.width < this.canvasWidth) {
           var _x = this.canvasWidth / this.imgData.width;
           this.imgData.width = this.canvasWidth;
           this.imgData.height = this.imgData.height * _x;
-          this.imgData.startX = this.imgData.startY = 0;
         }
 
         if (this.imgData.height < this.canvasHeight) {
           var _x2 = this.canvasHeight / this.imgData.height;
-          this.imgData.width = this.canvasHeight;
-          this.imgData.height = this.imgData.height * _x2;
-          this.imgData.startX = this.imgData.startY = 0;
+          this.imgData.height = this.canvasHeight;
+          this.imgData.width = this.imgData.width * _x2;
         }
+        this.preventMovingToWhiteSpace();
       }
       this.draw();
     },

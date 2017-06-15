@@ -1,9 +1,12 @@
 <template>
   <v-app>
+    <h2>
+      <span>Vue</span>
+      <span>Croppa</span>
+    </h2>
     <v-layout row
               wrap>
       <v-flex xs6>
-        <h2>Vue Croppa</h2>
         <v-layout row
                   wrap>
           <v-flex xs9>
@@ -96,8 +99,8 @@
         <v-layout row
                   wrap>
           <v-flex xs9>
-            <v-switch v-bind:label="`noWhiteSpace: ${noWhiteSpace.toString()}`"
-                      v-model="noWhiteSpace"></v-switch>
+            <v-switch v-bind:label="`preventWhiteSpace: ${preventWhiteSpace.toString()}`"
+                      v-model="preventWhiteSpace"></v-switch>
           </v-flex>
         </v-layout>
         <v-layout row
@@ -107,10 +110,18 @@
                       v-model="showRemoveButton"></v-switch>
           </v-flex>
         </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
+            <v-switch v-bind:label="`reverseZoomingGesture: ${reverseZoomingGesture.toString()}`"
+                      v-model="reverseZoomingGesture"></v-switch>
+          </v-flex>
+        </v-layout>
       </v-flex>
   
       <v-flex xs6>
-        <croppa :width="width"
+        <croppa v-model="myCroppa"
+                :width="width"
                 :height="height"
                 :canvas-color="canvasColor"
                 :placeholder="placeholder"
@@ -118,13 +129,37 @@
                 :placeholder-color="placeholderColor"
                 :quality="quality"
                 :zoom-speed="zoomSpeed"
-                :no-white-space="noWhiteSpace"
+                :prevent-white-space="preventWhiteSpace"
                 :show-remove-button="showRemoveButton"
-                @init="onCroppaInit"></croppa>
+                :reverse-zooming-gesture="reverseZoomingGesture"></croppa>
+        <br>
+        <br>
+        <h5>Template Example</h5>
+        <pre v-highlightjs="code"><code class="html"></code></pre>
+        <br>
+        <v-divider></v-divider>
+        <br>
+        <h5>Method Example</h5>
+        <v-layout row
+                  wrap>
+          <v-flex xs12>
+            <pre v-highlightjs="methodExample1"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="reset">Reset</v-btn>
+          </v-flex>
+        </v-layout>
+        <br>
+        <v-layout row
+                  wrap>
+          <v-flex xs12>
+            <pre v-highlightjs="methodExample2"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="getDataUrl">Data Url</v-btn>
+          </v-flex>
+        </v-layout>
       </v-flex>
-  
-      <button @click="getDataUrl">获取地址</button>
-      <button @click="reset">重置</button>
     </v-layout>
   </v-app>
 </template>
@@ -143,9 +178,40 @@
         placeholderColor: 'default',
         quality: 2,
         zoomSpeed: 3,
-        noWhiteSpace: false,
-        showRemoveButton: false
+        preventWhiteSpace: false,
+        showRemoveButton: true,
+        reverseZoomingGesture: false
       }
+    },
+
+    computed: {
+      code () {
+        return `\
+  <croppa v-model="myCroppa" 
+          :width="${this.width}"
+          :height="${this.height}"
+          :canvas-color="${this.canvasColor}"
+          :placeholder="${this.placeholder}"
+          :placeholder-font-size="${this.placeholderFontSize}"
+          :placeholder-color="${this.placeholderColor}"
+          :quality="${this.quality}"
+          :zoom-speed="${this.zoomSpeed}"
+          :prevent-white-space="${this.preventWhiteSpace}"
+          :show-remove-button="${this.showRemoveButton}"
+          :reverse-zooming-gesture="${this.reverseZoomingGesture}"></croppa>`
+      },
+
+      methodExample1 () {
+        return `this.myCroppa.reset()`
+      },
+
+      methodExample2 () {
+        return `alert(this.myCroppa.generateDataUrl())`
+      }
+    },
+
+    updated () {
+      // hljs.initHighlightingOnLoad()
     },
 
     methods: {
@@ -154,7 +220,7 @@
       },
 
       getDataUrl () {
-        this.myCroppa && console.log(this.myCroppa.generateDataUrl())
+        this.myCroppa && alert(this.myCroppa.generateDataUrl())
       },
 
       reset () {
@@ -165,6 +231,31 @@
 </script>
 
 <style lang="stylus">
+  // /* latin-ext */
+  // @font-face {
+  //   font-family: 'Black Ops One';
+  //   font-style: normal;
+  //   font-weight: 400;
+  //   src: local('Black Ops One'), local('BlackOpsOne-Regular'), url('assets/BlackOpsOne-Regular.ttf') format('ttf');
+  //   unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+  // }
+  /* latin */
+  @font-face {
+    font-family: 'Black Ops One';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Black Ops One'), local('BlackOpsOne-Regular'), url(https://fonts.gstatic.com/s/blackopsone/v7/2XW-DmDsGbDLE372KrMW1TxObtw73-qQgbr7Be51v5c.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+  }
   #app
     padding: 16px
+    h2
+      font-family: 'Black Ops One', cursive
+      span:first-child
+        color: #41b883
+      span:last-child
+        color: #35495e
+    code
+      font-size: 14px
+      font-family: Consolas, Monaco, monospace
 </style>

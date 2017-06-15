@@ -1,2 +1,2 @@
 # vue-croppa
-A simple straightforward image cropper for vue.js.
+A simple straightforward customizable image cropper for vue.js.

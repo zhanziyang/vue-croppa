@@ -7,26 +7,24 @@
            @change="handleInputChange" />
     <canvas ref="canvas"
             @click="selectFile"
-            @touchstart="handlePointerStart"
-            @mousedown="handlePointerStart"
-            @pointerstart="handlePointerStart"
-            @touchend="handlePointerEnd"
-            @touchcancel="handlePointerEnd"
-            @mouseup="handlePointerEnd"
-            @pointerend="handlePointerEnd"
-            @pointercancel="handlePointerEnd"
-            @touchmove="handlePointerMove"
-            @mousemove="handlePointerMove"
-            @pointermove="handlePointerMove"
-            @DOMMouseScroll="handleWheel"
-            @mousewheel="handleWheel"></canvas>
-    <!--<?xml version="1.0" standalone="no"?>-->
-    <!--<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">-->
+            @touchstart.stop.prevent="handlePointerStart"
+            @mousedown.stop.prevent="handlePointerStart"
+            @pointerstart.stop.prevent="handlePointerStart"
+            @touchend.stop.prevent="handlePointerEnd"
+            @touchcancel.stop.prevent="handlePointerEnd"
+            @mouseup.stop.prevent="handlePointerEnd"
+            @pointerend.stop.prevent="handlePointerEnd"
+            @pointercancel.stop.prevent="handlePointerEnd"
+            @touchmove.stop.prevent="handlePointerMove"
+            @mousemove.stop.prevent="handlePointerMove"
+            @pointermove.stop.prevent="handlePointerMove"
+            @DOMMouseScroll.stop.prevent="handleWheel"
+            @mousewheel.stop.prevent="handleWheel"></canvas>
     <svg t="1497460039530"
          class="icon icon-remove"
          v-if="showRemoveButton && img"
          @click="unset"
-         :style="`top: -${width/40}px; right: -${width/40}px`"
+         :style="`top: -${height/40}px; right: -${width/40}px`"
          viewBox="0 0 1024 1024"
          version="1.1"
          xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +44,12 @@
   import debounce from 'lodash/debounce'
 
   export default {
+    model: {
+      prop: 'value',
+      event: 'change'
+    },
     props: {
+      value: Object,
       width: Number,
       height: Number,
       placeholder: String,
@@ -64,12 +67,14 @@
           return val > 0
         }
       },
-      noWhiteSpace: Boolean,
+      reverseZoomingGesture: Boolean,
+      preventWhiteSpace: Boolean,
       showRemoveButton: Boolean
     },
 
     data () {
       return {
+        instance: null,
         canvas: null,
         ctx: null,
         img: null,
@@ -95,13 +100,16 @@
     },
 
     watch: {
+      value: function (val) {
+        this.instance = val
+      },
       canvasWidth: 'init',
       canvasHeight: 'init',
       canvasColor: 'init',
       placeholder: 'init',
       placeholderColor: 'init',
       placeholderFontSize: 'init',
-      noWhiteSpace: 'imgContentInit'
+      preventWhiteSpace: 'imgContentInit'
     },
 
     methods: {
@@ -114,7 +122,11 @@
         this.canvas.style.height = this.height + 'px'
         this.ctx = this.canvas.getContext('2d')
         this.unset()
-        this.$emit('init', {
+        this.$emit('change', {
+          getCanvas: () => this.canvas,
+          getContext: () => this.ctx,
+          getImage: () => this.img,
+          getImageData: () => this.imgData,
           reset: this.unset,
           selectFile: this.selectFile,
           generateDataUrl: this.generateDataUrl
@@ -166,7 +178,9 @@
         this.imgData.startY = 0
         let imgWidth = this.img.naturalWidth
         let imgHeight = this.img.naturalHeight
-        if (imgWidth > imgHeight) {
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.canvasHeight / this.canvasWidth
+        if (imgRatio < canvasRatio) {
           let ratio = imgHeight / this.canvasHeight
           this.imgData.width = imgWidth / ratio
           this.imgData.startX = -(this.imgData.width - this.canvasWidth) / 2
@@ -183,6 +197,13 @@
       handlePointerStart (evt) {
         if (evt.which && evt.which > 1) return
         this.dragging = true
+
+        if (document) {
+          let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
+          for (let e of cancelEvents) {
+            document.addEventListener(e, this.handlePointerEnd)
+          }
+        }
       },
 
       handlePointerEnd (evt) {
@@ -203,15 +224,13 @@
       },
 
       handleWheel (evt) {
-        evt.preventDefault()
-        evt.stopPropagation()
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.detail < 0) {
           // 手指向上
-          this.zoom(true, coord)
+          this.zoom(this.reverseZoomingGesture, coord)
         } else if (evt.wheelDelta > 0 || evt.detail > 0) {
           // 手指向下
-          this.zoom(false, coord)
+          this.zoom(!this.reverseZoomingGesture, coord)
         }
       },
 
@@ -219,19 +238,25 @@
         if (!offset) return
         this.imgData.startX += offset.x
         this.imgData.startY += offset.y
-        let stopit = false
-        if (this.noWhiteSpace) {
-          if (this.imgData.startX > 0 || this.canvasWidth - this.imgData.startX > this.imgData.width) {
-            this.imgData.startX -= offset.x
-            stopit = true
-          }
-          if (this.imgData.startY > 0 || this.canvasHeight - this.imgData.startY > this.imgData.height) {
-            this.imgData.startY -= offset.y
-            stopit = true
-          }
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace()
         }
-        if (stopit) return
         this.draw()
+      },
+
+      preventMovingToWhiteSpace () {
+        if (this.imgData.startX > 0) {
+          this.imgData.startX = 0
+        }
+        if (this.imgData.startY > 0) {
+          this.imgData.startY = 0
+        }
+        if (this.canvasWidth - this.imgData.startX > this.imgData.width) {
+          this.imgData.startX = - (this.imgData.width - this.canvasWidth)
+        }
+        if (this.canvasHeight - this.imgData.startY > this.imgData.height) {
+          this.imgData.startY = - (this.imgData.height - this.canvasHeight)
+        }
       },
 
       zoom (zoomIn, pos) {
@@ -249,20 +274,19 @@
         this.imgData.startX = this.imgData.startX - offsetX
         this.imgData.startY = this.imgData.startY - offsetY
 
-        if (this.noWhiteSpace) {
+        if (this.preventWhiteSpace) {
           if (this.imgData.width < this.canvasWidth) {
             let _x = this.canvasWidth / this.imgData.width
             this.imgData.width = this.canvasWidth
             this.imgData.height = this.imgData.height * _x
-            this.imgData.startX = this.imgData.startY = 0
           }
 
           if (this.imgData.height < this.canvasHeight) {
             let _x = this.canvasHeight / this.imgData.height
-            this.imgData.width = this.canvasHeight
-            this.imgData.height = this.imgData.height * _x
-            this.imgData.startX = this.imgData.startY = 0
+            this.imgData.height = this.canvasHeight
+            this.imgData.width = this.imgData.width * _x
           }
+          this.preventMovingToWhiteSpace()
         }
         this.draw()
       },
