@@ -41,7 +41,6 @@
 
 <script>
   import u from './util'
-  import debounce from 'lodash/debounce'
 
   export default {
     model: {
@@ -132,7 +131,6 @@
           generateDataUrl: this.generateDataUrl
         })
       },
-
 
       unset () {
         let ctx = this.ctx
@@ -317,7 +315,6 @@
       opacity: .7
     &.croppa--has-target
       cursor: move
-      // cursor: -moz-grab
       &:hover
         opacity: 1
     svg.icon-remove
