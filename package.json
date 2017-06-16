@@ -1,11 +1,11 @@
 {
   "name": "vue-croppa",
-  "version": "1.0.0",
-  "description": "A simple straightforward image cropper for vue.js.",
+  "version": "0.0.1",
+  "description": "A simple straightforward customizable image cropper for vue.js.",
   "main": "dist/vue-croppa.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c",
+    "build": "rollup -c --environment BUILD:production",
     "dev": "rollup -c -w"
   },
   "repository": {
@@ -16,30 +16,47 @@
     "cropper",
     "vue",
     "image",
-    "crop"
+    "crop",
+    "upload",
+    "vue-cropper",
+    "vue cropper",
+    "image cropper",
+    "vue plugin"
   ],
   "author": "zhanziyang",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/zhanziyang/vue-croppa/issues"
   },
-  "homepage": "https://github.com/zhanziyang/vue-croppa#readme",
+  "homepage": "https://zhanziyang.github.io/vue-croppa/index.html",
   "devDependencies": {
+    "autoprefixer": "^7.1.1",
+    "babel-eslint": "^7.2.3",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-latest": "^6.24.1",
+    "eslint": "^3.19.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-html": "^3.0.0",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-node": "^5.0.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "postcss": "^6.0.2",
     "rollup": "^0.43.0",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-eslint": "^3.0.0",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-stylus": "^1.0.3",
+    "rollup-plugin-uglify": "^2.0.1",
     "rollup-plugin-vue": "^2.4.0",
     "rollup-watch": "^4.0.0",
     "stylus": "^0.54.5",
-    "url-loader": "^0.5.9"
+    "url-loader": "^0.5.9",
+    "vue": "^2.3.4"
   },
   "dependencies": {
-    "eslint": "^4.0.0",
     "lodash": "^4.17.4"
   }
 }

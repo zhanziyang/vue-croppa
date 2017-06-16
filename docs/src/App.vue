@@ -162,10 +162,48 @@
         </v-layout>
       </v-flex>
     </v-layout>
+    <br>
+    <v-divider></v-divider>
+    <br>
+    <v-layout row
+              wrap>
+      <v-flex xs8
+              offset-xs2>
+        <h4>Quick Start</h4>
+        <v-layout row
+                  wrap>
+          <v-flex xs5>
+            <pre v-highlightjs="'import \'vue-croppa/dist/vue-croppa.css\''"><code class="javascript"></code></pre>
+          </v-flex>
+          <v-flex xs1
+                  class="text-xs-center">
+            <h5>or</h5>
+          </v-flex>
+          <v-flex xs6>
+            <pre v-highlightjs="installStyle"><code class="html"></code></pre>
+          </v-flex>
+        </v-layout>
+        <br>
+        <v-layout row
+                  wrap>
+          <v-flex xs5>
+            <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
+          </v-flex>
+          <v-flex xs1
+                  class="text-xs-center">
+            <h5>or</h5>
+          </v-flex>
+          <v-flex xs6>
+            <pre v-highlightjs="installTags"><code class="html"></code></pre>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </v-app>
 </template>
 
 <script>
+  /* eslint no-useless-escape: 'off' */
   export default {
     name: 'app',
     data () {
@@ -208,6 +246,16 @@
 
       methodExample2 () {
         return `alert(this.myCroppa.generateDataUrl())`
+      },
+
+      installStyle () {
+        return '<link href="https://unpkg.com/vue-croppa/dist/vue-croppa.css" rel="stylesheet" type="text/css">'
+      },
+
+      installTags () {
+        return `\
+  <script src="https://unpkg.com/vue-croppa/dist/vue-croppa.js"><\/script>
+        `
       }
     },
 
@@ -232,14 +280,6 @@
 </script>
 
 <style lang="stylus">
-  // /* latin-ext */
-  // @font-face {
-  //   font-family: 'Black Ops One';
-  //   font-style: normal;
-  //   font-weight: 400;
-  //   src: local('Black Ops One'), local('BlackOpsOne-Regular'), url('assets/BlackOpsOne-Regular.ttf') format('ttf');
-  //   unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
-  // }
   /* latin */
   @font-face {
     font-family: 'Black Ops One';

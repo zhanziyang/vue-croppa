@@ -1,4 +1,3 @@
-import { version } from '../package.json'
 import cropper from './cropper.vue'
 
 const VueCroppa = {
