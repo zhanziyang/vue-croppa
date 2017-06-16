@@ -5,6 +5,8 @@
       <span class="header">Croppa</span>
       <span class="subheader">A simple straightforward customizable image cropper for vue.js.</span>
     </h2>
+    <v-divider></v-divider>
+    <br>
     <v-layout row
               wrap>
       <v-flex xs6>
@@ -72,6 +74,23 @@
         <v-layout row
                   wrap>
           <v-flex xs9>
+            <v-text-field name="inputAccept"
+                          label="inputAccept"
+                          v-model="inputAccept"></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
+            <v-text-field name="fileSizeLimit"
+                          label="fileSizeLimit (byte)"
+                          type="number"
+                          v-model="fileSizeLimit"></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
             <v-slider v-model="quality"
                       label="quality"
                       :max="5"
@@ -107,6 +126,20 @@
         <v-layout row
                   wrap>
           <v-flex xs9>
+            <v-switch v-bind:label="`reverseZoomingGesture: ${reverseZoomingGesture.toString()}`"
+                      v-model="reverseZoomingGesture"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
+            <v-switch v-bind:label="`disabled: ${disabled.toString()}`"
+                      v-model="disabled"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
             <v-switch v-bind:label="`showRemoveButton: ${showRemoveButton.toString()}`"
                       v-model="showRemoveButton"></v-switch>
           </v-flex>
@@ -114,8 +147,18 @@
         <v-layout row
                   wrap>
           <v-flex xs9>
-            <v-switch v-bind:label="`reverseZoomingGesture: ${reverseZoomingGesture.toString()}`"
-                      v-model="reverseZoomingGesture"></v-switch>
+            <v-select v-bind:items="['red', 'black', 'purple', '#ffc107', 'rgb(0, 150, 136)']"
+                      v-model="removeButtonColor"
+                      label="removeButtonColor"></v-select>
+          </v-flex>
+        </v-layout>
+        <v-layout row
+                  wrap>
+          <v-flex xs9>
+            <v-text-field name="removeButtonSize"
+                          label="removeButtonSize (px)"
+                          type="number"
+                          v-model="removeButtonSize"></v-text-field>
           </v-flex>
         </v-layout>
       </v-flex>
@@ -130,9 +173,19 @@
                 :placeholder-color="placeholderColor"
                 :quality="quality"
                 :zoom-speed="zoomSpeed"
+                :input-accept="inputAccept"
+                :file-size-limit="fileSizeLimit"
                 :prevent-white-space="preventWhiteSpace"
+                :reverse-zooming-gesture="reverseZoomingGesture"
+                :disabled="disabled"
                 :show-remove-button="showRemoveButton"
-                :reverse-zooming-gesture="reverseZoomingGesture"></croppa>
+                :remove-button-color="removeButtonColor"
+                :remove-button-size="removeButtonSize"
+                @init="handleCroppaInit"
+                @file-choose="handleCroppaFileChoose"
+                @file-size-exceed="handleCroppaFileSizeExceed"
+                @move="handleCroppaMove"
+                @zoom="handleCroppaZoom"></croppa>
         <br>
         <br>
         <h5>Template Example</h5>
@@ -170,6 +223,22 @@
       <v-flex xs8
               offset-xs2>
         <h4>Quick Start</h4>
+        <p>1. Install with npm or include it directly.</p>
+        <v-layout row
+                  wrap>
+          <v-flex xs5>
+            <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
+          </v-flex>
+          <v-flex xs1
+                  class="text-xs-center">
+            <h5>or</h5>
+          </v-flex>
+          <v-flex xs6>
+            <pre v-highlightjs="installTags"><code class="html"></code></pre>
+          </v-flex>
+        </v-layout>
+        <br>
+        <p>2. If your build tool supports css module, import it as left below. Or simply include the file in your HTML.</p>
         <v-layout row
                   wrap>
           <v-flex xs5>
@@ -184,17 +253,19 @@
           </v-flex>
         </v-layout>
         <br>
+        <p>3. Register it as a vue plugin.</p>
         <v-layout row
                   wrap>
-          <v-flex xs5>
-            <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
+          <v-flex xs12>
+            <pre v-highlightjs="vueRegistry"><code class="javascript"></code></pre>
           </v-flex>
-          <v-flex xs1
-                  class="text-xs-center">
-            <h5>or</h5>
-          </v-flex>
-          <v-flex xs6>
-            <pre v-highlightjs="installTags"><code class="html"></code></pre>
+        </v-layout>
+        <br>
+        <p>4. Now you have it. The simplest usage: </p>
+        <v-layout row
+                  wrap>
+          <v-flex xs12>
+            <pre v-highlightjs="simplestUsage"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
       </v-flex>
@@ -212,21 +283,26 @@
         width: 400,
         height: 400,
         canvasColor: 'default',
-        placeholder: 'Click To Upload',
+        placeholder: 'Choose File',
         placeholderFontSize: 0,
         placeholderColor: 'default',
         quality: 2,
         zoomSpeed: 3,
+        inputAccept: 'image/*',
+        fileSizeLimit: 0,
+        disabled: false,
         preventWhiteSpace: false,
+        reverseZoomingGesture: false,
         showRemoveButton: true,
-        reverseZoomingGesture: false
+        removeButtonColor: 'red',
+        removeButtonSize: 0
       }
     },
 
     computed: {
       code () {
         return `\
-  <croppa v-model="myCroppa" 
+  <croppa v-model="myCroppa"
           :width="${this.width}"
           :height="${this.height}"
           :canvas-color="${this.canvasColor}"
@@ -235,9 +311,19 @@
           :placeholder-color="${this.placeholderColor}"
           :quality="${this.quality}"
           :zoom-speed="${this.zoomSpeed}"
+          :input-accept="${this.inputAccept}"
+          :file-size-limit="${this.fileSizeLimit}"
           :prevent-white-space="${this.preventWhiteSpace}"
+          :reverse-zooming-gesture="${this.reverseZoomingGesture}"
+          :disabled="${this.disabled}"
           :show-remove-button="${this.showRemoveButton}"
-          :reverse-zooming-gesture="${this.reverseZoomingGesture}"></croppa>`
+          :remove-button-color="${this.removeButtonColor}"
+          :remove-button-size="${this.removeButtonSize}"
+          @init="handleCroppaInit"
+          @file-choose="handleCroppaFileChoose"
+          @file-size-exceed="handleCroppaFileSizeExceed"
+          @move="handleCroppaMove"
+          @zoom="handleCroppaZoom"></croppa>`
       },
 
       methodExample1 () {
@@ -254,8 +340,21 @@
 
       installTags () {
         return `\
-  <script src="https://unpkg.com/vue-croppa/dist/vue-croppa.js"><\/script>
+  <script src="https://unpkg.com/vue-croppa/dist/vue-croppa.js"><\/script>\
         `
+      },
+
+      vueRegistry () {
+        return `import Vue from 'vue'
+  import Croppa from 'vue-croppa'
+
+  Vue.use(Croppa)\
+        `
+      },
+
+      simplestUsage () {
+        return `\
+  <croppa v-model="myCroppa"></croppa>`
       }
     },
 
@@ -264,16 +363,34 @@
     },
 
     methods: {
-      onCroppaInit (myCroppa) {
-        this.myCroppa = myCroppa
-      },
-
       getDataUrl () {
         this.myCroppa && alert(this.myCroppa.generateDataUrl())
       },
 
       reset () {
         this.myCroppa && this.myCroppa.reset()
+      },
+
+      handleCroppaInit () {
+        console.log('init')
+      },
+
+      handleCroppaFileChoose (file) {
+        console.log('file chose')
+        console.log(file)
+      },
+
+      handleCroppaFileSizeExceed (file) {
+        console.log('file size exceeded')
+        console.log(file)
+      },
+
+      handleCroppaMove () {
+        console.log('moved')
+      },
+
+      handleCroppaZoom () {
+        console.log('zoomed')
       }
     }
   }

@@ -14,6 +14,12 @@
 .croppa-container.croppa--has-target:hover {
   opacity: 1;
 }
+.croppa-container.croppa--disabled {
+  cursor: not-allowed;
+}
+.croppa-container.croppa--disabled:hover {
+  opacity: 1;
+}
 .croppa-container svg.icon-remove {
   position: absolute;
   background: #fff;
@@ -22,6 +28,7 @@
           box-shadow: -2px 2px 6px rgba(0,0,0,0.7);
   z-index: 10;
   cursor: pointer;
+  border: 2px solid #fff;
 }
 .image {
   max-width: 100%;
