@@ -68,7 +68,7 @@ var props = {
     type: Number,
     default: 2,
     validator: function validator(val) {
-      return Number.isInteger(val) && val > 0 && val <= 5;
+      return Number.isInteger(val) && val > 0;
     }
   },
   zoomSpeed: {
