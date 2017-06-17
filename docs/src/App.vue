@@ -4,6 +4,10 @@
       <span class="header">Vue</span>
       <span class="header">Croppa</span>
       <span class="subheader">A simple straightforward customizable image cropper for vue.js.</span>
+      <a href="https://github.com/zhanziyang/vue-croppa">
+        <img src="/static/github.png"
+             alt="">
+      </a>
     </h2>
     <v-divider></v-divider>
     <br>
@@ -165,7 +169,7 @@
         </v-layout>
       </v-flex>
       <v-flex xs6>
-        <h5>Preview
+        <h5>Try It Out
           <span>
             <em :class="disabled || disableClickToChoose ? 's' : ''">Click to choose file</em> |
             <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
@@ -179,16 +183,16 @@
                 :placeholder="placeholder"
                 :placeholder-font-size="placeholderFontSize"
                 :placeholder-color="placeholderColor"
-                :quality="quality"
-                :zoom-speed="zoomSpeed"
                 :input-accept="accept"
                 :file-size-limit="fileSizeLimit"
+                :quality="quality"
+                :zoom-speed="zoomSpeed"
+                :disabled="disabled"
+                :disable-click-to-choose="disableClickToChoose"
+                :disable-drag-to-move="disableDragToMove"
+                :disable-scroll-to-zoom="disableScrollToZoom"
                 :prevent-white-space="preventWhiteSpace"
                 :reverse-zooming-gesture="reverseZoomingGesture"
-                :disabled="disabled"
-                :disable-click-to-choose="this.disableClickToChoose"
-                :disable-drag-to-move="this.disableDragToMove"
-                :disable-scroll-to-zoom="this.disableScrollToZoom"
                 :show-remove-button="showRemoveButton"
                 :remove-button-color="removeButtonColor"
                 :remove-button-size="removeButtonSize"
@@ -616,7 +620,8 @@
             <strong>init</strong>
             <p>handler(croppa):
               <code>croppa</code>
-              <span>is a croppa object to invoke methods - same as what v-model binds.</span>
+              <span>is a croppa object to invoke methods - same as what
+                <code>v-model</code> binds.</span>
             </p>
           </li>
           <li>
@@ -691,16 +696,16 @@
           :placeholder="${this.placeholder}"
           :placeholder-font-size="${this.placeholderFontSize}"
           :placeholder-color="${this.placeholderColor}"
-          :quality="${this.quality}"
-          :zoom-speed="${this.zoomSpeed}"
           :input-accept="${this.accept}"
           :file-size-limit="${this.fileSizeLimit}"
-          :prevent-white-space="${this.preventWhiteSpace}"
-          :reverse-zooming-gesture="${this.reverseZoomingGesture}"
+          :quality="${this.quality}"
+          :zoom-speed="${this.zoomSpeed}"
           :disabled="${this.disabled}"
-          :disable-click-choose="${this.disableClickToChoose}"
+          :disable-click-to-choose="${this.disableClickToChoose}"
           :disable-drag-to-move="${this.disableDragToMove}"
           :disable-scroll-to-zoom="${this.disableScrollToZoom}"
+          :prevent-white-space="${this.preventWhiteSpace}"
+          :reverse-zooming-gesture="${this.reverseZoomingGesture}"
           :show-remove-button="${this.showRemoveButton}"
           :remove-button-color="${this.removeButtonColor}"
           :remove-button-size="${this.removeButtonSize}"
@@ -796,12 +801,21 @@
   #app
     padding: 16px
     h2
+      position: relative
       span.header
         font-family: 'Black Ops One', cursive
       span.header:first-child
         color: #41b883
       span.header:nth-child(2)
         color: #35495e
+      img
+        position: absolute
+        right: 12px
+        width: 60px
+        bottom: 0px
+        transition: all .3s
+        &:hover
+          opacity: .7
     .subheader
       padding: 0
       font-size: 22px
