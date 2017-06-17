@@ -295,7 +295,7 @@ var cropper = { render: function render() {
     },
     fileSizeIsValid: function fileSizeIsValid(file) {
       if (!file) return false;
-      if (!this.fileSizeLimit) return true;
+      if (!this.fileSizeLimit || this.fileSizeLimit == 0) return true;
 
       return file.size < this.fileSizeLimit;
     },
