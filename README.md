@@ -5,7 +5,7 @@
 
 
 ## Template Example
-**NOTE:** This is an almost-full-use example. Usually you don't need to specify so many props, because they all have default values.
+
 ```html
 <croppa v-model="myCroppa"
         :width="400"
@@ -32,6 +32,10 @@
         @file-size-exceed="handleCroppaFileSizeExceed"
         @move="handleCroppaMove"
         @zoom="handleCroppaZoom"></croppa>
+```
+**NOTE:** This is an almost-full-use example. Usually you don't need to specify so many props to customize it, because they all have default values. Most simply, you can even do:
+```html
+<croppa v-model="myCroppa"></croppa>
 ```
 
 
@@ -83,7 +87,7 @@ Vue.use(Croppa)
 ### 🌱 Props
 
 #### v-model
-A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "Methods" section).
+A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "[Methods](#-methods)" section).
 - type: `object`
 - default: `null`
 
@@ -147,7 +151,7 @@ Disables user interaction.
 - default: `false`
 
 #### disable-click-to-choose
-Disables the default "click to Choose an image" user interaction. You can instead open the file chooser window programmatically by invoking `chooseFile()` method.
+Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by invoking `chooseFile()` method.
 - type: `boolean`
 - default: `false`
 
@@ -162,12 +166,12 @@ Disables the default "scroll to zoom" user interaction. You can instead zoom the
 - default: `false`
 
 #### reverse-zooming-gesture
-Reverses the zoom-in/zoom-out direction when scrolling.- type: `boolean`
+Reverses the zoom-in/zoom-out direction when scrolling.
 - type: `boolean`
 - default: `false`
 
 #### prevent-white-space
-Prevents revealing background white space when moving and zooming the image.
+Prevents revealing background white space when moving or zooming the image.
 - type: `boolean`
 - default: `false`
 

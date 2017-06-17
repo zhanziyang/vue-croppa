@@ -402,7 +402,7 @@
             <strong>accept</strong>
             <p class="pt-2">Limits the types of files that users can choose.</p>
             <p>
-              type: Same as what
+              type: same as what
               <code>accept</code> attribute of HTML
               <code>input</code> element takes.
             </p>
@@ -438,7 +438,7 @@
           </li>
           <li>
             <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to Choose an image" user interaction. You can instead open the file chooser window programmatically by invoking
+            <p class="pt-2">Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by invoking
               <code>chooseFile()</code> method.</p>
             <p>
               type:
@@ -493,7 +493,7 @@
           </li>
           <li>
             <strong>prevent-white-space</strong>
-            <p class="pt-2">Prevents revealing background white space when moving and zooming the image.</p>
+            <p class="pt-2">Prevents revealing background white space when moving or zooming the image.</p>
             <p>
               type:
               <code>boolean</code>
