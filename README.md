@@ -5,7 +5,7 @@
 
 
 ## Template Example
-
+**NOTE:** This is an almost-full-use example. Usually you don't need to specify so many props, because they all have default values.
 ```html
 <croppa v-model="myCroppa"
         :width="400"
