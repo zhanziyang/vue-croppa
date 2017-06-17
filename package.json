@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:full": "rollup -c --environment BUILD:production",
     "build:min": "rollup -c --environment BUILD:production-min",
-    "build": "npm run build:full && npm run build:min",
+    "build:doc": "rollup -c",
+    "build": "npm run build:full && npm run build:doc && npm run build:min",
     "dev": "rollup -c -w"
   },
   "repository": {
