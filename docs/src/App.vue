@@ -435,7 +435,8 @@
           </li>
           <li>
             <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to choose file" user interaction. You can instead open the file chooser window programmatically by invoking <code>chooseFile()</code> method.</p>
+            <p class="pt-2">Disables the default "click to choose file" user interaction. You can instead open the file chooser window programmatically by invoking
+              <code>chooseFile()</code> method.</p>
             <p>
               type:
               <code>boolean</code>
@@ -447,7 +448,11 @@
           </li>
           <li>
             <strong>disable-drag-to-move</strong>
-            <p class="pt-2">Disables the default "drag to move" user interaction. You can instead move the image programmatically by invoking <code>moveUpwards()</code>/<code>moveDownwards()</code>/<code>moveLeftwards()</code>/<code>moveRightwards()</code> methods.</p>
+            <p class="pt-2">Disables the default "drag to move" user interaction. You can instead move the image programmatically by invoking
+              <code>moveUpwards()</code>/
+              <code>moveDownwards()</code>/
+              <code>moveLeftwards()</code>/
+              <code>moveRightwards()</code> methods.</p>
             <p>
               type:
               <code>boolean</code>
@@ -459,7 +464,9 @@
           </li>
           <li>
             <strong>disable-scroll-to-zoom</strong>
-            <p class="pt-2">Disables the default "scroll to zoom" user interaction. You can instead zoom the image programmatically by invoking <code>zoomIn()</code>/<code>zoomOut()</code> methods.</p>
+            <p class="pt-2">Disables the default "scroll to zoom" user interaction. You can instead zoom the image programmatically by invoking
+              <code>zoomIn()</code>/
+              <code>zoomOut()</code> methods.</p>
             <p>
               type:
               <code>boolean</code>
@@ -593,6 +600,51 @@
             <p class="pt-1">Creates a Blob object representing the image contained in the canvas.</p>
             <p>Look up argument definition
               <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob">here</a>.</p>
+          </li>
+        </ul>
+      </v-flex>
+    </v-layout>
+    <br>
+    <br>
+    <v-layout row
+              wrap>
+      <v-flex xs8
+              offset-xs2>
+        <h6>🌱 Events</h6>
+        <ul>
+          <li>
+            <strong>init</strong>
+            <p>handler(croppa):
+              <code>croppa</code>
+              <span>is a croppa object to invoke methods - same as what v-model binds.</span>
+            </p>
+          </li>
+          <li>
+            <strong>file-choose</strong>:
+            <span>emitted when user choose a file from the poppup window.</span>
+            <p>handler(file):
+              <code>file</code>
+              <span>is a file object - same as what
+                <code>getChosenFile()</code> returns.</span>
+            </p>
+          </li>
+          <li>
+            <strong>file-size-exceed</strong>:
+            <span>emitted after file choosing if the chosen file's size exceeds the limit specified by prop
+              <code>fileSizeLimit</code>.</span>
+            <p>handler(file):
+              <code>file</code>
+              <span>is a file object - same as what
+                <code>getChosenFile()</code> returns.</span>
+            </p>
+          </li>
+          <li>
+            <strong>move</strong>
+            <p>handler(): no args</p>
+          </li>
+          <li>
+            <strong>zoom</strong>
+            <p>handler(): no args</p>
           </li>
         </ul>
       </v-flex>
