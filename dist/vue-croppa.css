@@ -8,11 +8,20 @@
 .croppa-container:hover {
   opacity: 0.7;
 }
+.croppa-container.croppa--disabled-cc {
+  cursor: default;
+}
+.croppa-container.croppa--disabled-cc:hover {
+  opacity: 1;
+}
 .croppa-container.croppa--has-target {
   cursor: move;
 }
 .croppa-container.croppa--has-target:hover {
   opacity: 1;
+}
+.croppa-container.croppa--has-target.croppa--disabled-mz {
+  cursor: default;
 }
 .croppa-container.croppa--disabled {
   cursor: not-allowed;

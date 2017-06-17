@@ -379,8 +379,7 @@
             </p>
             <p>
               valid:
-              <code style="white-space: nowrap">isInteger(val) && val > 0 && val
-                <=5 </code>
+              <code style="white-space: nowrap">isInteger(val) && val > 0</code>
             </p>
           </li>
           <li>
@@ -521,7 +520,8 @@
             <strong>remove-button-color</strong>
             <p class="pt-2">Changes the default color of the remove-button. Accepts any css color format.</p>
             <p>
-              type: string
+              type:
+              <code>string</code>
             </p>
             <p>
               default:
@@ -565,8 +565,8 @@
           <li>
             <strong>myCroppa.getActualImageSize()</strong>
             <p class="pt-1">Return an object
-              <code>{ width, height }</code> describing the real image size (preview size x
-              <code>quality</code>)</p>
+              <code>{ width, height }</code> describing the real image size (preview size
+              <code>* quality</code>)</p>
           </li>
           <li>
             <strong>myCroppa.moveUpwards( amountInPx: number )</strong>
@@ -601,8 +601,7 @@
           </li>
           <li>
             <strong>myCroppa.generateBlob( callback: function, mimeType: string, qualityArgument: number )</strong>
-            <p class="pt-1">Creates a Blob object representing the image contained in the canvas.</p>
-            <p>Look up argument definition
+            <p class="pt-1">Creates a Blob object representing the image contained in the canvas. Look up argument definition
               <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob">here</a>.</p>
           </li>
         </ul>
@@ -729,12 +728,12 @@
       },
 
       installStyle () {
-        return '<link href="https://unpkg.com/vue-croppa/dist/vue-croppa.css" rel="stylesheet" type="text/css">'
+        return '<link href="https://unpkg.com/vue-croppa/dist/vue-croppa.min.css" rel="stylesheet" type="text/css">'
       },
 
       installTags () {
         return `\
-  <script src="https://unpkg.com/vue-croppa/dist/vue-croppa.js"><\/script>\
+  <script src="https://unpkg.com/vue-croppa/dist/vue-croppa.min.js"><\/script>\
         `
       },
 

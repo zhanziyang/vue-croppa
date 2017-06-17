@@ -6,35 +6,52 @@ const vue = require('rollup-plugin-vue')
 const eslint = require('rollup-plugin-eslint')
 const uglify = require('rollup-plugin-uglify')
 const autoprefixer = require('autoprefixer')
+const clean = require('postcss-clean')
 const postcss = require('postcss')
 const fs = require('fs')
 
+let production = /^production/.test(process.env.BUILD)
+let min = process.env.BUILD === 'production-min'
+
 module.exports = {
   entry: 'src/main.js',
-  dest: `${process.env.BUILD === 'production' ? 'dist' : 'docs/croppa'}/vue-croppa.js`,
+  dest: `${production ? 'dist' : 'docs/croppa'}/vue-croppa${min ? '.min' : ''}.js`,
   format: 'umd',
   moduleName: 'Croppa',
-  sourceMap: process.env.BUILD === 'production' ? false : 'inline',
+  sourceMap: production ? false : 'inline',
+  banner: `\
+/*
+ * vue-croppa v0.0.3
+ * https://github.com/zhanziyang/vue-croppa
+ * 
+ * Copyright (c) 2017 zhanziyang
+ * Released under the ISC license
+ */
+  `,
   plugins: [
     commentjs(),
     resolve(),
     json(),
     vue({
       css: function (css, allStyles, compile) {
-        postcss([autoprefixer]).process(css).then(function (result) {
+        postcss(min ? [autoprefixer, clean] : [autoprefixer]).process(css).then(function (result) {
           result.warnings().forEach(function (warn) {
             console.warn(warn.toString())
           })
-          fs.writeFile(`${process.env.BUILD === 'production' ? 'dist' : 'docs/croppa'}/vue-croppa.css`, result.css, (err) => {
+          fs.writeFile(`${production ? 'dist' : 'docs/croppa'}/vue-croppa${min ? '.min' : ''}.css`, result.css, (err) => {
             if (err) throw err
           })
         })
       }
     }),
-    (process.env.BUILD === 'production' && eslint()),
+    (production && eslint()),
     babel({
-      exclude: 'node_modules/**' // only transpile our source code
+      exclude: 'node_modules/**'
     }),
-    (process.env.BUILD === 'production' && uglify())
+    (min && uglify({
+      output: {
+        comments: /zhanziyang/
+      }
+    }))
   ]
 }

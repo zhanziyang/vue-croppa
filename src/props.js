@@ -39,7 +39,7 @@ export default {
     type: Number,
     default: 2,
     validator: function (val) {
-      return Number.isInteger(val) && val > 0 && val <= 5
+      return Number.isInteger(val) && val > 0
     }
   },
   zoomSpeed: {
