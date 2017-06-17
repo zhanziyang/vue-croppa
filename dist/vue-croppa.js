@@ -49,7 +49,7 @@ var props = {
   },
   placeholder: {
     type: String,
-    default: 'Choose File'
+    default: 'Choose an image'
   },
   placeholderColor: {
     default: '#606060'

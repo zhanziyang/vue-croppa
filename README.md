@@ -11,7 +11,7 @@
         :width="400"
         :height="400"
         :canvas-color="default"
-        :placeholder="Choose File"
+        :placeholder="Choose an image"
         :placeholder-font-size="0"
         :placeholder-color="default"
         :input-accept="image/*"
@@ -102,7 +102,7 @@ Display height of the preview container.
 #### placeholder
 Placeholder text of the preview container. It shows up when there is no image.
 - type: `string`
-- default: `'Choose File'`
+- default: `'Choose an image'`
 
 #### placeholder-color
 Placeholder text color.
@@ -147,7 +147,7 @@ Disables user interaction.
 - default: `false`
 
 #### disable-click-to-choose
-Disables the default "click to choose file" user interaction. You can instead open the file chooser window programmatically by invoking `chooseFile()` method.
+Disables the default "click to Choose an image" user interaction. You can instead open the file chooser window programmatically by invoking `chooseFile()` method.
 - type: `boolean`
 - default: `false`
 
@@ -214,7 +214,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 #### myCroppa.zoomOut()
 
 #### myCroppa.chooseFile()
-- Opens the file chooser window to choose file. Useful when default click-to-choose interaction is disabled.
+- Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
 #### myCroppa.reset()
 - Removes the current image, can be used to implement your own remove-button.
@@ -234,7 +234,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   - `croppa` is a croppa object to invoke methods - same as what `v-model` binds.
 
 #### file-choose
-- emitted when user choose a file from the poppup window.
+- emitted when user Choose an image from the poppup window.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 

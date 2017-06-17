@@ -171,7 +171,7 @@
       <v-flex xs6>
         <h5>Try It Out
           <span>
-            <em :class="disabled || disableClickToChoose ? 's' : ''">Click to choose file</em> |
+            <em :class="disabled || disableClickToChoose ? 's' : ''">Click to Choose an image</em> |
             <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
             <em :class="disabled || disableScrollToZoom ? 's' : ''">Scroll to zoom</em>
           </span>
@@ -326,7 +326,7 @@
             </p>
             <p>
               default:
-              <code>'Choose File'</code>
+              <code>'Choose an image'</code>
             </p>
           </li>
           <li>
@@ -438,7 +438,7 @@
           </li>
           <li>
             <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to choose file" user interaction. You can instead open the file chooser window programmatically by invoking
+            <p class="pt-2">Disables the default "click to Choose an image" user interaction. You can instead open the file chooser window programmatically by invoking
               <code>chooseFile()</code> method.</p>
             <p>
               type:
@@ -588,7 +588,7 @@
           </li>
           <li>
             <strong>myCroppa.chooseFile()</strong>
-            <p class="pt-1">Opens the file chooser window to choose file. Useful when default click-to-choose interaction is disabled.</p>
+            <p class="pt-1">Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.</p>
           </li>
           <li>
             <strong>myCroppa.reset()</strong>
@@ -625,7 +625,7 @@
           </li>
           <li>
             <strong>file-choose</strong>:
-            <span>emitted when user choose a file from the poppup window.</span>
+            <span>emitted when user Choose an image from the poppup window.</span>
             <p>handler(file):
               <code>file</code>
               <span>is a file object - same as what
@@ -666,7 +666,7 @@
         width: 400,
         height: 400,
         canvasColor: 'default',
-        placeholder: 'Choose File',
+        placeholder: 'Choose an image',
         placeholderFontSize: 0,
         placeholderColor: 'default',
         quality: 2,
