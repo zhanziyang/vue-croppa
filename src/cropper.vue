@@ -1,7 +1,7 @@
 <template>
-  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''}`">
+  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''}`">
     <input type="file"
-           :accept="inputAccept"
+           :accept="accept"
            :disabled="disabled"
            ref="fileInput"
            hidden
@@ -108,8 +108,7 @@
           getCanvas: () => this.canvas,
           getContext: () => this.ctx,
           getChosenFile: () => this.$refs.fileInput.files[0],
-          getImage: () => this.img,
-          getActuallImageSize: () => ({
+          getActualImageSize: () => ({
             width: this.realWidth,
             height: this.realHeight
           }),
@@ -139,7 +138,8 @@
           },
           reset: this.unset,
           chooseFile: this.chooseFile,
-          generateDataUrl: this.generateDataUrl
+          generateDataUrl: this.generateDataUrl,
+          generateBlob: this.generateBlob
         })
       },
 
@@ -160,7 +160,7 @@
       },
 
       chooseFile () {
-        if (this.img) return
+        if (this.img || this.disableClickToChoose) return
         this.$refs.fileInput.click()
       },
 
@@ -238,7 +238,7 @@
       },
 
       handlePointerMove (evt) {
-        if (this.disabled) return
+        if (this.disabled || this.disableDragToMove) return
         if (!this.dragging) return
         let coord = u.getPointerCoords(evt, this)
         if (this.lastMovingCoord) {
@@ -251,7 +251,7 @@
       },
 
       handleWheel (evt) {
-        if (this.disabled) return
+        if (this.disabled || this.disableScrollToZoom) return
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.detail < 0) {
           // 手指向上
@@ -336,9 +336,14 @@
         ctx.drawImage(this.img, startX, startY, width, height)
       },
 
-      generateDataUrl () {
+      generateDataUrl (type) {
         if (!this.img) return ''
-        return this.canvas.toDataURL()
+        return this.canvas.toDataURL(type)
+      },
+
+      generateBlob (callback, mimeType, qualityArgument) {
+        if (!this.img) return null
+        this.canvas.toBlob(callback, mimeType, qualityArgument)
       }
     }
   }
@@ -352,10 +357,16 @@
     position: relative
     &:hover
       opacity: .7
+    &.croppa--disabled-cc 
+      cursor: default
+      &:hover
+        opacity: 1
     &.croppa--has-target
       cursor: move
       &:hover
         opacity: 1
+      &.croppa--disabled-mz
+        cursor: default
     &.croppa--disabled
       cursor: not-allowed
       &:hover

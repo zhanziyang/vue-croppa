@@ -49,7 +49,7 @@ export default {
       return val > 0
     }
   },
-  inputAccept: {
+  accept: {
     type: String,
     default: 'image/*'
   },
@@ -61,6 +61,9 @@ export default {
     }
   },
   disabled: Boolean,
+  disableClickToChoose: Boolean,
+  disableDragToMove: Boolean,
+  disableScrollToZoom: Boolean,
   reverseZoomingGesture: Boolean,
   preventWhiteSpace: Boolean,
   showRemoveButton: {
