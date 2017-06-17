@@ -202,6 +202,7 @@ var cropper = { render: function render() {
       this.canvas.height = this.realHeight;
       this.canvas.style.width = this.width + 'px';
       this.canvas.style.height = this.height + 'px';
+      this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
       this.unset();
       this.$emit(INIT_EVENT, {
