@@ -34,7 +34,7 @@
   "bugs": {
     "url": "https://github.com/zhanziyang/vue-croppa/issues"
   },
-  "homepage": "https://zhanziyang.github.io/vue-croppa/index.html",
+  "homepage": "https://zhanziyang.github.io/vue-croppa/",
   "devDependencies": {
     "autoprefixer": "^7.1.1",
     "babel-eslint": "^7.2.3",

@@ -5,8 +5,8 @@
       <span class="header">Croppa</span>
       <span class="subheader">A simple straightforward customizable image cropper for vue.js.</span>
       <a href="https://github.com/zhanziyang/vue-croppa">
-        <img src="/static/github.png"
-             alt="">
+        <img src="static/github.png"
+             alt="Github repository">
       </a>
     </h2>
     <v-divider></v-divider>

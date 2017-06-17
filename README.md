@@ -1,7 +1,11 @@
 # vue-croppa
 > A simple straightforward customizable image cropper for vue.js.
 
+<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview.png" width="400" alt="try it out" /></a>
+
+
 ## Template Example
+
 ```html
 <croppa v-model="myCroppa"
         :width="400"
@@ -46,7 +50,7 @@ alert(this.myCroppa.generateDataUrl())
 ### 1. Import vue-croppa into your vue.js project.
 
 Using build tools:
-```
+```bash
 npm install --save vue-croppa
 ```
 ```js
