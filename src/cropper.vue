@@ -75,6 +75,10 @@
 
       realHeight () {
         return this.height * this.quality
+      },
+
+      realPlaceholderFontSize () {
+        return this.placeholderFontSize * this.quality
       }
     },
 
@@ -91,7 +95,7 @@
       canvasColor: 'init',
       placeholder: 'init',
       placeholderColor: 'init',
-      placeholderFontSize: 'init',
+      realPlaceholderFontSize: 'init',
       preventWhiteSpace: 'imgContentInit'
     },
 
@@ -151,7 +155,7 @@
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
         let defaultFontSize = this.realWidth / 1.5 / this.placeholder.length
-        let fontSize = (!this.placeholderFontSize || this.placeholderFontSize == 0) ? defaultFontSize : this.placeholderFontSize
+        let fontSize = (!this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0) ? defaultFontSize : this.realPlaceholderFontSize
         ctx.font = fontSize + 'px sans-serif'
         ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
         ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)

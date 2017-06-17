@@ -172,6 +172,9 @@ var cropper = { render: function render() {
     },
     realHeight: function realHeight() {
       return this.height * this.quality;
+    },
+    realPlaceholderFontSize: function realPlaceholderFontSize() {
+      return this.placeholderFontSize * this.quality;
     }
   },
 
@@ -189,7 +192,7 @@ var cropper = { render: function render() {
     canvasColor: 'init',
     placeholder: 'init',
     placeholderColor: 'init',
-    placeholderFontSize: 'init',
+    realPlaceholderFontSize: 'init',
     preventWhiteSpace: 'imgContentInit'
   },
 
@@ -258,7 +261,7 @@ var cropper = { render: function render() {
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
       var defaultFontSize = this.realWidth / 1.5 / this.placeholder.length;
-      var fontSize = !this.placeholderFontSize || this.placeholderFontSize == 0 ? defaultFontSize : this.placeholderFontSize;
+      var fontSize = !this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0 ? defaultFontSize : this.realPlaceholderFontSize;
       ctx.font = fontSize + 'px sans-serif';
       ctx.fillStyle = !this.placeholderColor || this.placeholderColor == 'default' ? '#606060' : this.placeholderColor;
       ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2);
