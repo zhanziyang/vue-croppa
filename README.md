@@ -190,6 +190,23 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - type: `number`
 - default: default size is ajust accordingly to container's size
 
+
+---
+
+### 🌱 Slots
+
+#### initial
+- You can provide an initial image by putting an `<img>` node as a named slot `initial`. For example:
+```html
+<croppa v-model="myCroppa">
+  <img slot="initial" :src="initialImageUrl" />
+</croppa>
+```
+
+- related:
+  - [`initial-image-load` event](#initial-image-load)
+  - [`initial-image-error` event](#initial-image-error)
+
 ---
 
 ### 🌱 Methods
@@ -223,6 +240,9 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 #### myCroppa.reset()
 - Removes the current image, can be used to implement your own remove-button.
 
+#### myCroppa.refresh()
+- Reinitialize the component.
+
 #### myCroppa.generateDataUrl( type: string )
 - Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to  png).
 
@@ -250,3 +270,9 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 #### move
 
 #### zoom
+
+#### initial-image-load
+- emitted when initial image is [provided](#initial) and successully loaded.
+
+#### initial-image-error
+- emitted when initial image is [provided](#initial) and failed loading.

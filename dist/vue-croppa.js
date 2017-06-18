@@ -113,9 +113,11 @@ var FILE_CHOOSE_EVENT = 'file-choose';
 var FILE_SIZE_EXCEED_EVENT = 'file-size-exceed';
 var MOVE_EVENT = 'move';
 var ZOOM_EVENT = 'zoom';
+var INITIAL_IMAGE_LOAD = 'initial-image-load';
+var INITIAL_IMAGE_ERROR = 'initial-image-error';
 
 var cropper = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           !_vm.disabled && _vm.chooseFile();
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
@@ -161,7 +163,8 @@ var cropper = { render: function render() {
       dragging: false,
       lastMovingCoord: null,
       imgData: {},
-      dataUrl: ''
+      dataUrl: '',
+      initialLoading: false
     };
   },
 
@@ -207,7 +210,11 @@ var cropper = { render: function render() {
       this.canvas.style.height = this.height + 'px';
       this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
-      this.unset();
+      if (this.$slots.initial && this.$slots.initial[0]) {
+        this.setInitial();
+      } else {
+        this.unset();
+      }
       this.$emit(INIT_EVENT, {
         getCanvas: function getCanvas() {
           return _this.canvas;
@@ -248,6 +255,7 @@ var cropper = { render: function render() {
             y: _this.imgData.startY + _this.imgData.height / 2
           });
         },
+        refresh: this.init,
         reset: this.unset,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
@@ -269,12 +277,34 @@ var cropper = { render: function render() {
       this.$refs.fileInput.value = '';
       this.imgData = {};
     },
+    setInitial: function setInitial() {
+      var _this2 = this;
+
+      var vNode = this.$slots.initial[0];
+      var tag = vNode.tag,
+          elm = vNode.elm;
+
+      if (tag !== 'img' || !elm || !elm.src) {
+        this.unset();
+      }
+      this.initialLoading = true;
+      elm.onload = function () {
+        _this2.$emit(INITIAL_IMAGE_LOAD);
+        _this2.img = elm;
+        _this2.imgContentInit();
+      };
+
+      elm.onerror = function () {
+        _this2.$emit(INITIAL_IMAGE_ERROR);
+        _this2.unset();
+      };
+    },
     chooseFile: function chooseFile() {
       if (this.img || this.disableClickToChoose) return;
       this.$refs.fileInput.click();
     },
     handleInputChange: function handleInputChange() {
-      var _this2 = this;
+      var _this3 = this;
 
       var input = this.$refs.fileInput;
       if (!input.files.length) return;
@@ -291,8 +321,8 @@ var cropper = { render: function render() {
         var img = new Image();
         img.src = fileData;
         img.onload = function () {
-          _this2.img = img;
-          _this2.imgContentInit();
+          _this3.img = img;
+          _this3.imgContentInit();
         };
       };
       fr.readAsDataURL(file);

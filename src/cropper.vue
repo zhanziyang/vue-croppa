@@ -6,6 +6,10 @@
            ref="fileInput"
            hidden
            @change="handleInputChange" />
+    <div class="initial"
+         style="width: 0; height: 0; visibility: hidden;">
+      <slot name="initial"></slot>
+    </div>
     <canvas ref="canvas"
             @click="!disabled && chooseFile()"
             @touchstart.stop.prevent="handlePointerStart"
@@ -46,6 +50,8 @@
   const FILE_SIZE_EXCEED_EVENT = 'file-size-exceed'
   const MOVE_EVENT = 'move'
   const ZOOM_EVENT = 'zoom'
+  const INITIAL_IMAGE_LOAD = 'initial-image-load'
+  const INITIAL_IMAGE_ERROR = 'initial-image-error'
 
   export default {
     model: {
@@ -64,7 +70,8 @@
         dragging: false,
         lastMovingCoord: null,
         imgData: {},
-        dataUrl: ''
+        dataUrl: '',
+        initialLoading: false
       }
     },
 
@@ -108,7 +115,11 @@
         this.canvas.style.height = this.height + 'px'
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
-        this.unset()
+        if (this.$slots.initial && this.$slots.initial[0]) {
+          this.setInitial()
+        } else {
+          this.unset()
+        }
         this.$emit(INIT_EVENT, {
           getCanvas: () => this.canvas,
           getContext: () => this.ctx,
@@ -141,6 +152,7 @@
               y: this.imgData.startY + this.imgData.height / 2
             })
           },
+          refresh: this.init,
           reset: this.unset,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -162,6 +174,25 @@
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
+      },
+
+      setInitial () {
+        let vNode = this.$slots.initial[0]
+        let { tag, elm } = vNode
+        if (tag !== 'img' || !elm || !elm.src) {
+          this.unset()
+        }
+        this.initialLoading = true
+        elm.onload = () => {
+          this.$emit(INITIAL_IMAGE_LOAD)
+          this.img = elm
+          this.imgContentInit()
+        }
+
+        elm.onerror = () => {
+          this.$emit(INITIAL_IMAGE_ERROR)
+          this.unset()
+        }
       },
 
       chooseFile () {
