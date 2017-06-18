@@ -156,7 +156,8 @@
           reset: this.unset,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
-          generateBlob: this.generateBlob
+          generateBlob: this.generateBlob,
+          promisedBlob: this.promisedBlob
         })
       },
 
@@ -380,6 +381,18 @@
       generateBlob (callback, mimeType, qualityArgument) {
         if (!this.img) return null
         this.canvas.toBlob(callback, mimeType, qualityArgument)
+      },
+
+      promisedBlob (...args) {
+        return new Promise((resolve, reject) => {
+          try {
+            this.generateBlob((blob) => {
+              resolve(blob)
+            }, args)
+          } catch (err) {
+            reject(err)
+          }
+        })
       }
     }
   }

@@ -259,7 +259,8 @@ var cropper = { render: function render() {
         reset: this.unset,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
-        generateBlob: this.generateBlob
+        generateBlob: this.generateBlob,
+        promisedBlob: this.promisedBlob
       });
     },
     unset: function unset() {
@@ -498,6 +499,23 @@ var cropper = { render: function render() {
     generateBlob: function generateBlob(callback, mimeType, qualityArgument) {
       if (!this.img) return null;
       this.canvas.toBlob(callback, mimeType, qualityArgument);
+    },
+    promisedBlob: function promisedBlob() {
+      var _this4 = this;
+
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return new Promise(function (resolve, reject) {
+        try {
+          _this4.generateBlob(function (blob) {
+            resolve(blob);
+          }, args);
+        } catch (err) {
+          reject(err);
+        }
+      });
     }
   }
 };

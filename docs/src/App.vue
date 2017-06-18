@@ -466,6 +466,13 @@
             <p class="pt-1">Creates a Blob object representing the image contained in the canvas. Look up argument definition
               <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob">here</a>.</p>
           </li>
+          <li>
+            <strong>myCroppa.promisedBlob( mimeType: string, qualityArgument: number )</strong>
+            <p class="pt-1">This method returns a
+              <code>Promise</code> wrapping around
+              <code>generateBlob()</code>, so that you can use async/await syntax instead of a callback to get blob data, it's simpler.
+            </p>
+          </li>
         </ul>
       </v-flex>
     </v-layout>
@@ -624,6 +631,11 @@
     methods: {
       getDataUrl () {
         alert(this.myCroppa.generateDataUrl())
+      },
+
+      async printBlob () {
+        let blob = await this.myCroppa.promisedBlob()
+        console.log(blob)
       },
 
       refresh () {
