@@ -46,6 +46,17 @@ module.exports = {
     }),
     (production && eslint()),
     babel({
+      presets: [
+        [
+          'es2015',
+          {
+            'modules': false
+          }
+        ]
+      ],
+      plugins: [
+        'external-helpers'
+      ],
       exclude: 'node_modules/**'
     }),
     (min && uglify({
