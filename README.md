@@ -24,7 +24,7 @@
         :disable-drag-to-move="false"
         :disable-scroll-to-zoom="false"
         :prevent-white-space="false"
-        :reverse-zooming-gesture="false"
+        :reverse-scroll-to-zoom="false"
         :show-remove-button="true"
         :remove-button-color="'red'"
         :remove-button-size="0"
