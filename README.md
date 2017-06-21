@@ -303,3 +303,7 @@ const blob = await this.myCroppa.promisedBlob()
 
 #### initial-image-error
 - emitted when initial image is [provided](#initial) and failed loading.
+
+## To Do List
+
+- [ ] File type filter on drag and drop
