@@ -10,6 +10,14 @@ export default {
     }
   },
 
+  getPinchDistance(evt, cropperVM) {
+
+  },
+
+  getPinchCenterCoord(evt, cropperVM) {
+
+  },
+
   imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0
   }

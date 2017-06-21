@@ -77,7 +77,10 @@
         lastMovingCoord: null,
         imgData: {},
         dataUrl: '',
-        fileDraggedOver: false
+        fileDraggedOver: false,
+        tabStart: 0,
+        pinching: false,
+        pinchDistance: 0
       }
     },
 
@@ -279,9 +282,25 @@
       },
 
       handlePointerStart (evt) {
-        if (this.disabled || !this.img) return
+        if (this.disabled) return
+        // simulate click with touch on mobile devices
+        if (!this.img) {
+          this.tabStart = new Date().valueOf()
+          return
+        }
+        // ignore mouse right click and middle click
         if (evt.which && evt.which > 1) return
-        this.dragging = true
+
+        if (!evt.touches || evt.touches.length === 1) {
+          this.dragging = true
+          let coord = u.getPointerCoords(evt, this)
+          this.lastMovingCoord = coord
+        }
+
+        if (evt.touches && evt.touches.length === 2) {
+          this.pinching = true
+          this.pinchDistance = u.getPinchDistance(evt, this)
+        }
 
         if (document) {
           let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
@@ -292,22 +311,44 @@
       },
 
       handlePointerEnd (evt) {
-        if (this.disabled || !this.img) return
+        if (this.disabled) return
+        if (!this.img) {
+          let tabEnd = new Date().valueOf()
+          if (tabEnd - this.tabStart < 1000) {
+            this.chooseFile()
+          }
+          this.tabStart = 0
+          return
+        }
+
         this.dragging = false
+        this.pinching = false
         this.lastMovingCoord = null
       },
 
       handlePointerMove (evt) {
         if (this.disabled || this.disableDragToMove || !this.img) return
-        if (!this.dragging) return
-        let coord = u.getPointerCoords(evt, this)
-        if (this.lastMovingCoord) {
-          this.move({
-            x: coord.x - this.lastMovingCoord.x,
-            y: coord.y - this.lastMovingCoord.y
-          })
+
+        if (!evt.touches || evt.touches.length === 1) {
+          if (!this.dragging) return
+          let coord = u.getPointerCoords(evt, this)
+          if (this.lastMovingCoord) {
+            this.move({
+              x: coord.x - this.lastMovingCoord.x,
+              y: coord.y - this.lastMovingCoord.y
+            })
+          }
+          this.lastMovingCoord = coord
         }
-        this.lastMovingCoord = coord
+
+        if (evt.touches && evt.touches.length === 2) {
+          if (!this.pinching) return
+          let distance = u.getPinchDistance(evt, this)
+          let delta = distance - this.pinchDistance
+          let centerCoord = u.getPinchCenterCoord(evt, this)
+          this.zoom(delta > 0, centerCoord)
+          this.pinchDistance = distance
+        }
       },
 
       handleWheel (evt) {
