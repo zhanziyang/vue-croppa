@@ -59,6 +59,8 @@
   const INITIAL_IMAGE_LOAD = 'initial-image-load'
   const INITIAL_IMAGE_ERROR = 'initial-image-error'
 
+  u.rAFPolyfill()
+
   export default {
     model: {
       prop: 'value',
@@ -80,8 +82,7 @@
         fileDraggedOver: false,
         tabStart: 0,
         pinching: false,
-        pinchDistance: 0,
-        pinchCenter: {}
+        pinchDistance: 0
       }
     },
 
@@ -169,7 +170,6 @@
 
       unset () {
         let ctx = this.ctx
-        ctx.clearRect(0, 0, this.realWidth, this.realHeight)
         this.paintBackground()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
@@ -297,7 +297,6 @@
           this.dragging = false
           this.pinching = true
           this.pinchDistance = u.getPinchDistance(evt, this)
-          this.pinchCenter = u.getPinchCenterCoord(evt, this)
         }
 
         if (document) {
@@ -322,7 +321,6 @@
         this.dragging = false
         this.pinching = false
         this.pinchDistance = 0
-        this.pinchCenter = {}
         this.lastMovingCoord = null
       },
 
@@ -456,9 +454,10 @@
         let ctx = this.ctx
         if (!this.img) return
         let { startX, startY, width, height } = this.imgData
-        ctx.clearRect(0, 0, this.realWidth, this.realHeight)
-        this.paintBackground()
-        ctx.drawImage(this.img, startX, startY, width, height)
+        requestAnimationFrame(() => {
+          this.paintBackground()
+          ctx.drawImage(this.img, startX, startY, width, height)
+        })
       },
 
       generateDataUrl (type) {
