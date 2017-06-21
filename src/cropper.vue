@@ -48,6 +48,7 @@
   const INIT_EVENT = 'init'
   const FILE_CHOOSE_EVENT = 'file-choose'
   const FILE_SIZE_EXCEED_EVENT = 'file-size-exceed'
+  const IMAGE_REMOVE = 'image-remove'
   const MOVE_EVENT = 'move'
   const ZOOM_EVENT = 'zoom'
   const INITIAL_IMAGE_LOAD = 'initial-image-load'
@@ -173,9 +174,15 @@
         ctx.font = fontSize + 'px sans-serif'
         ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
         ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
+
+        let hadImage = this.img != null
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
+
+        if (hadImage) {
+          this.$emit(IMAGE_REMOVE)
+        }
       },
 
       setInitial () {

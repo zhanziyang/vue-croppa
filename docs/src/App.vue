@@ -214,6 +214,7 @@
                 @init="handleCroppaInit"
                 @file-choose="handleCroppaFileChoose"
                 @file-size-exceed="handleCroppaFileSizeExceed"
+                @image-remove="handleImageRemove"
                 @move="handleCroppaMove"
                 @zoom="handleCroppaZoom">
           <img :src="initialImageSrc"
@@ -575,6 +576,7 @@
           @init="handleCroppaInit"
           @file-choose="handleCroppaFileChoose"
           @file-size-exceed="handleCroppaFileSizeExceed"
+          @image-remove="handleImageRemove"
           @move="handleCroppaMove"
           @zoom="handleCroppaZoom">
     ${this.withInitialImage ? `<img src="${this.initialImageSrc}"
@@ -661,6 +663,10 @@
       handleCroppaFileSizeExceed (file) {
         console.log('file size exceeded')
         console.log(file)
+      },
+
+      handleImageRemove () {
+        console.log('image removed')
       },
 
       handleCroppaMove () {
