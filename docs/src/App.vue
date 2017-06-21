@@ -769,6 +769,7 @@
       font-family: Consolas, Monaco, monospace
     h5 
       color: #35495e
+      font-size: 24px
     p.tip
       font-size: 14px
       em

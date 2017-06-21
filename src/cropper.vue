@@ -80,7 +80,8 @@
         fileDraggedOver: false,
         tabStart: 0,
         pinching: false,
-        pinchDistance: 0
+        pinchDistance: 0,
+        pinchCenter: {}
       }
     },
 
@@ -150,16 +151,10 @@
             this.move({ x: amount, y: 0 })
           },
           zoomIn: () => {
-            this.zoom(true, {
-              x: this.imgData.startX + this.imgData.width / 2,
-              y: this.imgData.startY + this.imgData.height / 2
-            })
+            this.zoom(true)
           },
           zoomOut: () => {
-            this.zoom(false, {
-              x: this.imgData.startX + this.imgData.width / 2,
-              y: this.imgData.startY + this.imgData.height / 2
-            })
+            this.zoom(false)
           },
           refresh: () => {
             this.$nextTick(this.init)
@@ -293,13 +288,16 @@
 
         if (!evt.touches || evt.touches.length === 1) {
           this.dragging = true
+          this.pinching = false
           let coord = u.getPointerCoords(evt, this)
           this.lastMovingCoord = coord
         }
 
         if (evt.touches && evt.touches.length === 2) {
+          this.dragging = false
           this.pinching = true
           this.pinchDistance = u.getPinchDistance(evt, this)
+          this.pinchCenter = u.getPinchCenterCoord(evt, this)
         }
 
         if (document) {
@@ -323,6 +321,8 @@
 
         this.dragging = false
         this.pinching = false
+        this.pinchDistance = 0
+        this.pinchCenter = {}
         this.lastMovingCoord = null
       },
 
@@ -345,8 +345,7 @@
           if (!this.pinching) return
           let distance = u.getPinchDistance(evt, this)
           let delta = distance - this.pinchDistance
-          let centerCoord = u.getPinchCenterCoord(evt, this)
-          this.zoom(delta > 0, centerCoord)
+          this.zoom(delta > 0, null, 2)
           this.pinchDistance = distance
         }
       },
@@ -409,8 +408,12 @@
         }
       },
 
-      zoom (zoomIn, pos) {
-        let speed = (this.realWidth / 100000) * this.zoomSpeed
+      zoom (zoomIn, pos, timesFaster = 1) {
+        pos = pos || {
+          x: this.imgData.startX + this.imgData.width / 2,
+          y: this.imgData.startY + this.imgData.height / 2
+        }
+        let speed = (this.realWidth / 100000) * this.zoomSpeed * timesFaster
         let x = 1
         if (zoomIn) {
           x = 1 + speed
@@ -421,6 +424,7 @@
         this.imgData.height = this.imgData.height * x
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        console.log(offsetX, offsetY)
         this.imgData.startX = this.imgData.startX - offsetX
         this.imgData.startY = this.imgData.startY - offsetY
 
