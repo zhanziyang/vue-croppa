@@ -61,6 +61,7 @@ export default {
     }
   },
   disabled: Boolean,
+  disableDragAndDrop: Boolean,
   disableClickToChoose: Boolean,
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,

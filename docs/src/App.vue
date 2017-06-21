@@ -11,187 +11,21 @@
     </h2>
     <v-divider></v-divider>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs6>
-        <h5>Customization</h5>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-slider v-model="width"
-                      label="width"
-                      thumb-label
-                      :max="500"
-                      :min="100"></v-slider>
-          </v-flex>
-          <v-flex xs4>
-            <v-slider v-model="height"
-                      label="height"
-                      thumb-label
-                      :max="500"
-                      :min="100"></v-slider>
-          </v-flex>
-          <v-flex xs4>
-            <v-select v-bind:items="['default', 'black', 'grey', '#00bcd4', 'rgb(205, 220, 57)']"
-                      v-model="canvasColor"
-                      label="canvasColor"></v-select>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-switch v-bind:label="`set initial image`"
-                      v-model="withInitialImage"></v-switch>
-          </v-flex>
-          <v-flex xs8>
-            <v-text-field name="initialImageSrc"
-                          label="initial image url"
-                          v-model="initialImageSrc"></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-text-field name="placeholder"
-                          label="placeholder"
-                          v-model="placeholder"></v-text-field>
-          </v-flex>
-          <v-flex xs4>
-            <v-text-field name="placeholderFontSize"
-                          label="placeholderFontSize (px)"
-                          type="number"
-                          v-model="placeholderFontSize"></v-text-field>
-          </v-flex>
-          <v-flex xs4>
-            <v-select v-bind:items="['default', 'white', 'grey', '#ffc107', 'rgb(0, 150, 136)']"
-                      v-model="placeholderColor"
-                      label="placeholderColor"></v-select>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs6>
-            <v-text-field name="accept"
-                          label="accept"
-                          v-model="accept"></v-text-field>
-          </v-flex>
-          <v-flex xs6>
-            <v-text-field name="fileSizeLimit"
-                          label="fileSizeLimit (byte)"
-                          type="number"
-                          v-model="fileSizeLimit"></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs6>
-            <v-slider v-model="quality"
-                      label="quality"
-                      thumb-label
-                      :max="5"
-                      :min="1"
-                      :step="1"></v-slider>
-          </v-flex>
-          <v-flex xs6>
-            <v-slider v-model="zoomSpeed"
-                      label="zoomSpeed"
-                      thumb-label
-                      :max="10"
-                      :min="1"
-                      :step="1"></v-slider>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs9>
-            <v-switch v-bind:label="`disabled`"
-                      v-model="disabled"></v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-switch v-bind:label="`disableClickToChoose`"
-                      v-model="disableClickToChoose"></v-switch>
-          </v-flex>
-          <v-flex xs4>
-            <v-switch v-bind:label="`disableDragToMove`"
-                      v-model="disableDragToMove"></v-switch>
-          </v-flex>
-          <v-flex xs4>
-            <v-switch v-bind:label="`disableScrollToZoom`"
-                      v-model="disableScrollToZoom"></v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-switch v-bind:label="`preventWhiteSpace`"
-                      v-model="preventWhiteSpace"></v-switch>
-          </v-flex>
-          <v-flex xs4>
-            <v-switch v-bind:label="`reverseZoomingGesture`"
-                      v-model="reverseZoomingGesture"></v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex xs4>
-            <v-switch v-bind:label="`showRemoveButton`"
-                      v-model="showRemoveButton"></v-switch>
-          </v-flex>
-          <v-flex xs4>
-            <v-select v-bind:items="['red', 'black', 'purple', '#ffc107', 'rgb(0, 150, 136)']"
-                      v-model="removeButtonColor"
-                      label="removeButtonColor"></v-select>
-          </v-flex>
-          <v-flex xs4>
-            <v-text-field name="removeButtonSize"
-                          label="removeButtonSize (px)"
-                          type="number"
-                          v-model="removeButtonSize"></v-text-field>
-          </v-flex>
-        </v-layout>
-        <br>
-        <h5>Method Example</h5>
-        <v-layout row
-                  wrap>
-          <v-flex xs6>
-            <pre v-highlightjs="methodExample1"><code class="js"></code></pre>
-            <v-btn dark
-                   default
-                   @click.native="reset">Reset</v-btn>
-          </v-flex>
-          <v-flex xs6>
-            <pre v-highlightjs="methodExample2"><code class="js"></code></pre>
-            <v-btn dark
-                   default
-                   @click.native="zoomIn">Zoom In</v-btn>
-          </v-flex>
-        </v-layout>
-        <br>
-        <v-layout row
-                  wrap>
-          <v-flex xs12>
-            <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
-            <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
-            <v-btn dark
-                   default
-                   @click.native="getDataUrl">Data Url</v-btn>
-            <v-btn dark
-                   default
-                   @click.native="refresh">Refresh</v-btn>
-          </v-flex>
-        </v-layout>
-      </v-flex>
-      <v-flex xs6>
+      <v-flex md6
+              order-md2>
         <h5>Try It Out
-          <span>
-            <em :class="disabled || disableClickToChoose ? 's' : ''">Click to Choose an image</em> |
-            <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
-            <em :class="disabled || disableScrollToZoom ? 's' : ''">Scroll to zoom</em>
-          </span>
         </h5>
+        <p class="tip">
+          <em :class="disabled || disableDragAndDrop ? 's' : ''">Drag and drop a file</em> |
+          <em :class="disabled || disableClickToChoose ? 's' : ''">Click to choose a file</em> |
+          <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
+          <em :class="disabled || disableScrollToZoom ? 's' : ''">Scroll to zoom</em>
+        </p>
+        <img src="https://zhanziyang.github.io/vue-croppa/static/initial-image.png"
+             class="preload">
         <croppa v-model="myCroppa"
                 :width="+width"
                 :height="+height"
@@ -204,6 +38,7 @@
                 :quality="+quality"
                 :zoom-speed="+zoomSpeed"
                 :disabled="disabled"
+                :disable-drag-and-drop="disableDragAndDrop"
                 :disable-click-to-choose="disableClickToChoose"
                 :disable-drag-to-move="disableDragToMove"
                 :disable-scroll-to-zoom="disableScrollToZoom"
@@ -227,57 +62,250 @@
         <h5>Template Example</h5>
         <pre v-highlightjs="code"><code class="html"></code></pre>
       </v-flex>
+      <v-flex md6
+              order-md1>
+        <h5>Customization</h5>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-slider v-model="width"
+                      label="width"
+                      thumb-label
+                      :max="500"
+                      :min="100"></v-slider>
+          </v-flex>
+          <v-flex md4>
+            <v-slider v-model="height"
+                      label="height"
+                      thumb-label
+                      :max="500"
+                      :min="100"></v-slider>
+          </v-flex>
+          <v-flex md4>
+            <v-select v-bind:items="['default', 'black', 'grey', '#00bcd4', 'rgb(205, 220, 57)']"
+                      v-model="canvasColor"
+                      label="canvasColor"></v-select>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-switch v-bind:label="`set initial image`"
+                      v-model="withInitialImage"></v-switch>
+          </v-flex>
+          <v-flex md8>
+            <v-text-field name="initialImageSrc"
+                          label="initial image url"
+                          v-model="initialImageSrc"></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-text-field name="placeholder"
+                          label="placeholder"
+                          v-model="placeholder"></v-text-field>
+          </v-flex>
+          <v-flex md4>
+            <v-text-field name="placeholderFontSize"
+                          label="placeholderFontSize (px)"
+                          type="number"
+                          v-model="placeholderFontSize"></v-text-field>
+          </v-flex>
+          <v-flex md4>
+            <v-select v-bind:items="['default', 'white', 'grey', '#ffc107', 'rgb(0, 150, 136)']"
+                      v-model="placeholderColor"
+                      label="placeholderColor"></v-select>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md6>
+            <v-text-field name="accept"
+                          label="accept"
+                          v-model="accept"></v-text-field>
+          </v-flex>
+          <v-flex md6>
+            <v-text-field name="fileSizeLimit"
+                          label="fileSizeLimit (byte)"
+                          type="number"
+                          v-model="fileSizeLimit"></v-text-field>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md6>
+            <v-slider v-model="quality"
+                      label="quality"
+                      thumb-label
+                      :max="5"
+                      :min="1"
+                      :step="1"></v-slider>
+          </v-flex>
+          <v-flex md6>
+            <v-slider v-model="zoomSpeed"
+                      label="zoomSpeed"
+                      thumb-label
+                      :max="10"
+                      :min="1"
+                      :step="1"></v-slider>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-switch v-bind:label="`disabled`"
+                      v-model="disabled"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`disableDragAndDrop`"
+                      v-model="disableDragAndDrop"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-switch v-bind:label="`disableClickToChoose`"
+                      v-model="disableClickToChoose"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`disableDragToMove`"
+                      v-model="disableDragToMove"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`disableScrollToZoom`"
+                      v-model="disableScrollToZoom"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-switch v-bind:label="`preventWhiteSpace`"
+                      v-model="preventWhiteSpace"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`reverseZoomingGesture`"
+                      v-model="reverseZoomingGesture"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
+            <v-switch v-bind:label="`showRemoveButton`"
+                      v-model="showRemoveButton"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-select v-bind:items="['red', 'black', 'purple', '#ffc107', 'rgb(0, 150, 136)']"
+                      v-model="removeButtonColor"
+                      label="removeButtonColor"></v-select>
+          </v-flex>
+          <v-flex md4>
+            <v-text-field name="removeButtonSize"
+                          label="removeButtonSize (px)"
+                          type="number"
+                          v-model="removeButtonSize"></v-text-field>
+          </v-flex>
+        </v-layout>
+        <br>
+        <h5>Method Example</h5>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md6>
+            <pre v-highlightjs="methodExample1"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="reset">Reset</v-btn>
+          </v-flex>
+          <v-flex md6>
+            <pre v-highlightjs="methodExample2"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="zoomIn">Zoom In</v-btn>
+          </v-flex>
+        </v-layout>
+        <br>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md12>
+            <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
+            <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="getDataUrl">Data Url</v-btn>
+            <v-btn dark
+                   default
+                   @click.native="refresh">Refresh</v-btn>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+  
     </v-layout>
     <br>
     <v-divider></v-divider>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs8
-              offset-xs2>
+      <v-flex md8
+              offset-md2>
         <h4>Quick Start</h4>
         <p>1. Install with npm or include it directly.</p>
-        <v-layout row
+        <v-layout row-md
+                  column
                   wrap>
-          <v-flex xs5>
+          <v-flex md5>
             <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
           </v-flex>
-          <v-flex xs1
-                  class="text-xs-center">
+          <v-flex md1
+                  class="text-md-center">
             <h5>or</h5>
           </v-flex>
-          <v-flex xs6>
+          <v-flex md6>
             <pre v-highlightjs="installTags"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
         <br>
         <p>2. If your build tool supports css module, import it as left below. Or simply include the file in your HTML.</p>
-        <v-layout row
+        <v-layout row-md
+                  column
                   wrap>
-          <v-flex xs5>
+          <v-flex md5>
             <pre v-highlightjs="'import \'vue-croppa/dist/vue-croppa.css\''"><code class="javascript"></code></pre>
           </v-flex>
-          <v-flex xs1
-                  class="text-xs-center">
+          <v-flex md1
+                  class="text-md-center">
             <h5>or</h5>
           </v-flex>
-          <v-flex xs6>
+          <v-flex md6>
             <pre v-highlightjs="installStyle"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
         <br>
         <p>3. Register it as a vue plugin.</p>
-        <v-layout row
+        <v-layout row-md
+                  column
                   wrap>
-          <v-flex xs12>
+          <v-flex md12>
             <pre v-highlightjs="vueRegistry"><code class="javascript"></code></pre>
           </v-flex>
         </v-layout>
         <br>
         <p>4. Now you have it. The simplest usage: </p>
-        <v-layout row
+        <v-layout row-md
+                  column
                   wrap>
-          <v-flex xs12>
+          <v-flex md12>
             <pre v-highlightjs="simplestUsage"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
@@ -286,10 +314,11 @@
     <br>
     <v-divider></v-divider>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs8
-              offset-xs2>
+      <v-flex md8
+              offset-md2>
         <h4>Brief Doc</h4>
         <p>See full documentation
           <a href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md">here</a>.</p>
@@ -347,8 +376,13 @@
             <p class="pt-2">Disables user interaction.</p>
           </li>
           <li>
+            <strong>disable-drag-and-drop</strong>
+            <p class="pt-2">Disables the default "drag and drop a file" user interaction. You can instead trigger the file chooser window programmatically by "click to choose" functionality or invoking
+              <code>chooseFile()</code> method.</p>
+          </li>
+          <li>
             <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by invoking
+            <p class="pt-2">Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking
               <code>chooseFile()</code> method.</p>
           </li>
           <li>
@@ -392,10 +426,11 @@
     </v-layout>
     <br>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs8
-              offset-xs2>
+      <v-flex md8
+              offset-md2>
         <h6>🌱 Slots</h6>
         <ul>
           <li>
@@ -408,10 +443,11 @@
     </v-layout>
     <br>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs8
-              offset-xs2>
+      <v-flex md8
+              offset-md2>
         <h6>🌱 Methods</h6>
         <ul>
           <li>
@@ -483,10 +519,11 @@
     </v-layout>
     <br>
     <br>
-    <v-layout row
+    <v-layout row-md
+              column
               wrap>
-      <v-flex xs8
-              offset-xs2>
+      <v-flex md8
+              offset-md2>
         <h6>🌱 Events</h6>
         <ul>
           <li>
@@ -521,8 +558,6 @@
 
 <script>
   /* eslint no-useless-escape: 'off' */
-  import { debounce } from 'lodash'
-
   export default {
     name: 'app',
     data () {
@@ -539,6 +574,7 @@
         accept: 'image/*',
         fileSizeLimit: 0,
         disabled: false,
+        disableDragAndDrop: false,
         disableClickToChoose: false,
         disableDragToMove: false,
         disableScrollToZoom: false,
@@ -569,6 +605,7 @@
           :quality="${this.quality}"
           :zoom-speed="${this.zoomSpeed}"
           :disabled="${this.disabled}"
+          :disable-drag-and-drop="${this.disableDragAndDrop}"
           :disable-click-to-choose="${this.disableClickToChoose}"
           :disable-drag-to-move="${this.disableDragToMove}"
           :disable-scroll-to-zoom="${this.disableScrollToZoom}"
@@ -700,6 +737,7 @@
     padding: 16px
     h2
       position: relative
+      padding-right: 80px
       span.header
         font-family: 'Black Ops One', cursive
       span.header:first-child
@@ -716,17 +754,22 @@
           opacity: .7
     .subheader
       padding: 0
-      font-size: 22px
+      font-size: 20px
     code
       font-size: 14px
       font-family: Consolas, Monaco, monospace
     h5 
       color: #35495e
-      span
-        font-size: 14px
-        em
-          color: #41b883
-          font-style: normal
-          &.s
-            text-decoration: line-through
+    p.tip
+      font-size: 14px
+      em
+        color: #41b883
+        font-style: normal
+        &.s
+          text-decoration: line-through
+  .preload
+    width: 0
+    height: 0
+    visibility: 0
+    display: block
 </style>

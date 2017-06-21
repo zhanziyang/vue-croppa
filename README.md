@@ -19,6 +19,7 @@
         :quality="2"
         :zoom-speed="3"
         :disabled="false"
+        :disable-drag-and-drop="false"
         :disable-click-to-choose="false"
         :disable-drag-to-move="false"
         :disable-scroll-to-zoom="false"
@@ -151,8 +152,13 @@ Disables user interaction.
 - type: `boolean`
 - default: `false`
 
+#### disable-drag-and-drop
+Disables the default "drag and drop a file" user interaction. You can instead trigger the file chooser window programmatically by "click to choose" functionality or invoking `chooseFile()` method.
+- type: `boolean`
+- default: `false`
+
 #### disable-click-to-choose
-Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by invoking `chooseFile()` method.
+Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
 - type: `boolean`
 - default: `false`
 
@@ -265,7 +271,7 @@ const blob = await this.myCroppa.promisedBlob()
   - `croppa` is a croppa object to invoke methods - same as what `v-model` binds.
 
 #### file-choose
-- emitted when user Choose an image from the poppup window.
+- emitted when user choose an image from the poppup window or "drag and drop" a file into the container.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 

@@ -1,5 +1,9 @@
 <template>
-  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''}`">
+  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
+       @dragenter.stop.prevent="handleDragEnter"
+       @dragleave.stop.prevent="handleDragLeave"
+       @dragover.stop.prevent="handleDragOver"
+       @drop.stop.prevent="handleDrop">
     <input type="file"
            :accept="accept"
            :disabled="disabled"
@@ -71,7 +75,8 @@
         dragging: false,
         lastMovingCoord: null,
         imgData: {},
-        dataUrl: ''
+        dataUrl: '',
+        fileDraggedOver: false
       }
     },
 
@@ -219,6 +224,10 @@
         if (!input.files.length) return
 
         let file = input.files[0]
+        this.onNewFileIn(file)
+      },
+
+      onNewFileIn (file) {
         this.$emit(FILE_CHOOSE_EVENT, file)
         if (!this.fileSizeIsValid(file)) {
           this.$emit(FILE_SIZE_EXCEED_EVENT, file)
@@ -310,6 +319,28 @@
           // 手指向下
           this.zoom(!this.reverseZoomingGesture, coord)
         }
+      },
+
+      handleDragEnter (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        this.fileDraggedOver = true
+        console.log('enter')
+      },
+
+      handleDragLeave (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        this.fileDraggedOver = false
+      },
+
+      handleDragOver (evt) {
+      },
+
+      handleDrop (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        if (!evt.dataTransfer || !evt.dataTransfer.files.length) return
+        this.fileDraggedOver = false
+        let file = evt.dataTransfer.files[0]
+        this.onNewFileIn(file)
       },
 
       move (offset) {
@@ -415,10 +446,17 @@
   .croppa-container 
     display: inline-block
     cursor: pointer
-    transition: opacity .3s
+    transition: all .3s
     position: relative
+    font-size: 0
+    canvas
+      transition: all .3s
     &:hover
       opacity: .7
+    &.croppa--dropzone
+      box-shadow: inset 0 0 10px lightness(black, 20%)
+      canvas
+        opacity: .5
     &.croppa--disabled-cc 
       cursor: default
       &:hover
@@ -441,8 +479,5 @@
       z-index: 10
       cursor: pointer
       border: 2px solid white
-  .image
-    max-width: 100%
-    max-height: 100%
 
 </style>
