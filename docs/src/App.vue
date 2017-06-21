@@ -665,6 +665,14 @@
       }
     },
 
+    beforeMount () {
+      let windowWidth = window.innerWidth
+      if (windowWidth < 400) {
+        this.width = 200
+        this.height = 200
+      }
+    },
+
     watch: {
       withInitialImage: function () {
         this.refresh()
@@ -755,6 +763,7 @@
     .subheader
       padding: 0
       font-size: 20px
+      margin: 10px 0
     code
       font-size: 14px
       font-family: Consolas, Monaco, monospace
