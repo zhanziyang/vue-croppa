@@ -40,8 +40,11 @@ export default {
     return img.complete && img.naturalWidth !== 0
   },
 
-  supportTouchEvent() {
-    return 'ontouchstart' in document.documentElement
+  touchDetect() {
+    window.addEventListener('touchstart', function onFirstTouch() {
+      window.USER_IS_TOUCHING = true
+      window.removeEventListener('touchstart', onFirstTouch, false)
+    }, false)
   },
 
   rAFPolyfill() {

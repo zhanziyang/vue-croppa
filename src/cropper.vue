@@ -60,6 +60,7 @@
   const INITIAL_IMAGE_ERROR = 'initial-image-error'
 
   u.rAFPolyfill()
+  u.touchDetect()
 
   export default {
     model: {
@@ -218,7 +219,7 @@
       },
 
       handleClick () {
-        if (!this.img && !this.disableClickToChoose && !this.disabled && !u.supportTouchEvent()) {
+        if (!this.img && !this.disableClickToChoose && !this.disabled && window.USER_IS_TOUCHING) {
           this.chooseFile()
         }
       },
