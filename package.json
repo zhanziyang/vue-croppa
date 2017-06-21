@@ -1,6 +1,6 @@
 {
   "name": "vue-croppa",
-  "version": "0.0.15",
+  "version": "0.0.19",
   "description": "A simple straightforward customizable image cropper for vue.js.",
   "main": "dist/vue-croppa.js",
   "scripts": {
@@ -53,6 +53,7 @@
     "eslint-plugin-node": "^5.0.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
+    "file-loader": "^0.11.2",
     "postcss": "^6.0.2",
     "postcss-clean": "^1.0.2",
     "rollup": "^0.43.0",

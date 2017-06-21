@@ -10,26 +10,28 @@
 <croppa v-model="myCroppa"
         :width="400"
         :height="400"
-        :canvas-color="default"
-        :placeholder="Choose an image"
+        :canvas-color="'default'"
+        :placeholder="'Choose an image'"
         :placeholder-font-size="0"
-        :placeholder-color="default"
-        :input-accept="image/*"
+        :placeholder-color="'default'"
+        :input-accept="'image/*'"
         :file-size-limit="0"
         :quality="2"
         :zoom-speed="3"
         :disabled="false"
+        :disable-drag-and-drop="false"
         :disable-click-to-choose="false"
         :disable-drag-to-move="false"
         :disable-scroll-to-zoom="false"
         :prevent-white-space="false"
         :reverse-zooming-gesture="false"
         :show-remove-button="true"
-        :remove-button-color="red"
+        :remove-button-color="'red'"
         :remove-button-size="0"
         @init="handleCroppaInit"
         @file-choose="handleCroppaFileChoose"
         @file-size-exceed="handleCroppaFileSizeExceed"
+        @image-remove="handleImageRemove"
         @move="handleCroppaMove"
         @zoom="handleCroppaZoom"></croppa>
 ```
@@ -150,8 +152,13 @@ Disables user interaction.
 - type: `boolean`
 - default: `false`
 
+#### disable-drag-and-drop
+Disables the default "drag and drop a file" user interaction. You can instead trigger the file chooser window programmatically by "click to choose" functionality or invoking `chooseFile()` method.
+- type: `boolean`
+- default: `false`
+
 #### disable-click-to-choose
-Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by invoking `chooseFile()` method.
+Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
 - type: `boolean`
 - default: `false`
 
@@ -241,7 +248,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - Removes the current image, can be used to implement your own remove-button.
 
 #### myCroppa.refresh()
-- Reinitialize the component.
+- Reinitialize the component. Useful when you want to change initial image.
 
 #### myCroppa.generateDataUrl( type: string )
 - Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to  png).
@@ -264,7 +271,7 @@ const blob = await this.myCroppa.promisedBlob()
   - `croppa` is a croppa object to invoke methods - same as what `v-model` binds.
 
 #### file-choose
-- emitted when user Choose an image from the poppup window.
+- emitted when user choose an image from the poppup window or "drag and drop" a file into the container.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
@@ -272,6 +279,8 @@ const blob = await this.myCroppa.promisedBlob()
 - emitted after file choosing if the chosen file's size exceeds the limit specified by prop fileSizeLimit.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
+
+#### image-remove
 
 #### move
 

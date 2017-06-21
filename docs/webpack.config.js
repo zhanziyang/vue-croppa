@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+var BrowserSync = require('browser-sync-webpack-plugin')
 
 module.exports = {
   entry: './src/main.js',
@@ -54,7 +55,14 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+  plugins: [
+    new BrowserSync({
+      host: 'localhost',
+      port: 3000,
+      proxy: 'http://localhost:8080/'
+    }, { reload: false })
+  ]
 }
 
 if (process.env.NODE_ENV === 'production') {

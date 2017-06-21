@@ -1,5 +1,9 @@
 <template>
-  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''}`">
+  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
+       @dragenter.stop.prevent="handleDragEnter"
+       @dragleave.stop.prevent="handleDragLeave"
+       @dragover.stop.prevent="handleDragOver"
+       @drop.stop.prevent="handleDrop">
     <input type="file"
            :accept="accept"
            :disabled="disabled"
@@ -24,6 +28,7 @@
             @mousemove.stop.prevent="handlePointerMove"
             @pointermove.stop.prevent="handlePointerMove"
             @DOMMouseScroll.stop.prevent="handleWheel"
+            @wheel.stop.prevent="handleWheel"
             @mousewheel.stop.prevent="handleWheel"></canvas>
     <svg class="icon icon-remove"
          v-if="showRemoveButton && img"
@@ -48,6 +53,7 @@
   const INIT_EVENT = 'init'
   const FILE_CHOOSE_EVENT = 'file-choose'
   const FILE_SIZE_EXCEED_EVENT = 'file-size-exceed'
+  const IMAGE_REMOVE = 'image-remove'
   const MOVE_EVENT = 'move'
   const ZOOM_EVENT = 'zoom'
   const INITIAL_IMAGE_LOAD = 'initial-image-load'
@@ -71,7 +77,11 @@
         lastMovingCoord: null,
         imgData: {},
         dataUrl: '',
-        initialLoading: false
+        fileDraggedOver: false,
+        tabStart: 0,
+        pinching: false,
+        pinchDistance: 0,
+        pinchCenter: {}
       }
     },
 
@@ -141,18 +151,14 @@
             this.move({ x: amount, y: 0 })
           },
           zoomIn: () => {
-            this.zoom(true, {
-              x: this.imgData.startX + this.imgData.width / 2,
-              y: this.imgData.startY + this.imgData.height / 2
-            })
+            this.zoom(true)
           },
           zoomOut: () => {
-            this.zoom(false, {
-              x: this.imgData.startX + this.imgData.width / 2,
-              y: this.imgData.startY + this.imgData.height / 2
-            })
+            this.zoom(false)
           },
-          refresh: this.init,
+          refresh: () => {
+            this.$nextTick(this.init)
+          },
           reset: this.unset,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -172,9 +178,15 @@
         ctx.font = fontSize + 'px sans-serif'
         ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
         ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
+
+        let hadImage = this.img != null
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
+
+        if (hadImage) {
+          this.$emit(IMAGE_REMOVE)
+        }
       },
 
       setInitial () {
@@ -182,17 +194,22 @@
         let { tag, elm } = vNode
         if (tag !== 'img' || !elm || !elm.src) {
           this.unset()
+          return
         }
-        this.initialLoading = true
-        elm.onload = () => {
-          this.$emit(INITIAL_IMAGE_LOAD)
+        if (u.imageLoaded(elm)) {
           this.img = elm
           this.imgContentInit()
-        }
+        } else {
+          elm.onload = () => {
+            this.$emit(INITIAL_IMAGE_LOAD)
+            this.img = elm
+            this.imgContentInit()
+          }
 
-        elm.onerror = () => {
-          this.$emit(INITIAL_IMAGE_ERROR)
-          this.unset()
+          elm.onerror = () => {
+            this.$emit(INITIAL_IMAGE_ERROR)
+            this.unset()
+          }
         }
       },
 
@@ -206,6 +223,10 @@
         if (!input.files.length) return
 
         let file = input.files[0]
+        this.onNewFileIn(file)
+      },
+
+      onNewFileIn (file) {
         this.$emit(FILE_CHOOSE_EVENT, file)
         if (!this.fileSizeIsValid(file)) {
           this.$emit(FILE_SIZE_EXCEED_EVENT, file)
@@ -257,8 +278,27 @@
 
       handlePointerStart (evt) {
         if (this.disabled) return
+        // simulate click with touch on mobile devices
+        if (!this.img) {
+          this.tabStart = new Date().valueOf()
+          return
+        }
+        // ignore mouse right click and middle click
         if (evt.which && evt.which > 1) return
-        this.dragging = true
+
+        if (!evt.touches || evt.touches.length === 1) {
+          this.dragging = true
+          this.pinching = false
+          let coord = u.getPointerCoords(evt, this)
+          this.lastMovingCoord = coord
+        }
+
+        if (evt.touches && evt.touches.length === 2) {
+          this.dragging = false
+          this.pinching = true
+          this.pinchDistance = u.getPinchDistance(evt, this)
+          this.pinchCenter = u.getPinchCenterCoord(evt, this)
+        }
 
         if (document) {
           let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
@@ -270,33 +310,76 @@
 
       handlePointerEnd (evt) {
         if (this.disabled) return
+        if (!this.img) {
+          let tabEnd = new Date().valueOf()
+          if (tabEnd - this.tabStart < 1000) {
+            this.chooseFile()
+          }
+          this.tabStart = 0
+          return
+        }
+
         this.dragging = false
+        this.pinching = false
+        this.pinchDistance = 0
+        this.pinchCenter = {}
         this.lastMovingCoord = null
       },
 
       handlePointerMove (evt) {
-        if (this.disabled || this.disableDragToMove) return
-        if (!this.dragging) return
-        let coord = u.getPointerCoords(evt, this)
-        if (this.lastMovingCoord) {
-          this.move({
-            x: coord.x - this.lastMovingCoord.x,
-            y: coord.y - this.lastMovingCoord.y
-          })
+        if (this.disabled || this.disableDragToMove || !this.img) return
+
+        if (!evt.touches || evt.touches.length === 1) {
+          if (!this.dragging) return
+          let coord = u.getPointerCoords(evt, this)
+          if (this.lastMovingCoord) {
+            this.move({
+              x: coord.x - this.lastMovingCoord.x,
+              y: coord.y - this.lastMovingCoord.y
+            })
+          }
+          this.lastMovingCoord = coord
         }
-        this.lastMovingCoord = coord
+
+        if (evt.touches && evt.touches.length === 2) {
+          if (!this.pinching) return
+          let distance = u.getPinchDistance(evt, this)
+          let delta = distance - this.pinchDistance
+          this.zoom(delta > 0, null, 2)
+          this.pinchDistance = distance
+        }
       },
 
       handleWheel (evt) {
-        if (this.disabled || this.disableScrollToZoom) return
+        if (this.disabled || this.disableScrollToZoom || !this.img) return
         let coord = u.getPointerCoords(evt, this)
-        if (evt.wheelDelta < 0 || evt.detail < 0) {
-          // 手指向上
+        if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
           this.zoom(this.reverseZoomingGesture, coord)
-        } else if (evt.wheelDelta > 0 || evt.detail > 0) {
-          // 手指向下
+        } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
           this.zoom(!this.reverseZoomingGesture, coord)
         }
+      },
+
+      handleDragEnter (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        this.fileDraggedOver = true
+        console.log('enter')
+      },
+
+      handleDragLeave (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        this.fileDraggedOver = false
+      },
+
+      handleDragOver (evt) {
+      },
+
+      handleDrop (evt) {
+        if (this.disabled || this.disableDragAndDrop || this.img) return
+        if (!evt.dataTransfer || !evt.dataTransfer.files.length) return
+        this.fileDraggedOver = false
+        let file = evt.dataTransfer.files[0]
+        this.onNewFileIn(file)
       },
 
       move (offset) {
@@ -325,8 +408,12 @@
         }
       },
 
-      zoom (zoomIn, pos) {
-        let speed = (this.realWidth / 100000) * this.zoomSpeed
+      zoom (zoomIn, pos, timesFaster = 1) {
+        pos = pos || {
+          x: this.imgData.startX + this.imgData.width / 2,
+          y: this.imgData.startY + this.imgData.height / 2
+        }
+        let speed = (this.realWidth / 100000) * this.zoomSpeed * timesFaster
         let x = 1
         if (zoomIn) {
           x = 1 + speed
@@ -337,6 +424,7 @@
         this.imgData.height = this.imgData.height * x
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        console.log(offsetX, offsetY)
         this.imgData.startX = this.imgData.startX - offsetX
         this.imgData.startY = this.imgData.startY - offsetY
 
@@ -402,10 +490,17 @@
   .croppa-container 
     display: inline-block
     cursor: pointer
-    transition: opacity .3s
+    transition: all .3s
     position: relative
+    font-size: 0
+    canvas
+      transition: all .3s
     &:hover
       opacity: .7
+    &.croppa--dropzone
+      box-shadow: inset 0 0 10px lightness(black, 20%)
+      canvas
+        opacity: .5
     &.croppa--disabled-cc 
       cursor: default
       &:hover
@@ -428,8 +523,5 @@
       z-index: 10
       cursor: pointer
       border: 2px solid white
-  .image
-    max-width: 100%
-    max-height: 100%
 
 </style>
