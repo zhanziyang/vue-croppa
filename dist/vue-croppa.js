@@ -24,6 +24,9 @@ var u = {
       x: (clientX - rect.left) * quality,
       y: (clientY - rect.top) * quality
     };
+  },
+  imageLoaded: function imageLoaded(img) {
+    return img.complete && img.naturalWidth !== 0;
   }
 };
 
@@ -111,6 +114,7 @@ var props = {
 var INIT_EVENT = 'init';
 var FILE_CHOOSE_EVENT = 'file-choose';
 var FILE_SIZE_EXCEED_EVENT = 'file-size-exceed';
+var IMAGE_REMOVE = 'image-remove';
 var MOVE_EVENT = 'move';
 var ZOOM_EVENT = 'zoom';
 var INITIAL_IMAGE_LOAD = 'initial-image-load';
@@ -163,8 +167,7 @@ var cropper = { render: function render() {
       dragging: false,
       lastMovingCoord: null,
       imgData: {},
-      dataUrl: '',
-      initialLoading: false
+      dataUrl: ''
     };
   },
 
@@ -255,7 +258,9 @@ var cropper = { render: function render() {
             y: _this.imgData.startY + _this.imgData.height / 2
           });
         },
-        refresh: this.init,
+        refresh: function refresh() {
+          _this.$nextTick(_this.init);
+        },
         reset: this.unset,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
@@ -274,9 +279,15 @@ var cropper = { render: function render() {
       ctx.font = fontSize + 'px sans-serif';
       ctx.fillStyle = !this.placeholderColor || this.placeholderColor == 'default' ? '#606060' : this.placeholderColor;
       ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2);
+
+      var hadImage = this.img != null;
       this.img = null;
       this.$refs.fileInput.value = '';
       this.imgData = {};
+
+      if (hadImage) {
+        this.$emit(IMAGE_REMOVE);
+      }
     },
     setInitial: function setInitial() {
       var _this2 = this;
@@ -287,18 +298,23 @@ var cropper = { render: function render() {
 
       if (tag !== 'img' || !elm || !elm.src) {
         this.unset();
+        return;
       }
-      this.initialLoading = true;
-      elm.onload = function () {
-        _this2.$emit(INITIAL_IMAGE_LOAD);
-        _this2.img = elm;
-        _this2.imgContentInit();
-      };
+      if (u.imageLoaded(elm)) {
+        this.img = elm;
+        this.imgContentInit();
+      } else {
+        elm.onload = function () {
+          _this2.$emit(INITIAL_IMAGE_LOAD);
+          _this2.img = elm;
+          _this2.imgContentInit();
+        };
 
-      elm.onerror = function () {
-        _this2.$emit(INITIAL_IMAGE_ERROR);
-        _this2.unset();
-      };
+        elm.onerror = function () {
+          _this2.$emit(INITIAL_IMAGE_ERROR);
+          _this2.unset();
+        };
+      }
     },
     chooseFile: function chooseFile() {
       if (this.img || this.disableClickToChoose) return;
@@ -358,7 +374,7 @@ var cropper = { render: function render() {
       this.draw();
     },
     handlePointerStart: function handlePointerStart(evt) {
-      if (this.disabled) return;
+      if (this.disabled || !this.img) return;
       if (evt.which && evt.which > 1) return;
       this.dragging = true;
 
@@ -391,12 +407,12 @@ var cropper = { render: function render() {
       }
     },
     handlePointerEnd: function handlePointerEnd(evt) {
-      if (this.disabled) return;
+      if (this.disabled || !this.img) return;
       this.dragging = false;
       this.lastMovingCoord = null;
     },
     handlePointerMove: function handlePointerMove(evt) {
-      if (this.disabled || this.disableDragToMove) return;
+      if (this.disabled || this.disableDragToMove || !this.img) return;
       if (!this.dragging) return;
       var coord = u.getPointerCoords(evt, this);
       if (this.lastMovingCoord) {
@@ -408,7 +424,7 @@ var cropper = { render: function render() {
       this.lastMovingCoord = coord;
     },
     handleWheel: function handleWheel(evt) {
-      if (this.disabled || this.disableScrollToZoom) return;
+      if (this.disabled || this.disableScrollToZoom || !this.img) return;
       var coord = u.getPointerCoords(evt, this);
       if (evt.wheelDelta < 0 || evt.detail < 0) {
         // 手指向上
