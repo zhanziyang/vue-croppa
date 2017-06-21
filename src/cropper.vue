@@ -70,8 +70,7 @@
         dragging: false,
         lastMovingCoord: null,
         imgData: {},
-        dataUrl: '',
-        initialLoading: false
+        dataUrl: ''
       }
     },
 
@@ -152,7 +151,9 @@
               y: this.imgData.startY + this.imgData.height / 2
             })
           },
-          refresh: this.init,
+          refresh: () => {
+            this.$nextTick(this.init)
+          },
           reset: this.unset,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -182,17 +183,22 @@
         let { tag, elm } = vNode
         if (tag !== 'img' || !elm || !elm.src) {
           this.unset()
+          return
         }
-        this.initialLoading = true
-        elm.onload = () => {
-          this.$emit(INITIAL_IMAGE_LOAD)
+        if (u.imageLoaded(elm)) {
           this.img = elm
           this.imgContentInit()
-        }
+        } else {
+          elm.onload = () => {
+            this.$emit(INITIAL_IMAGE_LOAD)
+            this.img = elm
+            this.imgContentInit()
+          }
 
-        elm.onerror = () => {
-          this.$emit(INITIAL_IMAGE_ERROR)
-          this.unset()
+          elm.onerror = () => {
+            this.$emit(INITIAL_IMAGE_ERROR)
+            this.unset()
+          }
         }
       },
 

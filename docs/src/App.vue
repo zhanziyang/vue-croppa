@@ -177,6 +177,9 @@
             <v-btn dark
                    default
                    @click.native="getDataUrl">Data Url</v-btn>
+            <v-btn dark
+                   default
+                   @click.native="refresh">Refresh</v-btn>
           </v-flex>
         </v-layout>
       </v-flex>
@@ -617,14 +620,10 @@
 
     watch: {
       withInitialImage: function () {
-        this.$nextTick(() => {
-          this.refresh()
-        })
+        this.refresh()
       },
       initialImageSrc: function () {
-        this.$nextTick(() => {
-          debounce(this.refresh, 1000)()
-        })
+        this.refresh()
       }
     },
 

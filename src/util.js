@@ -8,5 +8,9 @@ export default {
       x: (clientX - rect.left) * quality,
       y: (clientY - rect.top) * quality
     }
+  },
+
+  imageLoaded(img) {
+    return img.complete && img.naturalWidth !== 0
   }
 }
