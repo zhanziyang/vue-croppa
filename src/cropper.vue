@@ -269,7 +269,7 @@
       },
 
       handlePointerStart (evt) {
-        if (this.disabled) return
+        if (this.disabled || !this.img) return
         if (evt.which && evt.which > 1) return
         this.dragging = true
 
@@ -282,13 +282,13 @@
       },
 
       handlePointerEnd (evt) {
-        if (this.disabled) return
+        if (this.disabled || !this.img) return
         this.dragging = false
         this.lastMovingCoord = null
       },
 
       handlePointerMove (evt) {
-        if (this.disabled || this.disableDragToMove) return
+        if (this.disabled || this.disableDragToMove || !this.img) return
         if (!this.dragging) return
         let coord = u.getPointerCoords(evt, this)
         if (this.lastMovingCoord) {
@@ -301,7 +301,7 @@
       },
 
       handleWheel (evt) {
-        if (this.disabled || this.disableScrollToZoom) return
+        if (this.disabled || this.disableScrollToZoom || !this.img) return
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.detail < 0) {
           // 手指向上
