@@ -51,8 +51,11 @@ var u = {
   imageLoaded: function imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0;
   },
-  supportTouchEvent: function supportTouchEvent() {
-    return 'ontouchstart' in document.documentElement;
+  touchDetect: function touchDetect() {
+    window.addEventListener('touchstart', function onFirstTouch() {
+      window.USER_IS_TOUCHING = true;
+      window.removeEventListener('touchstart', onFirstTouch, false);
+    }, false);
   },
   rAFPolyfill: function rAFPolyfill() {
     // rAF polyfill
@@ -182,6 +185,7 @@ var INITIAL_IMAGE_LOAD = 'initial-image-load';
 var INITIAL_IMAGE_ERROR = 'initial-image-error';
 
 u.rAFPolyfill();
+u.touchDetect();
 
 var cropper = { render: function render() {
     var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
@@ -390,7 +394,7 @@ var cropper = { render: function render() {
       this.$refs.fileInput.click();
     },
     handleClick: function handleClick() {
-      if (!this.img && !this.disableClickToChoose && !this.disabled && !u.supportTouchEvent()) {
+      if (!this.img && !this.disableClickToChoose && !this.disabled && window.USER_IS_TOUCHING) {
         this.chooseFile();
       }
     },
