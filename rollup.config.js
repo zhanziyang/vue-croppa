@@ -9,6 +9,7 @@ const autoprefixer = require('autoprefixer')
 const clean = require('postcss-clean')
 const postcss = require('postcss')
 const fs = require('fs')
+const { version } = require('./package.json')
 
 let production = /^production/.test(process.env.BUILD)
 let min = process.env.BUILD === 'production-min'
@@ -21,7 +22,7 @@ module.exports = {
   sourceMap: production ? false : 'inline',
   banner: `\
 /*
- * vue-croppa v0.0.19
+ * vue-croppa v${version}
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
