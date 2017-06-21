@@ -1,7 +1,7 @@
 # vue-croppa
 > A simple straightforward customizable image cropper for vue.js.
 
-<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=2" width="400" alt="try it out" /></a>
+<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
 
 ## Template Example
