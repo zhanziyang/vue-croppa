@@ -65,7 +65,9 @@ export default {
   disableClickToChoose: Boolean,
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
-  reverseZoomingGesture: Boolean,
+  disablePinchToZoom: Boolean,
+  reverseZoomingGesture: Boolean, // deprecated
+  reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,
   showRemoveButton: {
     type: Boolean,

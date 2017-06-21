@@ -18,10 +18,17 @@
         <h5>Try It Out
         </h5>
         <p class="tip">
+          <i class="iconfont icon-pc"></i>
           <em :class="disabled || disableDragAndDrop ? 's' : ''">Drag and drop a file</em> |
           <em :class="disabled || disableClickToChoose ? 's' : ''">Click to choose a file</em> |
           <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
           <em :class="disabled || disableScrollToZoom ? 's' : ''">Scroll to zoom</em>
+        </p>
+        <p class="tip">
+          <i class="iconfont icon-mobile"></i>
+          <em :class="disabled || disableClickToChoose ? 's' : ''">Tab to choose a file</em> |
+          <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
+          <em :class="disabled || disablePinchToZoom ? 's' : ''">Pinch with two fingers to zoom</em>
         </p>
         <img src="https://zhanziyang.github.io/vue-croppa/static/initial-image.png"
              class="preload">
@@ -41,8 +48,9 @@
                 :disable-click-to-choose="disableClickToChoose"
                 :disable-drag-to-move="disableDragToMove"
                 :disable-scroll-to-zoom="disableScrollToZoom"
+                :disable-pinch-to-zoom="disablePinchToZoom"
                 :prevent-white-space="preventWhiteSpace"
-                :reverse-zooming-gesture="reverseZoomingGesture"
+                :reverse-scroll-to-zoom="reverseScrollToZoom"
                 :show-remove-button="showRemoveButton"
                 :remove-button-color="removeButtonColor"
                 :remove-button-size="+removeButtonSize"
@@ -159,18 +167,6 @@
                   column
                   wrap>
           <v-flex md4>
-            <v-switch v-bind:label="`disabled`"
-                      v-model="disabled"></v-switch>
-          </v-flex>
-          <v-flex md4>
-            <v-switch v-bind:label="`disableDragAndDrop`"
-                      v-model="disableDragAndDrop"></v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout row-md
-                  column
-                  wrap>
-          <v-flex md4>
             <v-switch v-bind:label="`disableClickToChoose`"
                       v-model="disableClickToChoose"></v-switch>
           </v-flex>
@@ -187,12 +183,28 @@
                   column
                   wrap>
           <v-flex md4>
+            <v-switch v-bind:label="`disableDragAndDrop`"
+                      v-model="disableDragAndDrop"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`disablePinchToZoom`"
+                      v-model="disablePinchToZoom"></v-switch>
+          </v-flex>
+          <v-flex md4>
+            <v-switch v-bind:label="`disabled (all)`"
+                      v-model="disabled"></v-switch>
+          </v-flex>
+        </v-layout>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md4>
             <v-switch v-bind:label="`preventWhiteSpace`"
                       v-model="preventWhiteSpace"></v-switch>
           </v-flex>
           <v-flex md4>
-            <v-switch v-bind:label="`reverseZoomingGesture`"
-                      v-model="reverseZoomingGesture"></v-switch>
+            <v-switch v-bind:label="`reverseScrollToZoom`"
+                      v-model="reverseScrollToZoom"></v-switch>
           </v-flex>
         </v-layout>
         <v-layout row-md
@@ -381,7 +393,7 @@
           </li>
           <li>
             <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking
+            <p class="pt-2">Disables the default "click to choose an image" ("tab" on mobile) user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking
               <code>chooseFile()</code> method.</p>
           </li>
           <li>
@@ -399,8 +411,23 @@
               <code>zoomOut()</code> methods.</p>
           </li>
           <li>
+            <strong>disable-pinch-to-zoom</strong>
+            <p class="pt-2">Disables the default "pinch with two fingers to zoom" user interaction
+              <strong>on mobile</strong>. You can instead zoom the image programmatically by invoking
+              <code>zoomIn()</code>/
+              <code>zoomOut()</code> methods.</p>
+          </li>
+          <li class="deprecated">
             <strong>reverse-zooming-gesture</strong>
-            <p class="pt-2">Reverses the zoom-in/zoom-out direction when scrolling.</p>
+            <p class="pt-2">
+              <b>Deprecated</b> @v0.0.20+. Please use
+              <code>reverse-scroll-to-zoom</code> instead. Because this doesn't reverse pinch to zoom.
+            </p>
+            <p>Reverses the zoom-in/zoom-out direction when scrolling.</p>
+          </li>
+          <li>
+            <strong>reverse-scroll-to-zoom</strong>
+            <p>Reverses the zoom-in/zoom-out direction when scrolling.</p>
           </li>
           <li>
             <strong>prevent-white-space</strong>
@@ -578,7 +605,8 @@
         disableDragToMove: false,
         disableScrollToZoom: false,
         preventWhiteSpace: false,
-        reverseZoomingGesture: false,
+        disablePinchToZoom: false,
+        reverseScrollToZoom: false,
         showRemoveButton: true,
         removeButtonColor: 'red',
         removeButtonSize: 0,
@@ -608,8 +636,9 @@
           :disable-click-to-choose="${this.disableClickToChoose}"
           :disable-drag-to-move="${this.disableDragToMove}"
           :disable-scroll-to-zoom="${this.disableScrollToZoom}"
+          :disable-pinch-to-zoom="${this.disablePinchToZoom}"
           :prevent-white-space="${this.preventWhiteSpace}"
-          :reverse-zooming-gesture="${this.reverseZoomingGesture}"
+          :reverse-scroll-to-zoom="${this.reverseScrollToZoom}"
           :show-remove-button="${this.showRemoveButton}"
           :remove-button-color="'${this.removeButtonColor}'"
           :remove-button-size="${this.removeButtonSize}"
@@ -787,4 +816,9 @@
     height: 0
     visibility: 0
     display: block
+  .deprecated
+    strong
+      text-decoration: line-through
+    b
+      color: red
 </style>

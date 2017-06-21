@@ -40,6 +40,10 @@ export default {
     return img.complete && img.naturalWidth !== 0
   },
 
+  supportTouchEvent() {
+    return 'ontouchstart' in document.documentElement
+  },
+
   rAFPolyfill() {
     // rAF polyfill
     var lastTime = 0

@@ -15,7 +15,7 @@
       <slot name="initial"></slot>
     </div>
     <canvas ref="canvas"
-            @click="!disabled && chooseFile()"
+            @click.stop.prevent="handleClick"
             @touchstart.stop.prevent="handlePointerStart"
             @mousedown.stop.prevent="handlePointerStart"
             @pointerstart.stop.prevent="handlePointerStart"
@@ -214,8 +214,13 @@
       },
 
       chooseFile () {
-        if (this.img || this.disableClickToChoose) return
         this.$refs.fileInput.click()
+      },
+
+      handleClick () {
+        if (!this.img && !this.disableClickToChoose && !this.disabled && !u.supportTouchEvent()) {
+          this.chooseFile()
+        }
       },
 
       handleInputChange () {
@@ -279,7 +284,7 @@
       handlePointerStart (evt) {
         if (this.disabled) return
         // simulate click with touch on mobile devices
-        if (!this.img) {
+        if (!this.img && !this.disableClickToChoose) {
           this.tabStart = new Date().valueOf()
           return
         }
@@ -293,7 +298,7 @@
           this.lastMovingCoord = coord
         }
 
-        if (evt.touches && evt.touches.length === 2) {
+        if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
           this.dragging = false
           this.pinching = true
           this.pinchDistance = u.getPinchDistance(evt, this)
@@ -309,7 +314,7 @@
 
       handlePointerEnd (evt) {
         if (this.disabled) return
-        if (!this.img) {
+        if (!this.img && !this.disableClickToChoose) {
           let tabEnd = new Date().valueOf()
           if (tabEnd - this.tabStart < 1000) {
             this.chooseFile()
@@ -339,7 +344,7 @@
           this.lastMovingCoord = coord
         }
 
-        if (evt.touches && evt.touches.length === 2) {
+        if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
           if (!this.pinching) return
           let distance = u.getPinchDistance(evt, this)
           let delta = distance - this.pinchDistance
@@ -352,16 +357,15 @@
         if (this.disabled || this.disableScrollToZoom || !this.img) return
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-          this.zoom(this.reverseZoomingGesture, coord)
+          this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord)
         } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-          this.zoom(!this.reverseZoomingGesture, coord)
+          this.zoom(!this.reverseZoomingGesture && !this.reverseScrollToZoom, coord)
         }
       },
 
       handleDragEnter (evt) {
         if (this.disabled || this.disableDragAndDrop || this.img) return
         this.fileDraggedOver = true
-        console.log('enter')
       },
 
       handleDragLeave (evt) {
@@ -422,7 +426,6 @@
         this.imgData.height = this.imgData.height * x
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-        console.log(offsetX, offsetY)
         this.imgData.startX = this.imgData.startX - offsetX
         this.imgData.startY = this.imgData.startY - offsetY
 

@@ -50,6 +50,41 @@ var u = {
   },
   imageLoaded: function imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0;
+  },
+  supportTouchEvent: function supportTouchEvent() {
+    return 'ontouchstart' in document.documentElement;
+  },
+  rAFPolyfill: function rAFPolyfill() {
+    // rAF polyfill
+    var lastTime = 0;
+    var vendors = ['webkit', 'moz'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+      window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+      window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || // Webkit中此取消方法的名字变了
+      window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame) {
+      window.requestAnimationFrame = function (callback) {
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0, 16.7 - (currTime - lastTime));
+        var id = window.setTimeout(function () {
+          var arg = currTime + timeToCall;
+          callback(arg);
+        }, timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+      };
+    }
+    if (!window.cancelAnimationFrame) {
+      window.cancelAnimationFrame = function (id) {
+        clearTimeout(id);
+      };
+    }
+
+    Array.isArray = function (arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]';
+    };
   }
 };
 
@@ -120,7 +155,9 @@ var props = {
   disableClickToChoose: Boolean,
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
-  reverseZoomingGesture: Boolean,
+  disablePinchToZoom: Boolean,
+  reverseZoomingGesture: Boolean, // deprecated
+  reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,
   showRemoveButton: {
     type: Boolean,
@@ -144,6 +181,8 @@ var ZOOM_EVENT = 'zoom';
 var INITIAL_IMAGE_LOAD = 'initial-image-load';
 var INITIAL_IMAGE_ERROR = 'initial-image-error';
 
+u.rAFPolyfill();
+
 var cropper = { render: function render() {
     var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDragEnter($event);
@@ -154,7 +193,7 @@ var cropper = { render: function render() {
         }, "drop": function drop($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDrop($event);
         } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
-          !_vm.disabled && _vm.chooseFile();
+          $event.stopPropagation();$event.preventDefault();_vm.handleClick($event);
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
         }, "mousedown": function mousedown($event) {
@@ -205,8 +244,7 @@ var cropper = { render: function render() {
       fileDraggedOver: false,
       tabStart: 0,
       pinching: false,
-      pinchDistance: 0,
-      pinchCenter: {}
+      pinchDistance: 0
     };
   },
 
@@ -303,7 +341,6 @@ var cropper = { render: function render() {
     },
     unset: function unset() {
       var ctx = this.ctx;
-      ctx.clearRect(0, 0, this.realWidth, this.realHeight);
       this.paintBackground();
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
@@ -350,8 +387,12 @@ var cropper = { render: function render() {
       }
     },
     chooseFile: function chooseFile() {
-      if (this.img || this.disableClickToChoose) return;
       this.$refs.fileInput.click();
+    },
+    handleClick: function handleClick() {
+      if (!this.img && !this.disableClickToChoose && !this.disabled && !u.supportTouchEvent()) {
+        this.chooseFile();
+      }
     },
     handleInputChange: function handleInputChange() {
       var input = this.$refs.fileInput;
@@ -412,7 +453,7 @@ var cropper = { render: function render() {
     handlePointerStart: function handlePointerStart(evt) {
       if (this.disabled) return;
       // simulate click with touch on mobile devices
-      if (!this.img) {
+      if (!this.img && !this.disableClickToChoose) {
         this.tabStart = new Date().valueOf();
         return;
       }
@@ -426,11 +467,10 @@ var cropper = { render: function render() {
         this.lastMovingCoord = coord;
       }
 
-      if (evt.touches && evt.touches.length === 2) {
+      if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
         this.dragging = false;
         this.pinching = true;
         this.pinchDistance = u.getPinchDistance(evt, this);
-        this.pinchCenter = u.getPinchCenterCoord(evt, this);
       }
 
       if (document) {
@@ -463,7 +503,7 @@ var cropper = { render: function render() {
     },
     handlePointerEnd: function handlePointerEnd(evt) {
       if (this.disabled) return;
-      if (!this.img) {
+      if (!this.img && !this.disableClickToChoose) {
         var tabEnd = new Date().valueOf();
         if (tabEnd - this.tabStart < 1000) {
           this.chooseFile();
@@ -475,7 +515,6 @@ var cropper = { render: function render() {
       this.dragging = false;
       this.pinching = false;
       this.pinchDistance = 0;
-      this.pinchCenter = {};
       this.lastMovingCoord = null;
     },
     handlePointerMove: function handlePointerMove(evt) {
@@ -493,7 +532,7 @@ var cropper = { render: function render() {
         this.lastMovingCoord = coord;
       }
 
-      if (evt.touches && evt.touches.length === 2) {
+      if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
         if (!this.pinching) return;
         var distance = u.getPinchDistance(evt, this);
         var delta = distance - this.pinchDistance;
@@ -505,15 +544,14 @@ var cropper = { render: function render() {
       if (this.disabled || this.disableScrollToZoom || !this.img) return;
       var coord = u.getPointerCoords(evt, this);
       if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-        this.zoom(this.reverseZoomingGesture, coord);
+        this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord);
       } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-        this.zoom(!this.reverseZoomingGesture, coord);
+        this.zoom(!this.reverseZoomingGesture && !this.reverseScrollToZoom, coord);
       }
     },
     handleDragEnter: function handleDragEnter(evt) {
       if (this.disabled || this.disableDragAndDrop || this.img) return;
       this.fileDraggedOver = true;
-      console.log('enter');
     },
     handleDragLeave: function handleDragLeave(evt) {
       if (this.disabled || this.disableDragAndDrop || this.img) return;
@@ -569,7 +607,6 @@ var cropper = { render: function render() {
       this.imgData.height = this.imgData.height * x;
       var offsetX = (x - 1) * (pos.x - this.imgData.startX);
       var offsetY = (x - 1) * (pos.y - this.imgData.startY);
-      console.log(offsetX, offsetY);
       this.imgData.startX = this.imgData.startX - offsetX;
       this.imgData.startY = this.imgData.startY - offsetY;
 
@@ -596,6 +633,8 @@ var cropper = { render: function render() {
       this.ctx.fillRect(0, 0, this.realWidth, this.realHeight);
     },
     draw: function draw() {
+      var _this4 = this;
+
       var ctx = this.ctx;
       if (!this.img) return;
       var _imgData = this.imgData,
@@ -604,9 +643,10 @@ var cropper = { render: function render() {
           width = _imgData.width,
           height = _imgData.height;
 
-      ctx.clearRect(0, 0, this.realWidth, this.realHeight);
-      this.paintBackground();
-      ctx.drawImage(this.img, startX, startY, width, height);
+      requestAnimationFrame(function () {
+        _this4.paintBackground();
+        ctx.drawImage(_this4.img, startX, startY, width, height);
+      });
     },
     generateDataUrl: function generateDataUrl(type) {
       if (!this.img) return '';
@@ -617,7 +657,7 @@ var cropper = { render: function render() {
       this.canvas.toBlob(callback, mimeType, qualityArgument);
     },
     promisedBlob: function promisedBlob() {
-      var _this4 = this;
+      var _this5 = this;
 
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -625,7 +665,7 @@ var cropper = { render: function render() {
 
       return new Promise(function (resolve, reject) {
         try {
-          _this4.generateBlob(function (blob) {
+          _this5.generateBlob(function (blob) {
             resolve(blob);
           }, args);
         } catch (err) {

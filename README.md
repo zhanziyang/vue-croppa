@@ -158,7 +158,7 @@ Disables the default "drag and drop a file" user interaction. You can instead t
 - default: `false`
 
 #### disable-click-to-choose
-Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
+Disables the default "click to choose a file" ("tab" on mobile) user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
 - type: `boolean`
 - default: `false`
 
@@ -172,7 +172,19 @@ Disables the default "scroll to zoom" user interaction. You can instead zoom the
 - type: `boolean`
 - default: `false`
 
-#### reverse-zooming-gesture
+#### disable-pinch-to-zoom
+Disables the default "pinch with two fingers to zoom" user interaction **on mobile**. You can instead zoom the image programmatically by invoking `zoomIn()` / `zoomOut()` methods.
+- type: `boolean`
+- default: `false`
+
+#### <s>reverse-zooming-gesture</s>
+**Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. Because this doesn't reverse pinch to zoom.
+
+Reverses the zoom-in/zoom-out direction when scrolling.
+- type: `boolean`
+- default: `false`
+
+#### reverse-scroll-to-zoom
 Reverses the zoom-in/zoom-out direction when scrolling.
 - type: `boolean`
 - default: `false`
