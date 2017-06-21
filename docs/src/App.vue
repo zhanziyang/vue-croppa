@@ -174,6 +174,7 @@
                   wrap>
           <v-flex xs12>
             <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
+            <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
             <v-btn dark
                    default
                    @click.native="getDataUrl">Data Url</v-btn>
@@ -458,7 +459,7 @@
           </li>
           <li>
             <strong>myCroppa.refresh()</strong>
-            <p class="pt-1">Reinitialize the component.</p>
+            <p class="pt-1">Reinitialize the component. Useful when you want to change initial image.</p>
           </li>
           <li>
             <strong>myCroppa.generateDataUrl( type: string )</strong>
@@ -496,6 +497,9 @@
           </li>
           <li>
             <strong>file-size-exceed</strong>
+          </li>
+          <li>
+            <strong>image-remove</strong>
           </li>
           <li>
             <strong>move</strong>
@@ -594,6 +598,10 @@
 
       methodExample3 () {
         return `alert(this.myCroppa.generateDataUrl())`
+      },
+
+      methodExample4 () {
+        return `this.myCroppa.refresh()`
       },
 
       installStyle () {

@@ -30,6 +30,7 @@
         @init="handleCroppaInit"
         @file-choose="handleCroppaFileChoose"
         @file-size-exceed="handleCroppaFileSizeExceed"
+        @image-remove="handleImageRemove"
         @move="handleCroppaMove"
         @zoom="handleCroppaZoom"></croppa>
 ```
@@ -241,7 +242,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - Removes the current image, can be used to implement your own remove-button.
 
 #### myCroppa.refresh()
-- Reinitialize the component.
+- Reinitialize the component. Useful when you want to change initial image.
 
 #### myCroppa.generateDataUrl( type: string )
 - Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to  png).
@@ -272,6 +273,8 @@ const blob = await this.myCroppa.promisedBlob()
 - emitted after file choosing if the chosen file's size exceeds the limit specified by prop fileSizeLimit.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
+
+#### image-remove
 
 #### move
 
