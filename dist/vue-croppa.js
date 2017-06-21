@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.18
+ * vue-croppa v0.0.19
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -93,6 +93,7 @@ var props = {
     }
   },
   disabled: Boolean,
+  disableDragAndDrop: Boolean,
   disableClickToChoose: Boolean,
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
@@ -121,7 +122,15 @@ var INITIAL_IMAGE_LOAD = 'initial-image-load';
 var INITIAL_IMAGE_ERROR = 'initial-image-error';
 
 var cropper = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleDragEnter($event);
+        }, "dragleave": function dragleave($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleDragLeave($event);
+        }, "dragover": function dragover($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleDragOver($event);
+        }, "drop": function drop($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleDrop($event);
+        } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           !_vm.disabled && _vm.chooseFile();
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
@@ -147,6 +156,8 @@ var cropper = { render: function render() {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
         }, "DOMMouseScroll": function DOMMouseScroll($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
+        }, "wheel": function wheel($event) {
+          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
         }, "mousewheel": function mousewheel($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
         } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.unset } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e()]);
@@ -167,7 +178,8 @@ var cropper = { render: function render() {
       dragging: false,
       lastMovingCoord: null,
       imgData: {},
-      dataUrl: ''
+      dataUrl: '',
+      fileDraggedOver: false
     };
   },
 
@@ -321,12 +333,15 @@ var cropper = { render: function render() {
       this.$refs.fileInput.click();
     },
     handleInputChange: function handleInputChange() {
-      var _this3 = this;
-
       var input = this.$refs.fileInput;
       if (!input.files.length) return;
 
       var file = input.files[0];
+      this.onNewFileIn(file);
+    },
+    onNewFileIn: function onNewFileIn(file) {
+      var _this3 = this;
+
       this.$emit(FILE_CHOOSE_EVENT, file);
       if (!this.fileSizeIsValid(file)) {
         this.$emit(FILE_SIZE_EXCEED_EVENT, file);
@@ -426,13 +441,28 @@ var cropper = { render: function render() {
     handleWheel: function handleWheel(evt) {
       if (this.disabled || this.disableScrollToZoom || !this.img) return;
       var coord = u.getPointerCoords(evt, this);
-      if (evt.wheelDelta < 0 || evt.detail < 0) {
-        // 手指向上
+      if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
         this.zoom(this.reverseZoomingGesture, coord);
-      } else if (evt.wheelDelta > 0 || evt.detail > 0) {
-        // 手指向下
+      } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
         this.zoom(!this.reverseZoomingGesture, coord);
       }
+    },
+    handleDragEnter: function handleDragEnter(evt) {
+      if (this.disabled || this.disableDragAndDrop || this.img) return;
+      this.fileDraggedOver = true;
+      console.log('enter');
+    },
+    handleDragLeave: function handleDragLeave(evt) {
+      if (this.disabled || this.disableDragAndDrop || this.img) return;
+      this.fileDraggedOver = false;
+    },
+    handleDragOver: function handleDragOver(evt) {},
+    handleDrop: function handleDrop(evt) {
+      if (this.disabled || this.disableDragAndDrop || this.img) return;
+      if (!evt.dataTransfer || !evt.dataTransfer.files.length) return;
+      this.fileDraggedOver = false;
+      var file = evt.dataTransfer.files[0];
+      this.onNewFileIn(file);
     },
     move: function move(offset) {
       if (!offset) return;
