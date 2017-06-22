@@ -307,3 +307,4 @@ const blob = await this.myCroppa.promisedBlob()
 ## To Do List
 
 - [ ] File type filter on drag and drop
+- [ ] Fix image moves while scrolling after zooming to min size when preventWhiteSpace == true
