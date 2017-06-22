@@ -308,3 +308,7 @@ const blob = await this.myCroppa.promisedBlob()
 
 - [ ] File type filter on drag and drop
 - [ ] Fix image moves while scrolling after zooming to min size when preventWhiteSpace == true
+- [ ] Deprecate unnecessary `initial-image-load` and `initial-image-error` events, because you can directly bind them on img tag.
+- [ ] Add a method `hasImage()` to represent whether currently there is a image.
+- [ ] Add more method examples in docs.
+- [ ] Add a showcase with different customization cases.
