@@ -158,11 +158,7 @@ Disables the default "drag and drop a file" user interaction. You can instead t
 - default: `false`
 
 #### disable-click-to-choose
-<<<<<<< HEAD
-Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
-=======
 Disables the default "click to choose a file" ("tab" on mobile) user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
 - type: `boolean`
 - default: `false`
 

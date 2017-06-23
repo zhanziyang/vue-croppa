@@ -83,12 +83,7 @@
         fileDraggedOver: false,
         tabStart: 0,
         pinching: false,
-<<<<<<< HEAD
-        pinchDistance: 0,
-        pinchCenter: {}
-=======
         pinchDistance: 0
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
       }
     },
 
@@ -290,11 +285,7 @@
       handlePointerStart (evt) {
         if (this.disabled) return
         // simulate click with touch on mobile devices
-<<<<<<< HEAD
-        if (!this.img) {
-=======
         if (!this.img && !this.disableClickToChoose) {
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
           this.tabStart = new Date().valueOf()
           return
         }
@@ -308,18 +299,10 @@
           this.lastMovingCoord = coord
         }
 
-<<<<<<< HEAD
-        if (evt.touches && evt.touches.length === 2) {
-          this.dragging = false
-          this.pinching = true
-          this.pinchDistance = u.getPinchDistance(evt, this)
-          this.pinchCenter = u.getPinchCenterCoord(evt, this)
-=======
         if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
           this.dragging = false
           this.pinching = true
           this.pinchDistance = u.getPinchDistance(evt, this)
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
         }
 
         if (document) {
@@ -332,11 +315,7 @@
 
       handlePointerEnd (evt) {
         if (this.disabled) return
-<<<<<<< HEAD
-        if (!this.img) {
-=======
         if (!this.img && !this.disableClickToChoose) {
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
           let tabEnd = new Date().valueOf()
           if (tabEnd - this.tabStart < 1000) {
             this.chooseFile()
@@ -348,10 +327,6 @@
         this.dragging = false
         this.pinching = false
         this.pinchDistance = 0
-<<<<<<< HEAD
-        this.pinchCenter = {}
-=======
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
         this.lastMovingCoord = null
       },
 
@@ -370,11 +345,7 @@
           this.lastMovingCoord = coord
         }
 
-<<<<<<< HEAD
-        if (evt.touches && evt.touches.length === 2) {
-=======
         if (evt.touches && evt.touches.length === 2 && !this.disablePinchToZoom) {
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
           if (!this.pinching) return
           let distance = u.getPinchDistance(evt, this)
           let delta = distance - this.pinchDistance
@@ -387,25 +358,15 @@
         if (this.disabled || this.disableScrollToZoom || !this.img) return
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-<<<<<<< HEAD
-          this.zoom(this.reverseZoomingGesture, coord)
-        } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-          this.zoom(!this.reverseZoomingGesture, coord)
-=======
           this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord)
         } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
           this.zoom(!this.reverseZoomingGesture && !this.reverseScrollToZoom, coord)
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
         }
       },
 
       handleDragEnter (evt) {
         if (this.disabled || this.disableDragAndDrop || this.img) return
         this.fileDraggedOver = true
-<<<<<<< HEAD
-        console.log('enter')
-=======
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
       },
 
       handleDragLeave (evt) {

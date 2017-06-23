@@ -38,8 +38,6 @@ export default {
 
   imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0
-<<<<<<< HEAD
-=======
   },
 
   touchDetect() {
@@ -80,6 +78,5 @@ export default {
     Array.isArray = function (arg) {
       return Object.prototype.toString.call(arg) === '[object Array]'
     }
->>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
   }
 }
