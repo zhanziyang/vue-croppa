@@ -370,7 +370,7 @@
       },
 
       handleDragLeave (evt) {
-        if (this.disabled || this.disableDragAndDrop || this.img) return
+        if (!this.fileDraggedOver) return
         this.fileDraggedOver = false
       },
 
@@ -378,10 +378,12 @@
       },
 
       handleDrop (evt) {
-        if (this.disabled || this.disableDragAndDrop || this.img) return
-        if (!evt.dataTransfer || !evt.dataTransfer.files.length) return
+        if (!this.fileDraggedOver) return
         this.fileDraggedOver = false
+
+        if (!evt.dataTransfer || !evt.dataTransfer.files.length) return
         let file = evt.dataTransfer.files[0]
+
         this.onNewFileIn(file)
       },
 
