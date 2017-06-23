@@ -178,7 +178,7 @@ Disables the default "pinch with two fingers to zoom" user interaction **on mobi
 - default: `false`
 
 #### <s>reverse-zooming-gesture</s>
-**Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. Because this doesn't reverse pinch to zoom.
+**Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. The name isn't proper because you can not reverse pinch to zoom.
 
 Reverses the zoom-in/zoom-out direction when scrolling.
 - type: `boolean`
@@ -221,10 +221,6 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   <img slot="initial" :src="initialImageUrl" />
 </croppa>
 ```
-
-- related:
-  - [`initial-image-load` event](#initial-image-load)
-  - [`initial-image-error` event](#initial-image-error)
 
 ---
 
@@ -298,17 +294,20 @@ const blob = await this.myCroppa.promisedBlob()
 
 #### zoom
 
-#### initial-image-load
+#### <s>initial-image-load</s>
+- **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@load` event on img tag.
 - emitted when initial image is [provided](#initial) and successully loaded.
 
-#### initial-image-error
+#### <s>initial-image-error</s>
+- **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@error` event on img tag.
 - emitted when initial image is [provided](#initial) and failed loading.
 
 ## To Do List
 
-- [ ] File type filter on drag and drop
+- [ ] File type filter on drag and drop. Add a `file-type-mismatch` event.
 - [ ] Fix image moves while scrolling after zooming to min size when `preventWhiteSpace == true`
-- [ ] Deprecate unnecessary `initial-image-load` and `initial-image-error` events, because you can directly bind them on img tag.
+- [x] Deprecation warning of unnecessary `initial-image-load` and `initial-image-error` events.
 - [ ] Add a method `hasImage()` to represent whether currently there is a image.
 - [ ] Add more method examples in docs.
-- [ ] Add a showcase with different customization cases.
+- [ ] Add a showcase with different customization use cases.
+- [ ] Doc about css styling.

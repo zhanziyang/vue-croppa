@@ -421,7 +421,7 @@
             <strong>reverse-zooming-gesture</strong>
             <p class="pt-2">
               <b>Deprecated</b> @v0.0.20+. Please use
-              <code>reverse-scroll-to-zoom</code> instead. Because this doesn't reverse pinch to zoom.
+              <code>reverse-scroll-to-zoom</code> instead. The name isn't proper because you can not reverse pinch to zoom.
             </p>
             <p>Reverses the zoom-in/zoom-out direction when scrolling.</p>
           </li>
@@ -569,12 +569,6 @@
           </li>
           <li>
             <strong>zoom</strong>
-          </li>
-          <li>
-            <strong>initial-image-load</strong>
-          </li>
-          <li>
-            <strong>initial-image-error</strong>
           </li>
         </ul>
       </v-flex>
