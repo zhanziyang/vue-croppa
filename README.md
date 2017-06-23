@@ -1,7 +1,7 @@
 # vue-croppa
 > A simple straightforward customizable image cropper for vue.js.
 
-<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=2" width="400" alt="try it out" /></a>
+<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
 
 ## Template Example
@@ -24,7 +24,7 @@
         :disable-drag-to-move="false"
         :disable-scroll-to-zoom="false"
         :prevent-white-space="false"
-        :reverse-zooming-gesture="false"
+        :reverse-scroll-to-zoom="false"
         :show-remove-button="true"
         :remove-button-color="'red'"
         :remove-button-size="0"
@@ -158,7 +158,11 @@ Disables the default "drag and drop a file" user interaction. You can instead t
 - default: `false`
 
 #### disable-click-to-choose
+<<<<<<< HEAD
 Disables the default "click to choose an image" user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
+=======
+Disables the default "click to choose a file" ("tab" on mobile) user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking `chooseFile()` method.
+>>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
 - type: `boolean`
 - default: `false`
 
@@ -172,7 +176,19 @@ Disables the default "scroll to zoom" user interaction. You can instead zoom the
 - type: `boolean`
 - default: `false`
 
-#### reverse-zooming-gesture
+#### disable-pinch-to-zoom
+Disables the default "pinch with two fingers to zoom" user interaction **on mobile**. You can instead zoom the image programmatically by invoking `zoomIn()` / `zoomOut()` methods.
+- type: `boolean`
+- default: `false`
+
+#### <s>reverse-zooming-gesture</s>
+**Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. Because this doesn't reverse pinch to zoom.
+
+Reverses the zoom-in/zoom-out direction when scrolling.
+- type: `boolean`
+- default: `false`
+
+#### reverse-scroll-to-zoom
 Reverses the zoom-in/zoom-out direction when scrolling.
 - type: `boolean`
 - default: `false`
@@ -291,3 +307,12 @@ const blob = await this.myCroppa.promisedBlob()
 
 #### initial-image-error
 - emitted when initial image is [provided](#initial) and failed loading.
+
+## To Do List
+
+- [ ] File type filter on drag and drop
+- [ ] Fix image moves while scrolling after zooming to min size when `preventWhiteSpace == true`
+- [ ] Deprecate unnecessary `initial-image-load` and `initial-image-error` events, because you can directly bind them on img tag.
+- [ ] Add a method `hasImage()` to represent whether currently there is a image.
+- [ ] Add more method examples in docs.
+- [ ] Add a showcase with different customization cases.

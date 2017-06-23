@@ -1,6 +1,10 @@
 {
   "name": "vue-croppa",
+<<<<<<< HEAD
   "version": "0.0.19",
+=======
+  "version": "0.0.21",
+>>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
   "description": "A simple straightforward customizable image cropper for vue.js.",
   "main": "dist/vue-croppa.js",
   "scripts": {
@@ -29,7 +33,11 @@
     "zoom",
     "javascript",
     "web",
-    "front-end"
+    "front-end",
+    "staightforward",
+    "customizable",
+    "editable",
+    "lightweight"
   ],
   "author": "zhanziyang",
   "license": "ISC",

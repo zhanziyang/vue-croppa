@@ -38,5 +38,48 @@ export default {
 
   imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0
+<<<<<<< HEAD
+=======
+  },
+
+  touchDetect() {
+    window.addEventListener('touchstart', function onFirstTouch() {
+      window.USER_IS_TOUCHING = true
+      window.removeEventListener('touchstart', onFirstTouch, false)
+    }, false)
+  },
+
+  rAFPolyfill() {
+    // rAF polyfill
+    var lastTime = 0
+    var vendors = ['webkit', 'moz']
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+      window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame']
+      window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||    // Webkit中此取消方法的名字变了
+        window[vendors[x] + 'CancelRequestAnimationFrame']
+    }
+
+    if (!window.requestAnimationFrame) {
+      window.requestAnimationFrame = function (callback) {
+        var currTime = new Date().getTime()
+        var timeToCall = Math.max(0, 16.7 - (currTime - lastTime))
+        var id = window.setTimeout(function () {
+          var arg = currTime + timeToCall
+          callback(arg)
+        }, timeToCall)
+        lastTime = currTime + timeToCall
+        return id
+      }
+    }
+    if (!window.cancelAnimationFrame) {
+      window.cancelAnimationFrame = function (id) {
+        clearTimeout(id)
+      }
+    }
+
+    Array.isArray = function (arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]'
+    }
+>>>>>>> e222aaedabdc7f7e55a48b255a974905d3979f64
   }
 }

@@ -19,8 +19,6 @@ module.exports = {
     "no-useless-call": 0
   },
   globals: {
-    "IScroll": true,
-    "Qiniu": true,
-    "plupload": true
+    "DocumentTouch": true
   }
 }
