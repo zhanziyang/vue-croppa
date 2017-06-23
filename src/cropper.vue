@@ -525,7 +525,7 @@
       position: absolute
       background: white
       border-radius: 50%
-      box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.7)
+      filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.7))
       z-index: 10
       cursor: pointer
       border: 2px solid white
