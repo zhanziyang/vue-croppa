@@ -267,7 +267,8 @@
         }
         if (!this.fileTypeIsValid(file)) {
           this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
-          throw new Error(`File type (${file.type}) does not match what you specified (${this.accept}).`)
+          let type = file.type || file.name.toLowerCase().split('.').pop()
+          throw new Error(`File type (${type}) does not match what you specified (${this.accept}).`)
         }
         let fr = new FileReader()
         fr.onload = (e) => {

@@ -400,7 +400,7 @@
     computed: {
       code () {
         return `\
-  <!-- The following codes sync with your customazations on the left! -->
+  <!-- Sync with your customazations on the left! -->
 
   <croppa v-model="myCroppa"
           :width="${this.width}"

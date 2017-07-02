@@ -259,7 +259,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
 #### <s>myCroppa.reset()</s>
-- **To Be Deprecated** This will be deprecated in the future due to misnamed 😅 . Please use `remove()` instead.
+- **To Be Deprecated** This will be deprecated in the future due to misnaming 😅 . Please use `remove()` instead.
 - Removes the current image, can be used to implement your own remove-button.
 
 #### myCroppa.remove()
@@ -332,7 +332,7 @@ const blob = await this.myCroppa.promisedBlob()
 
 ### 🌱 Customize styles
 
-- Check out [default css styles](https://github.com/zhanziyang/vue-croppa/blob/master/dist/vue-croppa.css) here. You can add more css styles to those selectors to get a different look. Be careful if you try to overwrite existing rules.
+- Check out [default css styles](https://github.com/zhanziyang/vue-croppa/blob/master/dist/vue-croppa.css). You can add more css styles to those selectors to get a different look. Be careful if you try to overwrite existing styles.
 - Note that CSS styles will not have any effect on the output image.
 
 ## To Do List
