@@ -1,5 +1,8 @@
 # vue-croppa
 > A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.
+
+<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
+
 ## Features
 - **Straightforward**: What you see is what you get
 - **Highly customizable**: You can almost customize anything except the core functionalities
@@ -14,9 +17,6 @@
 - Opera 11.5+
 - iOS Safari 6.1+
 - Android Browser 3+
-
-
-<a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
 
 ## Template Example
