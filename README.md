@@ -1,5 +1,10 @@
 # vue-croppa
-> A simple straightforward customizable image cropper for vue.js.
+> A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.
+
+- ✔ **Straightforward**: What you see is what you get
+- ✔ **Highly customizable**: You can almost customize anything except the core functionalities
+- ✔ **Lightweight**: 16kb in total
+- ✔ **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 
 <a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
@@ -31,11 +36,12 @@
         @init="handleCroppaInit"
         @file-choose="handleCroppaFileChoose"
         @file-size-exceed="handleCroppaFileSizeExceed"
+        @file-type-mismatch="handleCroppaFileTypeMismatch"
         @image-remove="handleImageRemove"
         @move="handleCroppaMove"
         @zoom="handleCroppaZoom"></croppa>
 ```
-**NOTE:** This is an almost-full-use example. Usually you don't need to specify so many props to customize it, because they all have default values. Most simply, you can even do:
+**NOTE:** This is an almost-full-use example. Usually you don't need to specify so many props, because they all have default values. Most simply, you can even do:
 ```html
 <croppa v-model="myCroppa"></croppa>
 ```
@@ -44,7 +50,7 @@
 ## Method Examples
 
 ```js
-this.myCroppa.reset()
+this.myCroppa.remove()
 
 this.myCroppa.zoomIn()
 
@@ -195,7 +201,7 @@ Prevents revealing background white space when moving or zooming the image.
 - default: `false`
 
 #### show-remove-button
-Specifies whether to show the built-in remove-button. You can change the button's color and size using the following two props. If you still find it ugly, hide it and use the `reset()` method to implement your own trigger.
+Specifies whether to show the built-in remove-button. You can change the button's color and size using the following two props. If you still find it ugly, hide it and use the `remove()` method to implement your own trigger.
 - type: `boolean`
 - default: `false`
 
@@ -221,7 +227,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   <img slot="initial" :src="initialImageUrl" />
 </croppa>
 ```
-
+##### NOTE: You need to explicitly call `.refresh()` method after changing inital image.
 ---
 
 ### 🌱 Methods
@@ -252,11 +258,18 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 #### myCroppa.chooseFile()
 - Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
-#### myCroppa.reset()
+#### <s>myCroppa.reset()</s>
+- **To Be Deprecated** This will be deprecated in the future due to misnamed 😅 . Please use `remove()` instead.
+- Removes the current image, can be used to implement your own remove-button.
+
+#### myCroppa.remove()
 - Removes the current image, can be used to implement your own remove-button.
 
 #### myCroppa.refresh()
 - Reinitialize the component. Useful when you want to change initial image.
+
+#### myCroppa.hasImage()
+- Return boolean value indicating whether currently there is a image.
 
 #### myCroppa.generateDataUrl( type: string )
 - Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to  png).
@@ -266,10 +279,18 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 
 #### myCroppa.promisedBlob( mimeType: string, qualityArgument: number )
 - This method returns a `Promise` wrapping around `generateBlob()`, so that you can use `async/await` syntax instead of a callback to get blob data, it's simpler.
-````js
+```js
 const blob = await this.myCroppa.promisedBlob()
-````
+```
 
+#### myCroppa.supportDetection()
+- Return an object indicating browser supports. Like this:
+```js
+{
+  basic: true, // supports basic functionality
+  dnd: false // does not support drag and drop
+}
+```
 ---
 
 ### 🌱 Events
@@ -284,7 +305,12 @@ const blob = await this.myCroppa.promisedBlob()
   - `file` is a file object - same as what `getChosenFile()` returns.
 
 #### file-size-exceed: 
-- emitted after file choosing if the chosen file's size exceeds the limit specified by prop fileSizeLimit.
+- emitted when the chosen file's size exceeds the limit specified by prop fileSizeLimit.
+- handler(file)
+  - `file` is a file object - same as what `getChosenFile()` returns.
+
+#### file-type-mismatch:
+- emitted when the chosen file does not match the specified type, which btw is specified using prop `accept`.
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
@@ -302,16 +328,23 @@ const blob = await this.myCroppa.promisedBlob()
 - **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@error` event on img tag.
 - emitted when initial image is [provided](#initial) and failed loading.
 
+---
+
+### 🌱 Customize styles
+
+- Check out [default css styles](https://github.com/zhanziyang/vue-croppa/blob/master/dist/vue-croppa.css) here. You can add more css styles to those selectors to get a different look. Be careful if you try to overwrite existing rules.
+- Note that CSS styles will not have any effect on the output image.
+
 ## To Do List
 
-- [ ] File type filter on drag and drop. Add a `file-type-mismatch` event.
-- [X] Keep default scrolling behavior when there is no image.
-- [ ] Browser support detection.
-- [ ] Sopport dataTransferItemList interface on drop for better compatibility.
-- [ ] Optimize doc page bundle size.
+- [x] File type filter on drag and drop. Add a `file-type-mismatch` event.
+- [x] Keep default scrolling behavior when there is no image.
+- [x] Browser support detection.
+- [x] Sopport dataTransferItemList interface on drop for better compatibility.
+- [x] Optimize doc page bundle size.
 - [x] Fix remove button shadow.
 - [x] Deprecation warning of unnecessary `initial-image-load` and `initial-image-error` events.
 - [x] Add a method `hasImage()` to represent whether currently there is a image.
-- [ ] Add more method examples in docs.
+- [ ] SSR compatibility.
+- [ ] Make container optionally resizable.
 - [ ] Add a showcase with different customization use cases.
-- [ ] Doc about css styling.

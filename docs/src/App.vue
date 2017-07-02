@@ -3,7 +3,7 @@
     <h2>
       <span class="header">Vue</span>
       <span class="header">Croppa</span>
-      <span class="subheader">A simple straightforward customizable image cropper for vue.js.</span>
+      <span class="subheader">A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.</span>
       <a href="https://github.com/zhanziyang/vue-croppa">
         <img src="static/github.png"
              alt="Github repository">
@@ -57,6 +57,7 @@
                 @init="handleCroppaInit"
                 @file-choose="handleCroppaFileChoose"
                 @file-size-exceed="handleCroppaFileSizeExceed"
+                @file-type-mismatch="handleCroppaFileTypeMismatch"
                 @image-remove="handleImageRemove"
                 @move="handleCroppaMove"
                 @zoom="handleCroppaZoom">
@@ -232,10 +233,27 @@
                   column
                   wrap>
           <v-flex md6>
+            <pre v-highlightjs="methodExample5"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="chooseFile">Choose File</v-btn>
+          </v-flex>
+          <v-flex md6>
             <pre v-highlightjs="methodExample1"><code class="js"></code></pre>
             <v-btn dark
                    default
-                   @click.native="reset">Reset</v-btn>
+                   @click.native="remove">Remove</v-btn>
+          </v-flex>
+        </v-layout>
+        <br>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md6>
+            <pre v-highlightjs="methodExample6"><code class="js"></code></pre>
+            <v-btn dark
+                   default
+                   @click.native="moveUp">Move Upwards for 5 px</v-btn>
           </v-flex>
           <v-flex md6>
             <pre v-highlightjs="methodExample2"><code class="js"></code></pre>
@@ -250,10 +268,17 @@
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
-            <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
             <v-btn dark
                    default
                    @click.native="getDataUrl">Data Url</v-btn>
+          </v-flex>
+        </v-layout>
+        <br>
+        <v-layout row-md
+                  column
+                  wrap>
+          <v-flex md12>
+            <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
             <v-btn dark
                    default
                    @click.native="refresh">Refresh</v-btn>
@@ -330,247 +355,10 @@
               wrap>
       <v-flex md8
               offset-md2>
-        <h4>Brief Doc</h4>
+        <h4>Documentation</h4>
         <p>See full documentation
-          <a href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md">here</a>.</p>
+          <a href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation">here</a>.</p>
         <br>
-        <h6>🌱 Props</h6>
-        <ul>
-          <li>
-            <strong>v-model</strong>
-            <p class="pt-2">A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "Methods" section).</p>
-          </li>
-          <li>
-            <strong>width</strong>
-            <p class="pt-2">Display width of the preview container.</p>
-          </li>
-          <li>
-            <strong>height</strong>
-            <p class="pt-2">Display height of the preview container.</p>
-          </li>
-          <li>
-            <strong>placeholder</strong>
-            <p class="pt-2">Placeholder text of the preview container. It shows up when there is no image.</p>
-          </li>
-          <li>
-            <strong>placeholder-color</strong>
-            <p class="pt-2">Placeholder text color.</p>
-          </li>
-          <li>
-            <strong>placeholder-font-size</strong>
-            <p class="pt-2">Placeholder text font size in pixel. When set to
-              <code>0</code>, the font size will be ajust automatically so that the whole placehoder only takes up 2/3 of the container's width.</p>
-          </li>
-          <li>
-            <strong>canvas-color</strong>
-            <p class="pt-2">Initial background color and white space color if there is an image.</p>
-          </li>
-          <li>
-            <strong>quality</strong>
-            <p class="pt-2">Specifies how many times larger the actual image is than the container's display size.</p>
-          </li>
-          <li>
-            <strong>zoom speed</strong>
-            <p class="pt-2">Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.</p>
-          </li>
-          <li>
-            <strong>accept</strong>
-            <p class="pt-2">Limits the types of files that users can choose.</p>
-          </li>
-          <li>
-            <strong>file-size-limit</strong>
-            <p class="pt-2">Limits the byte size of file that users can choose. If set to
-              <code>0</code>, then no limit.</p>
-          </li>
-          <li>
-            <strong>disabled</strong>
-            <p class="pt-2">Disables user interaction.</p>
-          </li>
-          <li>
-            <strong>disable-drag-and-drop</strong>
-            <p class="pt-2">Disables the default "drag and drop a file" user interaction. You can instead trigger the file chooser window programmatically by "click to choose" functionality or invoking
-              <code>chooseFile()</code> method.</p>
-          </li>
-          <li>
-            <strong>disable-click-to-choose</strong>
-            <p class="pt-2">Disables the default "click to choose an image" ("tab" on mobile) user interaction. You can instead trigger the file chooser window programmatically by "drag and drop" functionality or invoking
-              <code>chooseFile()</code> method.</p>
-          </li>
-          <li>
-            <strong>disable-drag-to-move</strong>
-            <p class="pt-2">Disables the default "drag to move" user interaction. You can instead move the image programmatically by invoking
-              <code>moveUpwards()</code>/
-              <code>moveDownwards()</code>/
-              <code>moveLeftwards()</code>/
-              <code>moveRightwards()</code> methods.</p>
-          </li>
-          <li>
-            <strong>disable-scroll-to-zoom</strong>
-            <p class="pt-2">Disables the default "scroll to zoom" user interaction. You can instead zoom the image programmatically by invoking
-              <code>zoomIn()</code>/
-              <code>zoomOut()</code> methods.</p>
-          </li>
-          <li>
-            <strong>disable-pinch-to-zoom</strong>
-            <p class="pt-2">Disables the default "pinch with two fingers to zoom" user interaction
-              <strong>on mobile</strong>. You can instead zoom the image programmatically by invoking
-              <code>zoomIn()</code>/
-              <code>zoomOut()</code> methods.</p>
-          </li>
-          <li class="deprecated">
-            <strong>reverse-zooming-gesture</strong>
-            <p class="pt-2">
-              <b>Deprecated</b> @v0.0.20+. Please use
-              <code>reverse-scroll-to-zoom</code> instead. The name isn't proper because you can not reverse pinch to zoom.
-            </p>
-            <p>Reverses the zoom-in/zoom-out direction when scrolling.</p>
-          </li>
-          <li>
-            <strong>reverse-scroll-to-zoom</strong>
-            <p>Reverses the zoom-in/zoom-out direction when scrolling.</p>
-          </li>
-          <li>
-            <strong>prevent-white-space</strong>
-            <p class="pt-2">Prevents revealing background white space when moving or zooming the image.</p>
-          </li>
-          <li>
-            <strong>show-remove-button</strong>
-            <p class="pt-2">Specifies whether to show the built-in remove-button. You can change the button's color and size using the following two props. If you still find it ugly, hide it and use the
-              <code>reset()</code> method to implement your own trigger.</p>
-          </li>
-          <li>
-            <strong>remove-button-color</strong>
-            <p class="pt-2">Changes the default color of the remove-button. Accepts any css color format.</p>
-          </li>
-          <li>
-            <strong>remove-button-size</strong>
-            <p class="pt-2">Specifies the remove-button's width and height (they are equal). If set to
-              <code>0</code>, then it use the default size.</p>
-          </li>
-        </ul>
-      </v-flex>
-    </v-layout>
-    <br>
-    <br>
-    <v-layout row-md
-              column
-              wrap>
-      <v-flex md8
-              offset-md2>
-        <h6>🌱 Slots</h6>
-        <ul>
-          <li>
-            <strong>initial</strong>
-            <p class="pt-1">You can provide an initial image by putting an &lt;img&gt; node as a named slot
-              <code>initial</code>.</p>
-          </li>
-        </ul>
-      </v-flex>
-    </v-layout>
-    <br>
-    <br>
-    <v-layout row-md
-              column
-              wrap>
-      <v-flex md8
-              offset-md2>
-        <h6>🌱 Methods</h6>
-        <ul>
-          <li>
-            <strong>myCroppa.getCanvas()</strong>
-            <p class="pt-1">returns the canvas object</p>
-          </li>
-          <li>
-            <strong>myCroppa.getContext()</strong>
-            <p class="pt-1">returns the canvas context object</p>
-          </li>
-          <li>
-            <strong>myCroppa.getChosenFile()</strong>
-          </li>
-          <li>
-            <strong>myCroppa.getActualImageSize()</strong>
-            <p class="pt-1">Return an object
-              <code>{ width, height }</code> describing the real image size (preview size
-              <code>* quality</code>)</p>
-          </li>
-          <li>
-            <strong>myCroppa.moveUpwards( amountInPx: number )</strong>
-          </li>
-          <li>
-            <strong>myCroppa.moveDownwards( amountInPx: number )</strong>
-          </li>
-          <li>
-            <strong>myCroppa.moveLeftwards( amountInPx: number )</strong>
-          </li>
-          <li>
-            <strong>myCroppa.moveRightwards( amountInPx: number )</strong>
-          </li>
-          <li>
-            <strong>myCroppa.zoomIn()</strong>
-          </li>
-          <li>
-            <strong>myCroppa.zoomOut()</strong>
-          </li>
-          <li>
-            <strong>myCroppa.chooseFile()</strong>
-            <p class="pt-1">Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.</p>
-          </li>
-          <li>
-            <strong>myCroppa.reset()</strong>
-            <p class="pt-1">Removes the current image, can be used to implement your own remove-button.</p>
-          </li>
-          <li>
-            <strong>myCroppa.refresh()</strong>
-            <p class="pt-1">Reinitialize the component. Useful when you want to change initial image.</p>
-          </li>
-          <li>
-            <strong>myCroppa.generateDataUrl( type: string )</strong>
-            <p class="pt-1">Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to
-              <code>png</code>). </p>
-          </li>
-          <li>
-            <strong>myCroppa.generateBlob( callback: function, mimeType: string, qualityArgument: number )</strong>
-            <p class="pt-1">Creates a Blob object representing the image contained in the canvas. Look up argument definition
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob">here</a>.</p>
-          </li>
-          <li>
-            <strong>myCroppa.promisedBlob( mimeType: string, qualityArgument: number )</strong>
-            <p class="pt-1">This method returns a
-              <code>Promise</code> wrapping around
-              <code>generateBlob()</code>, so that you can use async/await syntax instead of a callback to get blob data, it's simpler.
-            </p>
-          </li>
-        </ul>
-      </v-flex>
-    </v-layout>
-    <br>
-    <br>
-    <v-layout row-md
-              column
-              wrap>
-      <v-flex md8
-              offset-md2>
-        <h6>🌱 Events</h6>
-        <ul>
-          <li>
-            <strong>init</strong>
-          </li>
-          <li>
-            <strong>file-choose</strong>
-          </li>
-          <li>
-            <strong>file-size-exceed</strong>
-          </li>
-          <li>
-            <strong>image-remove</strong>
-          </li>
-          <li>
-            <strong>move</strong>
-          </li>
-          <li>
-            <strong>zoom</strong>
-          </li>
-        </ul>
       </v-flex>
     </v-layout>
   </v-app>
@@ -639,6 +427,7 @@
           @init="handleCroppaInit"
           @file-choose="handleCroppaFileChoose"
           @file-size-exceed="handleCroppaFileSizeExceed"
+          @file-type-mismatch="handleCroppaFileTypeMismatch"
           @image-remove="handleImageRemove"
           @move="handleCroppaMove"
           @zoom="handleCroppaZoom">
@@ -648,7 +437,7 @@
       },
 
       methodExample1 () {
-        return `this.myCroppa.reset()`
+        return `this.myCroppa.remove()`
       },
 
       methodExample2 () {
@@ -661,6 +450,14 @@
 
       methodExample4 () {
         return `this.myCroppa.refresh()`
+      },
+
+      methodExample5 () {
+        return `this.myCroppa.chooseFile()`
+      },
+
+      methodExample6 () {
+        return `this.myCroppa.moveUpwards(5)`
       },
 
       installStyle () {
@@ -718,12 +515,20 @@
         this.myCroppa.refresh()
       },
 
-      reset () {
-        this.myCroppa.reset()
+      remove () {
+        this.myCroppa.remove()
       },
 
       zoomIn () {
         this.myCroppa.zoomIn()
+      },
+
+      chooseFile () {
+        this.myCroppa.chooseFile()
+      },
+
+      moveUp () {
+        this.myCroppa.moveUpwards(5)
       },
 
       handleCroppaInit () {
@@ -737,6 +542,11 @@
 
       handleCroppaFileSizeExceed (file) {
         console.log('file size exceeded')
+        console.log(file)
+      },
+
+      handleCroppaFileTypeMismatch (file) {
+        console.log('file type mismatch')
         console.log(file)
       },
 
@@ -770,6 +580,7 @@
       padding-right: 80px
       @media screen and (max-width: 600px)
         padding-bottom: 1px
+        margin-bottom: 4px
       span.header
         font-family: 'Black Ops One', cursive
       span.header:first-child
@@ -788,6 +599,9 @@
       padding: 0
       font-size: 20px
       margin: 10px 0
+      @media screen and (max-width: 600px)
+        font-size: 14px
+        margin: 4px 0
     code
       font-size: 14px
       font-family: Consolas, Monaco, monospace

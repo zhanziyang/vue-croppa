@@ -9,6 +9,10 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+  externals: {
+    vue: 'Vue',
+    vuetify: 'Vuetify'
+  },
   module: {
     rules: [
       {

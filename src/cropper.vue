@@ -16,7 +16,7 @@
     </div>
     <canvas ref="canvas"
             @click.stop.prevent="handleClick"
-            @touchstart.stop.prevent="handlePointerStart"
+            @touchstart.stop="handlePointerStart"
             @mousedown.stop.prevent="handlePointerStart"
             @pointerstart.stop.prevent="handlePointerStart"
             @touchend.stop.prevent="handlePointerEnd"
@@ -24,15 +24,15 @@
             @mouseup.stop.prevent="handlePointerEnd"
             @pointerend.stop.prevent="handlePointerEnd"
             @pointercancel.stop.prevent="handlePointerEnd"
-            @touchmove.stop.prevent="handlePointerMove"
+            @touchmove.stop="handlePointerMove"
             @mousemove.stop.prevent="handlePointerMove"
             @pointermove.stop.prevent="handlePointerMove"
             @DOMMouseScroll.stop="handleWheel"
             @wheel.stop="handleWheel"
-            @mousewheel.stop.prevent="handleWheel"></canvas>
+            @mousewheel.stop="handleWheel"></canvas>
     <svg class="icon icon-remove"
          v-if="showRemoveButton && img"
-         @click="unset"
+         @click="remove"
          :style="`top: -${height/40}px; right: -${width/40}px`"
          viewBox="0 0 1024 1024"
          version="1.1"
@@ -49,18 +49,15 @@
 <script>
   import u from './util'
   import props from './props'
+  import events from './events'
 
-  const INIT_EVENT = 'init'
-  const FILE_CHOOSE_EVENT = 'file-choose'
-  const FILE_SIZE_EXCEED_EVENT = 'file-size-exceed'
-  const IMAGE_REMOVE = 'image-remove'
-  const MOVE_EVENT = 'move'
-  const ZOOM_EVENT = 'zoom'
-  const INITIAL_IMAGE_LOAD = 'initial-image-load'
-  const INITIAL_IMAGE_ERROR = 'initial-image-error'
-
-  u.rAFPolyfill()
-  u.touchDetect()
+  const PCT_PER_ZOOM = 1 / 100000 // The amount of zooming everytime it happens, in percentage of image width.
+  const MIN_MS_PER_CLICK = 500 // If touch duration is shorter than the value, then it is considered as a click.
+  const CLICK_MOVE_THRESHOLD = 100 // If touch move distance is greater than this value, then it will by no mean be considered as a click.
+  const MIN_WIDTH = 10 // The minimal width the user can zoom to.
+  const DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3 // Placeholder text by default takes up this amount of times of canvas width.
+  const PINCH_ACCELERATION = 2 // The amount of times by which the pinching is more sensitive than the scolling
+  const DEBUG = false
 
   export default {
     model: {
@@ -83,7 +80,10 @@
         fileDraggedOver: false,
         tabStart: 0,
         pinching: false,
-        pinchDistance: 0
+        pinchDistance: 0,
+        supportTouch: false,
+        pointerMoved: false,
+        pointerStartCoord: null
       }
     },
 
@@ -102,7 +102,17 @@
     },
 
     mounted () {
+      u.rAFPolyfill()
+
       this.init()
+
+      if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
+        console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).')
+      }
+      let supports = this.supportDetection()
+      if (!supports.basic) {
+        console.warn('Your browser does not support vue-croppa functionality.')
+      }
     },
 
     watch: {
@@ -130,9 +140,9 @@
         if (this.$slots.initial && this.$slots.initial[0]) {
           this.setInitial()
         } else {
-          this.unset()
+          this.remove()
         }
-        this.$emit(INIT_EVENT, {
+        this.$emit(events.INIT_EVENT, {
           getCanvas: () => this.canvas,
           getContext: () => this.ctx,
           getChosenFile: () => this.$refs.fileInput.files[0],
@@ -164,20 +174,30 @@
           hasImage: () => {
             return !!this.img
           },
-          reset: this.unset,
+          reset: this.remove, // soon to be deprecated due to misnamed
+          remove: this.remove,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
           generateBlob: this.generateBlob,
-          promisedBlob: this.promisedBlob
+          promisedBlob: this.promisedBlob,
+          supportDetection: this.supportDetection
         })
       },
 
-      unset () {
+      supportDetection () {
+        var div = document.createElement('div')
+        return {
+          'basic': window.File && window.FileReader && window.FileList && window.Blob,
+          'dnd': 'ondragstart' in div && 'ondrop' in div
+        }
+      },
+
+      remove () {
         let ctx = this.ctx
         this.paintBackground()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
-        let defaultFontSize = this.realWidth / 1.5 / this.placeholder.length
+        let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
         let fontSize = (!this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0) ? defaultFontSize : this.realPlaceholderFontSize
         ctx.font = fontSize + 'px sans-serif'
         ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
@@ -189,7 +209,7 @@
         this.imgData = {}
 
         if (hadImage) {
-          this.$emit(IMAGE_REMOVE)
+          this.$emit(events.IMAGE_REMOVE_EVENT)
         }
       },
 
@@ -197,7 +217,7 @@
         let vNode = this.$slots.initial[0]
         let { tag, elm } = vNode
         if (tag !== 'img' || !elm || !elm.src) {
-          this.unset()
+          this.remove()
           return
         }
         if (u.imageLoaded(elm)) {
@@ -205,14 +225,12 @@
           this.imgContentInit()
         } else {
           elm.onload = () => {
-            this.$emit(INITIAL_IMAGE_LOAD)
             this.img = elm
             this.imgContentInit()
           }
 
           elm.onerror = () => {
-            this.$emit(INITIAL_IMAGE_ERROR)
-            this.unset()
+            this.remove()
           }
         }
       },
@@ -222,8 +240,14 @@
       },
 
       handleClick () {
-        if (!this.img && !this.disableClickToChoose && !this.disabled && window.USER_IS_TOUCHING) {
+        if (DEBUG) {
+          console.log('click')
+        }
+        if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
           this.chooseFile()
+          if (DEBUG) {
+            console.log('trigger by click')
+          }
         }
       },
 
@@ -236,10 +260,14 @@
       },
 
       onNewFileIn (file) {
-        this.$emit(FILE_CHOOSE_EVENT, file)
+        this.$emit(events.FILE_CHOOSE_EVENT, file)
         if (!this.fileSizeIsValid(file)) {
-          this.$emit(FILE_SIZE_EXCEED_EVENT, file)
+          this.$emit(events.FILE_SIZE_EXCEED_EVENT, file)
           throw new Error('File size exceeds limit which is ' + this.fileSizeLimit + ' bytes.')
+        }
+        if (!this.fileTypeIsValid(file)) {
+          this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
+          throw new Error(`File type (${file.type}) does not match what you specified (${this.accept}).`)
         }
         let fr = new FileReader()
         fr.onload = (e) => {
@@ -259,6 +287,27 @@
         if (!this.fileSizeLimit || this.fileSizeLimit == 0) return true
 
         return file.size < this.fileSizeLimit
+      },
+
+      fileTypeIsValid (file) {
+        let accept = this.accept || 'image/*'
+        let baseMimetype = accept.replace(/\/.*$/, '')
+        let types = accept.split(',')
+        for (let type of types) {
+          let t = type.trim()
+          if (t.charAt(0) == '.') {
+            if (file.name.toLowerCase().split('.').pop() === t.toLowerCase().slice(1)) return true
+          } else if (/\/\*$/.test(t)) {
+            var fileBaseType = file.type.replace(/\/.*$/, '')
+            if (fileBaseType === baseMimetype) {
+              return true
+            }
+          } else if (file.type === type) {
+            return true
+          }
+        }
+
+        return false
       },
 
       imgContentInit () {
@@ -286,6 +335,14 @@
       },
 
       handlePointerStart (evt) {
+        if (DEBUG) {
+          console.log('touch start')
+        }
+        this.supportTouch = true
+        this.pointerMoved = false
+        let pointerCoord = u.getPointerCoords(evt, this)
+        this.pointerStartCoord = pointerCoord
+
         if (this.disabled) return
         // simulate click with touch on mobile devices
         if (!this.img && !this.disableClickToChoose) {
@@ -308,20 +365,29 @@
           this.pinchDistance = u.getPinchDistance(evt, this)
         }
 
-        if (document) {
-          let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
-          for (let e of cancelEvents) {
-            document.addEventListener(e, this.handlePointerEnd)
-          }
+        let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
+        for (let e of cancelEvents) {
+          document.addEventListener(e, this.handlePointerEnd)
         }
       },
 
       handlePointerEnd (evt) {
+        if (DEBUG) {
+          console.log('touch end')
+        }
+        let pointerMoveDistance = 0
+        if (this.pointerStartCoord) {
+          let pointerCoord = u.getPointerCoords(evt, this)
+          pointerMoveDistance = Math.sqrt(Math.pow(pointerCoord.x - this.pointerStartCoord.x, 2) + Math.pow(pointerCoord.y - this.pointerStartCoord.y, 2)) || 0
+        }
         if (this.disabled) return
         if (!this.img && !this.disableClickToChoose) {
           let tabEnd = new Date().valueOf()
-          if (tabEnd - this.tabStart < 1000) {
+          if ((pointerMoveDistance < CLICK_MOVE_THRESHOLD) && tabEnd - this.tabStart < MIN_MS_PER_CLICK && this.supportTouch) {
             this.chooseFile()
+            if (DEBUG) {
+              console.log('trigger by touch')
+            }
           }
           this.tabStart = 0
           return
@@ -331,11 +397,16 @@
         this.pinching = false
         this.pinchDistance = 0
         this.lastMovingCoord = null
+        this.pointerMoved = false
+        this.pointerStartCoord = null
       },
 
       handlePointerMove (evt) {
+        this.pointerMoved = true
+
         if (this.disabled || this.disableDragToMove || !this.img) return
 
+        evt.preventDefault()
         if (!evt.touches || evt.touches.length === 1) {
           if (!this.dragging) return
           let coord = u.getPointerCoords(evt, this)
@@ -352,7 +423,7 @@
           if (!this.pinching) return
           let distance = u.getPinchDistance(evt, this)
           let delta = distance - this.pinchDistance
-          this.zoom(delta > 0, null, 2)
+          this.zoom(delta > 0, null, PINCH_ACCELERATION)
           this.pinchDistance = distance
         }
       },
@@ -385,21 +456,39 @@
         if (!this.fileDraggedOver) return
         this.fileDraggedOver = false
 
-        if (!evt.dataTransfer || !evt.dataTransfer.files.length) return
-        let file = evt.dataTransfer.files[0]
+        let file
+        let dt = evt.dataTransfer
+        if (!dt) return
+        if (dt.items) {
+          for (var i = 0, len = dt.items.length; i < len; i++) {
+            let item = dt.items[i]
+            if (item.kind == 'file') {
+              file = item.getAsFile()
+              break
+            }
+          }
+        } else {
+          file = dt.files[0]
+        }
 
-        this.onNewFileIn(file)
+        if (file) {
+          this.onNewFileIn(file)
+        }
       },
 
       move (offset) {
         if (!offset) return
+        let oldX = this.imgData.startX
+        let oldY = this.imgData.startY
         this.imgData.startX += offset.x
         this.imgData.startY += offset.y
         if (this.preventWhiteSpace) {
           this.preventMovingToWhiteSpace()
         }
-        this.$emit(MOVE_EVENT)
-        this.draw()
+        if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
+          this.$emit(events.MOVE_EVENT)
+          this.draw()
+        }
       },
 
       preventMovingToWhiteSpace () {
@@ -417,25 +506,25 @@
         }
       },
 
-      zoom (zoomIn, pos, timesFaster = 1) {
+      zoom (zoomIn, pos, innerAcceleration = 1) {
         pos = pos || {
           x: this.imgData.startX + this.imgData.width / 2,
           y: this.imgData.startY + this.imgData.height / 2
         }
-        let speed = (this.realWidth / 100000) * this.zoomSpeed * timesFaster
+        let realSpeed = this.zoomSpeed * innerAcceleration
+        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
         let x = 1
         if (zoomIn) {
           x = 1 + speed
-        } else if (this.imgData.width > 20) {
+        } else if (this.imgData.width > MIN_WIDTH) {
           x = 1 - speed
         }
+
+        let oldWidth = this.imgData.width
+        let oldHeight = this.imgData.height
+
         this.imgData.width = this.imgData.width * x
         this.imgData.height = this.imgData.height * x
-        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-        console.log(offsetX, offsetY)
-        this.imgData.startX = this.imgData.startX - offsetX
-        this.imgData.startY = this.imgData.startY - offsetY
 
         if (this.preventWhiteSpace) {
           if (this.imgData.width < this.realWidth) {
@@ -449,10 +538,19 @@
             this.imgData.height = this.realHeight
             this.imgData.width = this.imgData.width * _x
           }
-          this.preventMovingToWhiteSpace()
         }
-        this.$emit(ZOOM_EVENT)
-        this.draw()
+        if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
+          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+          this.imgData.startX = this.imgData.startX - offsetX
+          this.imgData.startY = this.imgData.startY - offsetY
+
+          if (this.preventWhiteSpace) {
+            this.preventMovingToWhiteSpace()
+          }
+          this.$emit(events.ZOOM_EVENT)
+          this.draw()
+        }
       },
 
       paintBackground () {

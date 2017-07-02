@@ -11,7 +11,14 @@ export default {
   },
 
   getPointerCoords(evt, vm) {
-    let pointer = evt.touches ? evt.touches[0] : evt
+    let pointer
+    if (evt.touches && evt.touches[0]) {
+      pointer = evt.touches[0]
+    } else if (evt.changedTouches && evt.changedTouches[0]) {
+      pointer = evt.changedTouches[0]
+    } else {
+      pointer = evt
+    }
     return this.onePointCoord(pointer, vm)
   },
 
@@ -38,13 +45,6 @@ export default {
 
   imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0
-  },
-
-  touchDetect() {
-    window.addEventListener('touchstart', function onFirstTouch() {
-      window.USER_IS_TOUCHING = true
-      window.removeEventListener('touchstart', onFirstTouch, false)
-    }, false)
   },
 
   rAFPolyfill() {
