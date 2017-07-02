@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.22
+ * vue-croppa v0.0.23
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -26,7 +26,14 @@ var u = {
     };
   },
   getPointerCoords: function getPointerCoords(evt, vm) {
-    var pointer = evt.touches ? evt.touches[0] : evt;
+    var pointer = void 0;
+    if (evt.touches && evt.touches[0]) {
+      pointer = evt.touches[0];
+    } else if (evt.changedTouches && evt.changedTouches[0]) {
+      pointer = evt.changedTouches[0];
+    } else {
+      pointer = evt;
+    }
     return this.onePointCoord(pointer, vm);
   },
   getPinchDistance: function getPinchDistance(evt, vm) {
@@ -50,12 +57,6 @@ var u = {
   },
   imageLoaded: function imageLoaded(img) {
     return img.complete && img.naturalWidth !== 0;
-  },
-  touchDetect: function touchDetect() {
-    window.addEventListener('touchstart', function onFirstTouch() {
-      window.USER_IS_TOUCHING = true;
-      window.removeEventListener('touchstart', onFirstTouch, false);
-    }, false);
   },
   rAFPolyfill: function rAFPolyfill() {
     // rAF polyfill
@@ -175,17 +176,23 @@ var props = {
   }
 };
 
-var INIT_EVENT = 'init';
-var FILE_CHOOSE_EVENT = 'file-choose';
-var FILE_SIZE_EXCEED_EVENT = 'file-size-exceed';
-var IMAGE_REMOVE = 'image-remove';
-var MOVE_EVENT = 'move';
-var ZOOM_EVENT = 'zoom';
-var INITIAL_IMAGE_LOAD = 'initial-image-load';
-var INITIAL_IMAGE_ERROR = 'initial-image-error';
+var events = {
+  INIT_EVENT: 'init',
+  FILE_CHOOSE_EVENT: 'file-choose',
+  FILE_SIZE_EXCEED_EVENT: 'file-size-exceed',
+  FILE_TYPE_MISMATCH_EVENT: 'file-type-mismatch',
+  IMAGE_REMOVE_EVENT: 'image-remove',
+  MOVE_EVENT: 'move',
+  ZOOM_EVENT: 'zoom'
+};
 
-u.rAFPolyfill();
-u.touchDetect();
+var PCT_PER_ZOOM = 1 / 100000; // The amount of zooming everytime it happens, in percentage of image width.
+var MIN_MS_PER_CLICK = 500; // If touch duration is shorter than the value, then it is considered as a click.
+var CLICK_MOVE_THRESHOLD = 100; // If touch move distance is greater than this value, then it will by no mean be considered as a click.
+var MIN_WIDTH = 10; // The minimal width the user can zoom to.
+var DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3; // Placeholder text by default takes up this amount of times of canvas width.
+var PINCH_ACCELERATION = 2; // The amount of times by which the pinching is more sensitive than the scolling
+var DEBUG = false;
 
 var cropper = { render: function render() {
     var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
@@ -199,7 +206,7 @@ var cropper = { render: function render() {
         } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleClick($event);
         }, "touchstart": function touchstart($event) {
-          $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
+          $event.stopPropagation();_vm.handlePointerStart($event);
         }, "mousedown": function mousedown($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerStart($event);
         }, "pointerstart": function pointerstart($event) {
@@ -215,18 +222,18 @@ var cropper = { render: function render() {
         }, "pointercancel": function pointercancel($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerEnd($event);
         }, "touchmove": function touchmove($event) {
-          $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
+          $event.stopPropagation();_vm.handlePointerMove($event);
         }, "mousemove": function mousemove($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
         }, "pointermove": function pointermove($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handlePointerMove($event);
         }, "DOMMouseScroll": function DOMMouseScroll($event) {
-          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
+          $event.stopPropagation();_vm.handleWheel($event);
         }, "wheel": function wheel($event) {
-          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
+          $event.stopPropagation();_vm.handleWheel($event);
         }, "mousewheel": function mousewheel($event) {
-          $event.stopPropagation();$event.preventDefault();_vm.handleWheel($event);
-        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.unset } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e()]);
+          $event.stopPropagation();_vm.handleWheel($event);
+        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e()]);
   }, staticRenderFns: [],
   model: {
     prop: 'value',
@@ -248,7 +255,10 @@ var cropper = { render: function render() {
       fileDraggedOver: false,
       tabStart: 0,
       pinching: false,
-      pinchDistance: 0
+      pinchDistance: 0,
+      supportTouch: false,
+      pointerMoved: false,
+      pointerStartCoord: null
     };
   },
 
@@ -266,7 +276,17 @@ var cropper = { render: function render() {
   },
 
   mounted: function mounted() {
+    u.rAFPolyfill();
+
     this.init();
+
+    if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
+      console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).');
+    }
+    var supports = this.supportDetection();
+    if (!supports.basic) {
+      console.warn('Your browser does not support vue-croppa functionality.');
+    }
   },
 
 
@@ -297,9 +317,9 @@ var cropper = { render: function render() {
       if (this.$slots.initial && this.$slots.initial[0]) {
         this.setInitial();
       } else {
-        this.unset();
+        this.remove();
       }
-      this.$emit(INIT_EVENT, {
+      this.$emit(events.INIT_EVENT, {
         getCanvas: function getCanvas() {
           return _this.canvas;
         },
@@ -336,19 +356,31 @@ var cropper = { render: function render() {
         refresh: function refresh() {
           _this.$nextTick(_this.init);
         },
-        reset: this.unset,
+        hasImage: function hasImage() {
+          return !!_this.img;
+        },
+        reset: this.remove, // soon to be deprecated due to misnamed
+        remove: this.remove,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
         generateBlob: this.generateBlob,
-        promisedBlob: this.promisedBlob
+        promisedBlob: this.promisedBlob,
+        supportDetection: this.supportDetection
       });
     },
-    unset: function unset() {
+    supportDetection: function supportDetection() {
+      var div = document.createElement('div');
+      return {
+        'basic': window.File && window.FileReader && window.FileList && window.Blob,
+        'dnd': 'ondragstart' in div && 'ondrop' in div
+      };
+    },
+    remove: function remove() {
       var ctx = this.ctx;
       this.paintBackground();
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      var defaultFontSize = this.realWidth / 1.5 / this.placeholder.length;
+      var defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length;
       var fontSize = !this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0 ? defaultFontSize : this.realPlaceholderFontSize;
       ctx.font = fontSize + 'px sans-serif';
       ctx.fillStyle = !this.placeholderColor || this.placeholderColor == 'default' ? '#606060' : this.placeholderColor;
@@ -360,7 +392,7 @@ var cropper = { render: function render() {
       this.imgData = {};
 
       if (hadImage) {
-        this.$emit(IMAGE_REMOVE);
+        this.$emit(events.IMAGE_REMOVE_EVENT);
       }
     },
     setInitial: function setInitial() {
@@ -371,7 +403,7 @@ var cropper = { render: function render() {
           elm = vNode.elm;
 
       if (tag !== 'img' || !elm || !elm.src) {
-        this.unset();
+        this.remove();
         return;
       }
       if (u.imageLoaded(elm)) {
@@ -379,14 +411,12 @@ var cropper = { render: function render() {
         this.imgContentInit();
       } else {
         elm.onload = function () {
-          _this2.$emit(INITIAL_IMAGE_LOAD);
           _this2.img = elm;
           _this2.imgContentInit();
         };
 
         elm.onerror = function () {
-          _this2.$emit(INITIAL_IMAGE_ERROR);
-          _this2.unset();
+          _this2.remove();
         };
       }
     },
@@ -394,8 +424,14 @@ var cropper = { render: function render() {
       this.$refs.fileInput.click();
     },
     handleClick: function handleClick() {
-      if (!this.img && !this.disableClickToChoose && !this.disabled && window.USER_IS_TOUCHING) {
+      if (DEBUG) {
+        console.log('click');
+      }
+      if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
         this.chooseFile();
+        if (DEBUG) {
+          console.log('trigger by click');
+        }
       }
     },
     handleInputChange: function handleInputChange() {
@@ -408,10 +444,14 @@ var cropper = { render: function render() {
     onNewFileIn: function onNewFileIn(file) {
       var _this3 = this;
 
-      this.$emit(FILE_CHOOSE_EVENT, file);
+      this.$emit(events.FILE_CHOOSE_EVENT, file);
       if (!this.fileSizeIsValid(file)) {
-        this.$emit(FILE_SIZE_EXCEED_EVENT, file);
+        this.$emit(events.FILE_SIZE_EXCEED_EVENT, file);
         throw new Error('File size exceeds limit which is ' + this.fileSizeLimit + ' bytes.');
+      }
+      if (!this.fileTypeIsValid(file)) {
+        this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file);
+        throw new Error('File type (' + file.type + ') does not match what you specified (' + this.accept + ').');
       }
       var fr = new FileReader();
       fr.onload = function (e) {
@@ -430,6 +470,47 @@ var cropper = { render: function render() {
       if (!this.fileSizeLimit || this.fileSizeLimit == 0) return true;
 
       return file.size < this.fileSizeLimit;
+    },
+    fileTypeIsValid: function fileTypeIsValid(file) {
+      var accept = this.accept || 'image/*';
+      var baseMimetype = accept.replace(/\/.*$/, '');
+      var types = accept.split(',');
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = types[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var type = _step.value;
+
+          var t = type.trim();
+          if (t.charAt(0) == '.') {
+            if (file.name.toLowerCase().split('.').pop() === t.toLowerCase().slice(1)) return true;
+          } else if (/\/\*$/.test(t)) {
+            var fileBaseType = file.type.replace(/\/.*$/, '');
+            if (fileBaseType === baseMimetype) {
+              return true;
+            }
+          } else if (file.type === type) {
+            return true;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return false;
     },
     imgContentInit: function imgContentInit() {
       this.imgData.startX = 0;
@@ -455,6 +536,14 @@ var cropper = { render: function render() {
       this.draw();
     },
     handlePointerStart: function handlePointerStart(evt) {
+      if (DEBUG) {
+        console.log('touch start');
+      }
+      this.supportTouch = true;
+      this.pointerMoved = false;
+      var pointerCoord = u.getPointerCoords(evt, this);
+      this.pointerStartCoord = pointerCoord;
+
       if (this.disabled) return;
       // simulate click with touch on mobile devices
       if (!this.img && !this.disableClickToChoose) {
@@ -477,40 +566,49 @@ var cropper = { render: function render() {
         this.pinchDistance = u.getPinchDistance(evt, this);
       }
 
-      if (document) {
-        var cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel'];
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+      var cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel'];
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
 
+      try {
+        for (var _iterator2 = cancelEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var e = _step2.value;
+
+          document.addEventListener(e, this.handlePointerEnd);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
         try {
-          for (var _iterator = cancelEvents[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var e = _step.value;
-
-            document.addEventListener(e, this.handlePointerEnd);
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
           }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
         } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
+          if (_didIteratorError2) {
+            throw _iteratorError2;
           }
         }
       }
     },
     handlePointerEnd: function handlePointerEnd(evt) {
+      if (DEBUG) {
+        console.log('touch end');
+      }
+      var pointerMoveDistance = 0;
+      if (this.pointerStartCoord) {
+        var pointerCoord = u.getPointerCoords(evt, this);
+        pointerMoveDistance = Math.sqrt(Math.pow(pointerCoord.x - this.pointerStartCoord.x, 2) + Math.pow(pointerCoord.y - this.pointerStartCoord.y, 2)) || 0;
+      }
       if (this.disabled) return;
       if (!this.img && !this.disableClickToChoose) {
         var tabEnd = new Date().valueOf();
-        if (tabEnd - this.tabStart < 1000) {
+        if (pointerMoveDistance < CLICK_MOVE_THRESHOLD && tabEnd - this.tabStart < MIN_MS_PER_CLICK && this.supportTouch) {
           this.chooseFile();
+          if (DEBUG) {
+            console.log('trigger by touch');
+          }
         }
         this.tabStart = 0;
         return;
@@ -520,10 +618,15 @@ var cropper = { render: function render() {
       this.pinching = false;
       this.pinchDistance = 0;
       this.lastMovingCoord = null;
+      this.pointerMoved = false;
+      this.pointerStartCoord = null;
     },
     handlePointerMove: function handlePointerMove(evt) {
+      this.pointerMoved = true;
+
       if (this.disabled || this.disableDragToMove || !this.img) return;
 
+      evt.preventDefault();
       if (!evt.touches || evt.touches.length === 1) {
         if (!this.dragging) return;
         var coord = u.getPointerCoords(evt, this);
@@ -540,12 +643,13 @@ var cropper = { render: function render() {
         if (!this.pinching) return;
         var distance = u.getPinchDistance(evt, this);
         var delta = distance - this.pinchDistance;
-        this.zoom(delta > 0, null, 2);
+        this.zoom(delta > 0, null, PINCH_ACCELERATION);
         this.pinchDistance = distance;
       }
     },
     handleWheel: function handleWheel(evt) {
       if (this.disabled || this.disableScrollToZoom || !this.img) return;
+      evt.preventDefault();
       var coord = u.getPointerCoords(evt, this);
       if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
         this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord);
@@ -566,20 +670,38 @@ var cropper = { render: function render() {
       if (!this.fileDraggedOver) return;
       this.fileDraggedOver = false;
 
-      if (!evt.dataTransfer || !evt.dataTransfer.files.length) return;
-      var file = evt.dataTransfer.files[0];
+      var file = void 0;
+      var dt = evt.dataTransfer;
+      if (!dt) return;
+      if (dt.items) {
+        for (var i = 0, len = dt.items.length; i < len; i++) {
+          var item = dt.items[i];
+          if (item.kind == 'file') {
+            file = item.getAsFile();
+            break;
+          }
+        }
+      } else {
+        file = dt.files[0];
+      }
 
-      this.onNewFileIn(file);
+      if (file) {
+        this.onNewFileIn(file);
+      }
     },
     move: function move(offset) {
       if (!offset) return;
+      var oldX = this.imgData.startX;
+      var oldY = this.imgData.startY;
       this.imgData.startX += offset.x;
       this.imgData.startY += offset.y;
       if (this.preventWhiteSpace) {
         this.preventMovingToWhiteSpace();
       }
-      this.$emit(MOVE_EVENT);
-      this.draw();
+      if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
+        this.$emit(events.MOVE_EVENT);
+        this.draw();
+      }
     },
     preventMovingToWhiteSpace: function preventMovingToWhiteSpace() {
       if (this.imgData.startX > 0) {
@@ -596,26 +718,26 @@ var cropper = { render: function render() {
       }
     },
     zoom: function zoom(zoomIn, pos) {
-      var timesFaster = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
+      var innerAcceleration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
 
       pos = pos || {
         x: this.imgData.startX + this.imgData.width / 2,
         y: this.imgData.startY + this.imgData.height / 2
       };
-      var speed = this.realWidth / 100000 * this.zoomSpeed * timesFaster;
+      var realSpeed = this.zoomSpeed * innerAcceleration;
+      var speed = this.realWidth * PCT_PER_ZOOM * realSpeed;
       var x = 1;
       if (zoomIn) {
         x = 1 + speed;
-      } else if (this.imgData.width > 20) {
+      } else if (this.imgData.width > MIN_WIDTH) {
         x = 1 - speed;
       }
+
+      var oldWidth = this.imgData.width;
+      var oldHeight = this.imgData.height;
+
       this.imgData.width = this.imgData.width * x;
       this.imgData.height = this.imgData.height * x;
-      var offsetX = (x - 1) * (pos.x - this.imgData.startX);
-      var offsetY = (x - 1) * (pos.y - this.imgData.startY);
-      console.log(offsetX, offsetY);
-      this.imgData.startX = this.imgData.startX - offsetX;
-      this.imgData.startY = this.imgData.startY - offsetY;
 
       if (this.preventWhiteSpace) {
         if (this.imgData.width < this.realWidth) {
@@ -629,10 +751,19 @@ var cropper = { render: function render() {
           this.imgData.height = this.realHeight;
           this.imgData.width = this.imgData.width * _x3;
         }
-        this.preventMovingToWhiteSpace();
       }
-      this.$emit(ZOOM_EVENT);
-      this.draw();
+      if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
+        var offsetX = (x - 1) * (pos.x - this.imgData.startX);
+        var offsetY = (x - 1) * (pos.y - this.imgData.startY);
+        this.imgData.startX = this.imgData.startX - offsetX;
+        this.imgData.startY = this.imgData.startY - offsetY;
+
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace();
+        }
+        this.$emit(events.ZOOM_EVENT);
+        this.draw();
+      }
     },
     paintBackground: function paintBackground() {
       var backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : this.canvasColor;
@@ -685,6 +816,10 @@ var cropper = { render: function render() {
 
 var VueCroppa = {
   install: function install(Vue, options) {
+    var version = Number(Vue.version.split('.')[0]);
+    if (version < 2) {
+      throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');
+    }
     Vue.component('croppa', cropper);
   }
 };
