@@ -311,7 +311,7 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Optimize doc page bundle size.
 - [x] Fix remove button shadow.
 - [x] Deprecation warning of unnecessary `initial-image-load` and `initial-image-error` events.
-- [ ] Add a method `hasImage()` to represent whether currently there is a image.
+- [x] Add a method `hasImage()` to represent whether currently there is a image.
 - [ ] Add more method examples in docs.
 - [ ] Add a showcase with different customization use cases.
 - [ ] Doc about css styling.

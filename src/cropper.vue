@@ -161,6 +161,9 @@
           refresh: () => {
             this.$nextTick(this.init)
           },
+          hasImage: () => {
+            return !!this.img
+          },
           reset: this.unset,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
