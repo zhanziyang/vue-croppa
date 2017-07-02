@@ -1,10 +1,10 @@
 # vue-croppa
 > A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.
 
-- ✔ **Straightforward**: What you see is what you get
-- ✔ **Highly customizable**: You can almost customize anything except the core functionalities
-- ✔ **Lightweight**: 16kb in total
-- ✔ **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
+- **Straightforward**: What you see is what you get
+- **Highly customizable**: You can almost customize anything except the core functionalities
+- **Lightweight**: 16kb in total
+- **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 
 <a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
