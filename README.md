@@ -306,6 +306,7 @@ const blob = await this.myCroppa.promisedBlob()
 
 - [ ] File type filter on drag and drop. Add a `file-type-mismatch` event.
 - [X] Keep default scrolling behavior when there is no image.
+- [ ] Browser support detection.
 - [ ] Sopport dataTransferItemList interface on drop for better compatibility.
 - [ ] Optimize doc page bundle size.
 - [x] Fix remove button shadow.
