@@ -27,8 +27,8 @@
             @touchmove.stop.prevent="handlePointerMove"
             @mousemove.stop.prevent="handlePointerMove"
             @pointermove.stop.prevent="handlePointerMove"
-            @DOMMouseScroll.stop.prevent="handleWheel"
-            @wheel.stop.prevent="handleWheel"
+            @DOMMouseScroll.stop="handleWheel"
+            @wheel.stop="handleWheel"
             @mousewheel.stop.prevent="handleWheel"></canvas>
     <svg class="icon icon-remove"
          v-if="showRemoveButton && img"
@@ -356,6 +356,7 @@
 
       handleWheel (evt) {
         if (this.disabled || this.disableScrollToZoom || !this.img) return
+        evt.preventDefault()
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
           this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord)
