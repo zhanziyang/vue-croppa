@@ -276,9 +276,8 @@ var cropper = { render: function render() {
   },
 
   mounted: function mounted() {
-    u.rAFPolyfill();
-
     this.init();
+    u.rAFPolyfill();
 
     if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
       console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).');
@@ -371,7 +370,7 @@ var cropper = { render: function render() {
     supportDetection: function supportDetection() {
       var div = document.createElement('div');
       return {
-        'basic': window.File && window.FileReader && window.FileList && window.Blob,
+        'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
         'dnd': 'ondragstart' in div && 'ondrop' in div
       };
     },
@@ -782,10 +781,15 @@ var cropper = { render: function render() {
           width = _imgData.width,
           height = _imgData.height;
 
-      requestAnimationFrame(function () {
-        _this4.paintBackground();
-        ctx.drawImage(_this4.img, startX, startY, width, height);
-      });
+      if (window.requestAnimationFrame) {
+        requestAnimationFrame(function () {
+          _this4.paintBackground();
+          ctx.drawImage(_this4.img, startX, startY, width, height);
+        });
+      } else {
+        this.paintBackground();
+        ctx.drawImage(this.img, startX, startY, width, height);
+      }
     },
     generateDataUrl: function generateDataUrl(type) {
       if (!this.img) return '';

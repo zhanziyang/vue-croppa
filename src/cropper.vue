@@ -102,9 +102,8 @@
     },
 
     mounted () {
-      u.rAFPolyfill()
-
       this.init()
+      u.rAFPolyfill()
 
       if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
         console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).')
@@ -187,7 +186,7 @@
       supportDetection () {
         var div = document.createElement('div')
         return {
-          'basic': window.File && window.FileReader && window.FileList && window.Blob,
+          'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
           'dnd': 'ondragstart' in div && 'ondrop' in div
         }
       },
@@ -564,10 +563,15 @@
         let ctx = this.ctx
         if (!this.img) return
         let { startX, startY, width, height } = this.imgData
-        requestAnimationFrame(() => {
+        if (window.requestAnimationFrame) {
+          requestAnimationFrame(() => {
+            this.paintBackground()
+            ctx.drawImage(this.img, startX, startY, width, height)
+          })
+        } else {
           this.paintBackground()
           ctx.drawImage(this.img, startX, startY, width, height)
-        })
+        }
       },
 
       generateDataUrl (type) {
