@@ -357,4 +357,5 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Add a method `hasImage()` to represent whether currently there is a image.
 - [ ] SSR compatibility.
 - [ ] Make container optionally resizable.
+- [ ] Deprecation warning of `reset()` method.
 - [ ] Add a showcase with different customization use cases.
