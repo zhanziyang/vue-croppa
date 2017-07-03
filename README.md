@@ -360,4 +360,3 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Make default position customizable.
 - [ ] Deprecation warning of `reset()` method.
 - [ ] Replace `for of` with tranditional `for` loop for better compatibility. 
-- [ ] Add a showcase with different customization use cases.
