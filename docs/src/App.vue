@@ -11,8 +11,7 @@
     </h2>
     <v-divider></v-divider>
     <br>
-    <v-layout row-md
-              column>
+    <v-layout row-md>
       <v-flex md6
               order-md2>
         <h5>Try It Out
@@ -74,7 +73,6 @@
               order-md1>
         <h5>Customization</h5>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-slider v-model="width"
@@ -97,7 +95,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-switch v-bind:label="`set initial image`"
@@ -110,7 +107,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-text-field name="placeholder"
@@ -130,7 +126,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md6>
             <v-text-field name="accept"
@@ -145,7 +140,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md6>
             <v-slider v-model="quality"
@@ -165,7 +159,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-switch v-bind:label="`disableClickToChoose`"
@@ -181,7 +174,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-switch v-bind:label="`disableDragAndDrop`"
@@ -197,7 +189,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-switch v-bind:label="`preventWhiteSpace`"
@@ -209,7 +200,6 @@
           </v-flex>
         </v-layout>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md4>
             <v-switch v-bind:label="`showRemoveButton`"
@@ -230,7 +220,6 @@
         <br>
         <h5>Method Example</h5>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md6>
             <pre v-highlightjs="methodExample5"><code class="js"></code></pre>
@@ -247,7 +236,6 @@
         </v-layout>
         <br>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md6>
             <pre v-highlightjs="methodExample6"><code class="js"></code></pre>
@@ -264,7 +252,6 @@
         </v-layout>
         <br>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
@@ -275,7 +262,6 @@
         </v-layout>
         <br>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
@@ -291,14 +277,12 @@
     <v-divider></v-divider>
     <br>
     <v-layout row-md
-              column
               wrap>
       <v-flex md8
               offset-md2>
         <h4>Quick Start</h4>
         <p>1. Install with npm or include it directly.</p>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md5>
             <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
@@ -314,7 +298,6 @@
         <br>
         <p>2. If your build tool supports css module, import it as left below. Or simply include the file in your HTML.</p>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md5>
             <pre v-highlightjs="'import \'vue-croppa/dist/vue-croppa.css\''"><code class="javascript"></code></pre>
@@ -330,7 +313,6 @@
         <br>
         <p>3. Register it as a vue plugin.</p>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="vueRegistry"><code class="javascript"></code></pre>
@@ -339,7 +321,6 @@
         <br>
         <p>4. Now you have it. The simplest usage: </p>
         <v-layout row-md
-                  column
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="simplestUsage"><code class="html"></code></pre>
@@ -351,7 +332,6 @@
     <v-divider></v-divider>
     <br>
     <v-layout row-md
-              column
               wrap>
       <v-flex md8
               offset-md2>
