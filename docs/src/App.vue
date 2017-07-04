@@ -11,8 +11,11 @@
     </h2>
     <v-divider></v-divider>
     <br>
-    <v-layout row-md>
-      <v-flex md6
+    <v-layout row
+              wrap>
+      <v-flex xs12
+              md6
+              xs12
               order-md2>
         <h5>Try It Out
         </h5>
@@ -70,34 +73,40 @@
         <h5>Template Example</h5>
         <pre v-highlightjs="code"><code class="html" style="margin-bottom: 16px"></code></pre>
       </v-flex>
-      <v-flex md6
+      <v-flex xs12
+              md6
+              xs12
               order-md1>
         <h5>Customization</h5>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-slider v-model="width"
                       label="width"
                       thumb-label
                       :max="500"
                       :min="100"></v-slider>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-slider v-model="height"
                       label="height"
                       thumb-label
                       :max="500"
                       :min="100"></v-slider>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-select v-bind:items="['default', 'black', 'grey', '#00bcd4', 'rgb(205, 220, 57)']"
                       v-model="canvasColor"
                       label="canvasColor"></v-select>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`set initial image`"
                       v-model="withInitialImage"></v-switch>
           </v-flex>
@@ -107,42 +116,48 @@
                           v-model="initialImageSrc"></v-text-field>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-text-field name="placeholder"
                           label="placeholder"
                           v-model="placeholder"></v-text-field>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-text-field name="placeholderFontSize"
                           label="placeholderFontSize (px)"
                           type="number"
                           v-model="placeholderFontSize"></v-text-field>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-select v-bind:items="['default', 'white', 'grey', '#ffc107', 'rgb(0, 150, 136)']"
                       v-model="placeholderColor"
                       label="placeholderColor"></v-select>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <v-text-field name="accept"
                           label="accept"
                           v-model="accept"></v-text-field>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <v-text-field name="fileSizeLimit"
                           label="fileSizeLimit (byte)"
                           type="number"
                           v-model="fileSizeLimit"></v-text-field>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <v-slider v-model="quality"
                       label="quality"
                       thumb-label
@@ -150,7 +165,8 @@
                       :min="1"
                       :step="1"></v-slider>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <v-slider v-model="zoomSpeed"
                       label="zoomSpeed"
                       thumb-label
@@ -159,59 +175,70 @@
                       :step="1"></v-slider>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disableClickToChoose`"
                       v-model="disableClickToChoose"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disableDragToMove`"
                       v-model="disableDragToMove"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disableScrollToZoom`"
                       v-model="disableScrollToZoom"></v-switch>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disableDragAndDrop`"
                       v-model="disableDragAndDrop"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disablePinchToZoom`"
                       v-model="disablePinchToZoom"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`disabled (all)`"
                       v-model="disabled"></v-switch>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`preventWhiteSpace`"
                       v-model="preventWhiteSpace"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`reverseScrollToZoom`"
                       v-model="reverseScrollToZoom"></v-switch>
           </v-flex>
         </v-layout>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-switch v-bind:label="`showRemoveButton`"
                       v-model="showRemoveButton"></v-switch>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-select v-bind:items="['red', 'black', 'purple', '#ffc107', 'rgb(0, 150, 136)']"
                       v-model="removeButtonColor"
                       label="removeButtonColor"></v-select>
           </v-flex>
-          <v-flex md4>
+          <v-flex md4
+                  xs12>
             <v-text-field name="removeButtonSize"
                           label="removeButtonSize (px)"
                           type="number"
@@ -220,15 +247,17 @@
         </v-layout>
         <br>
         <h5>Method Example</h5>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="methodExample5"><code class="js"></code></pre>
             <v-btn dark
                    default
                    @click.native="chooseFile">Choose File</v-btn>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="methodExample1"><code class="js"></code></pre>
             <v-btn dark
                    default
@@ -236,15 +265,17 @@
           </v-flex>
         </v-layout>
         <br>
-        <v-layout row-md
+        <v-layout row
                   wrap>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="methodExample6"><code class="js"></code></pre>
             <v-btn dark
                    default
                    @click.native="moveUp">Move Upwards for 5 px</v-btn>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="methodExample2"><code class="js"></code></pre>
             <v-btn dark
                    default
@@ -252,7 +283,7 @@
           </v-flex>
         </v-layout>
         <br>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="methodExample3"><code class="js"></code></pre>
@@ -262,7 +293,7 @@
           </v-flex>
         </v-layout>
         <br>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="methodExample4"><code class="js"></code></pre>
@@ -277,43 +308,47 @@
     <br>
     <v-divider></v-divider>
     <br>
-    <v-layout row-md
+    <v-layout row
               wrap>
       <v-flex md8
               offset-md2>
         <h4>Quick Start</h4>
         <p>1. Install with npm or include it directly.</p>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md5>
             <pre v-highlightjs="'npm install --save vue-croppa'"><code class="bash"></code></pre>
           </v-flex>
           <v-flex md1
+                  xs12
                   class="text-md-center">
             <h5>or</h5>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="installTags"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
         <br>
         <p>2. If your build tool supports css module, import it as left below. Or simply include the file in your HTML.</p>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md5>
             <pre v-highlightjs="'import \'vue-croppa/dist/vue-croppa.css\''"><code class="javascript"></code></pre>
           </v-flex>
           <v-flex md1
+                  xs12
                   class="text-md-center">
             <h5>or</h5>
           </v-flex>
-          <v-flex md6>
+          <v-flex md6
+                  xs12>
             <pre v-highlightjs="installStyle"><code class="html"></code></pre>
           </v-flex>
         </v-layout>
         <br>
         <p>3. Register it as a vue plugin.</p>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="vueRegistry"><code class="javascript"></code></pre>
@@ -321,7 +356,7 @@
         </v-layout>
         <br>
         <p>4. Now you have it. The simplest usage: </p>
-        <v-layout row-md
+        <v-layout row
                   wrap>
           <v-flex md12>
             <pre v-highlightjs="simplestUsage"><code class="html"></code></pre>
@@ -332,7 +367,7 @@
     <br>
     <v-divider></v-divider>
     <br>
-    <v-layout row-md
+    <v-layout row
               wrap>
       <v-flex md8
               offset-md2>
