@@ -29,8 +29,9 @@
           <em :class="disabled || disableDragToMove ? 's' : ''">Drag to move</em> |
           <em :class="disabled || disablePinchToZoom ? 's' : ''">Pinch with two fingers to zoom</em>
         </p>
-        <img src="https://zhanziyang.github.io/vue-croppa/static/initial-image.png"
-             class="preload">
+        <img src=""
+             class="preload"
+             ref="preload">
         <croppa v-model="myCroppa"
                 :width="+width"
                 :height="+height"
@@ -470,6 +471,10 @@
         this.width = 200
         this.height = 200
       }
+    },
+
+    mounted () {
+      this.$refs.preload.src = 'https://zhanziyang.github.io/vue-croppa/static/initial-image.png'
     },
 
     watch: {
