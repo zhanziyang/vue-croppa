@@ -173,7 +173,10 @@
           hasImage: () => {
             return !!this.img
           },
-          reset: this.remove, // soon to be deprecated due to misnamed
+          reset: () => {
+            console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.')
+            this.remove()
+          }, // soon to be deprecated due to misnamed
           remove: this.remove,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
