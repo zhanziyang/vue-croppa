@@ -296,7 +296,8 @@
         let accept = this.accept || 'image/*'
         let baseMimetype = accept.replace(/\/.*$/, '')
         let types = accept.split(',')
-        for (let type of types) {
+        for (let i = 0, len = types.length; i < len; i++) {
+          let type = types[i]
           let t = type.trim()
           if (t.charAt(0) == '.') {
             if (file.name.toLowerCase().split('.').pop() === t.toLowerCase().slice(1)) return true
@@ -369,7 +370,8 @@
         }
 
         let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
-        for (let e of cancelEvents) {
+        for (let i = 0, len = cancelEvents.length; i < len; i++) {
+          let e = cancelEvents[i]
           document.addEventListener(e, this.handlePointerEnd)
         }
       },
