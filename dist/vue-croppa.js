@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.25
+ * vue-croppa v0.0.26
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -60,6 +60,7 @@ var u = {
   },
   rAFPolyfill: function rAFPolyfill() {
     // rAF polyfill
+    if (typeof document == 'undefined' || typeof window == 'undefined') return;
     var lastTime = 0;
     var vendors = ['webkit', 'moz'];
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -89,6 +90,25 @@ var u = {
     Array.isArray = function (arg) {
       return Object.prototype.toString.call(arg) === '[object Array]';
     };
+  },
+  toBlobPolyfill: function toBlobPolyfill() {
+    if (typeof document == 'undefined' || typeof window == 'undefined' || !HTMLCanvasElement) return;
+    var binStr, len, arr;
+    if (!HTMLCanvasElement.prototype.toBlob) {
+      Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+        value: function value(callback, type, quality) {
+          binStr = atob(this.toDataURL(type, quality).split(',')[1]);
+          len = binStr.length;
+          arr = new Uint8Array(len);
+
+          for (var i = 0; i < len; i++) {
+            arr[i] = binStr.charCodeAt(i);
+          }
+
+          callback(new Blob([arr], { type: type || 'image/png' }));
+        }
+      });
+    }
   }
 };
 
@@ -278,6 +298,7 @@ var cropper = { render: function render() {
   mounted: function mounted() {
     this.init();
     u.rAFPolyfill();
+    u.toBlobPolyfill();
 
     if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
       console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).');
@@ -358,7 +379,10 @@ var cropper = { render: function render() {
         hasImage: function hasImage() {
           return !!_this.img;
         },
-        reset: this.remove, // soon to be deprecated due to misnamed
+        reset: function reset() {
+          console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.');
+          _this.remove();
+        }, // soon to be deprecated due to misnamed
         remove: this.remove,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
@@ -453,17 +477,19 @@ var cropper = { render: function render() {
         var type = file.type || file.name.toLowerCase().split('.').pop();
         throw new Error('File type (' + type + ') does not match what you specified (' + this.accept + ').');
       }
-      var fr = new FileReader();
-      fr.onload = function (e) {
-        var fileData = e.target.result;
-        var img = new Image();
-        img.src = fileData;
-        img.onload = function () {
-          _this3.img = img;
-          _this3.imgContentInit();
+      if (typeof window.FileReader !== 'undefined') {
+        var fr = new FileReader();
+        fr.onload = function (e) {
+          var fileData = e.target.result;
+          var img = new Image();
+          img.src = fileData;
+          img.onload = function () {
+            _this3.img = img;
+            _this3.imgContentInit();
+          };
         };
-      };
-      fr.readAsDataURL(file);
+        fr.readAsDataURL(file);
+      }
     },
     fileSizeIsValid: function fileSizeIsValid(file) {
       if (!file) return false;
@@ -475,38 +501,18 @@ var cropper = { render: function render() {
       var accept = this.accept || 'image/*';
       var baseMimetype = accept.replace(/\/.*$/, '');
       var types = accept.split(',');
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = types[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var type = _step.value;
-
-          var t = type.trim();
-          if (t.charAt(0) == '.') {
-            if (file.name.toLowerCase().split('.').pop() === t.toLowerCase().slice(1)) return true;
-          } else if (/\/\*$/.test(t)) {
-            var fileBaseType = file.type.replace(/\/.*$/, '');
-            if (fileBaseType === baseMimetype) {
-              return true;
-            }
-          } else if (file.type === type) {
+      for (var i = 0, len = types.length; i < len; i++) {
+        var type = types[i];
+        var t = type.trim();
+        if (t.charAt(0) == '.') {
+          if (file.name.toLowerCase().split('.').pop() === t.toLowerCase().slice(1)) return true;
+        } else if (/\/\*$/.test(t)) {
+          var fileBaseType = file.type.replace(/\/.*$/, '');
+          if (fileBaseType === baseMimetype) {
             return true;
           }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
+        } else if (file.type === type) {
+          return true;
         }
       }
 
@@ -567,29 +573,9 @@ var cropper = { render: function render() {
       }
 
       var cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel'];
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = cancelEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var e = _step2.value;
-
-          document.addEventListener(e, this.handlePointerEnd);
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
+      for (var i = 0, len = cancelEvents.length; i < len; i++) {
+        var e = cancelEvents[i];
+        document.addEventListener(e, this.handlePointerEnd);
       }
     },
     handlePointerEnd: function handlePointerEnd(evt) {
@@ -806,6 +792,10 @@ var cropper = { render: function render() {
         args[_key] = arguments[_key];
       }
 
+      if (typeof Promise == 'undefined') {
+        console.warn('No Promise support. Please add Promise polyfill if you want to use this method.');
+        return;
+      }
       return new Promise(function (resolve, reject) {
         try {
           _this5.generateBlob(function (blob) {
@@ -821,11 +811,13 @@ var cropper = { render: function render() {
 
 var VueCroppa = {
   install: function install(Vue, options) {
+    options = options || {};
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');
     }
-    Vue.component('croppa', cropper);
+    var componentName = options.componentName || 'croppa';
+    Vue.component(componentName, cropper);
   }
 };
 
