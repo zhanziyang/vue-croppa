@@ -355,10 +355,10 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Fix remove button shadow.
 - [x] Deprecation warning of unnecessary `initial-image-load` and `initial-image-error` events.
 - [x] Add a method `hasImage()` to represent whether currently there is a image.
-- [ ] SSR compatibility.
+- [x] SSR compatibility.
 - [ ] Make container optionally resizable.
 - [ ] Make default position customizable.
-- [ ] Deprecation warning of `reset()` method.
+- [x] Deprecation warning of `reset()` method.
 - [ ] Ignore non-file dragging.
 - [ ] Change `accept` default value.
-- [ ] Replace `for of` with tranditional `for` loop for better compatibility. 
+- [x] Replace `for of` with tranditional `for` loop for better compatibility. 
