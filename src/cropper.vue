@@ -273,17 +273,19 @@
           let type = file.type || file.name.toLowerCase().split('.').pop()
           throw new Error(`File type (${type}) does not match what you specified (${this.accept}).`)
         }
-        let fr = new FileReader()
-        fr.onload = (e) => {
-          let fileData = e.target.result
-          let img = new Image()
-          img.src = fileData
-          img.onload = () => {
-            this.img = img
-            this.imgContentInit()
+        if (typeof window.FileReader !== 'undefined') {
+          let fr = new FileReader()
+          fr.onload = (e) => {
+            let fileData = e.target.result
+            let img = new Image()
+            img.src = fileData
+            img.onload = () => {
+              this.img = img
+              this.imgContentInit()
+            }
           }
+          fr.readAsDataURL(file)
         }
-        fr.readAsDataURL(file)
       },
 
       fileSizeIsValid (file) {
@@ -591,6 +593,10 @@
       },
 
       promisedBlob (...args) {
+        if (typeof Promise == 'undefined') {
+          console.warn('No Promise support. Please add Promise polyfill if you want to use this method.')
+          return
+        }
         return new Promise((resolve, reject) => {
           try {
             this.generateBlob((blob) => {
