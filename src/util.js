@@ -49,6 +49,7 @@ export default {
 
   rAFPolyfill() {
     // rAF polyfill
+    if (typeof document == 'undefined' || typeof window == 'undefined') return
     var lastTime = 0
     var vendors = ['webkit', 'moz']
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
