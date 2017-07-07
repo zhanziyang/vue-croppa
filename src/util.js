@@ -79,5 +79,24 @@ export default {
     Array.isArray = function (arg) {
       return Object.prototype.toString.call(arg) === '[object Array]'
     }
+  },
+
+  toBlobPolyfill() {
+    if (typeof document == 'undefined' || typeof window == 'undefined' || !HTMLCanvasElement) return
+    if (!HTMLCanvasElement.prototype.toBlob) {
+      Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+        value: function (callback, type, quality) {
+          var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
+            len = binStr.length,
+            arr = new Uint8Array(len)
+
+          for (var i = 0; i < len; i++) {
+            arr[i] = binStr.charCodeAt(i)
+          }
+
+          callback(new Blob([arr], { type: type || 'image/png' }))
+        }
+      })
+    }
   }
 }

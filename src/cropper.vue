@@ -104,6 +104,7 @@
     mounted () {
       this.init()
       u.rAFPolyfill()
+      u.toBlobPolyfill()
 
       if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
         console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).')
