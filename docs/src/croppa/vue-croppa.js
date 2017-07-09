@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.27
+ * vue-croppa v0.1.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang

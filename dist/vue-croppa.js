@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.27
+ * vue-croppa v0.1.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -109,6 +109,18 @@ var u = {
         }
       });
     }
+  },
+  eventHasFile: function eventHasFile(evt) {
+    var dt = evt.dataTransfer || evt.originalEvent.dataTransfer;
+    if (dt.types) {
+      for (var i = 0, len = dt.types.length; i < len; i++) {
+        if (dt.types[i] == 'Files') {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 };
 
@@ -165,7 +177,7 @@ var props = {
   },
   accept: {
     type: String,
-    default: 'image/*'
+    default: '.jpg,.png,.gif,.bmp,.webp,.svg,.tiff'
   },
   fileSizeLimit: {
     type: Number,
@@ -193,7 +205,8 @@ var props = {
   },
   removeButtonSize: {
     type: Number
-  }
+  },
+  initialImage: String
 };
 
 var events = {
@@ -334,11 +347,8 @@ var cropper = { render: function render() {
       this.canvas.style.height = this.height + 'px';
       this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
-      if (this.$slots.initial && this.$slots.initial[0]) {
-        this.setInitial();
-      } else {
-        this.remove();
-      }
+      this.img = null;
+      this.setInitial();
       this.$emit(events.INIT_EVENT, {
         getCanvas: function getCanvas() {
           return _this.canvas;
@@ -421,25 +431,36 @@ var cropper = { render: function render() {
     setInitial: function setInitial() {
       var _this2 = this;
 
-      var vNode = this.$slots.initial[0];
-      var tag = vNode.tag,
-          elm = vNode.elm;
+      var src = void 0;
+      if (this.$slots.initial && this.$slots.initial[0]) {
+        var vNode = this.$slots.initial[0];
+        var tag = vNode.tag,
+            elm = vNode.elm;
 
-      if (tag !== 'img' || !elm || !elm.src) {
+        if (tag == 'img' && elm && elm.src) {
+          src = elm.src;
+        }
+      }
+      if (!src && this.initialImage) {
+        src = this.initialImage;
+      }
+      if (!src) {
         this.remove();
         return;
       }
-      elm.crossOrigin = 'Anonymous';
-      if (u.imageLoaded(elm)) {
-        this.img = elm;
+      var img = new Image();
+      img.setAttribute('crossOrigin', 'anonymous');
+      img.src = src;
+      if (u.imageLoaded(img)) {
+        this.img = img;
         this.imgContentInit();
       } else {
-        elm.onload = function () {
-          _this2.img = elm;
+        img.onload = function () {
+          _this2.img = img;
           _this2.imgContentInit();
         };
 
-        elm.onerror = function () {
+        img.onerror = function () {
           _this2.remove();
         };
       }
@@ -646,16 +667,16 @@ var cropper = { render: function render() {
       }
     },
     handleDragEnter: function handleDragEnter(evt) {
-      if (this.disabled || this.disableDragAndDrop || this.img) return;
+      if (this.disabled || this.disableDragAndDrop || this.img || !u.eventHasFile(evt)) return;
       this.fileDraggedOver = true;
     },
     handleDragLeave: function handleDragLeave(evt) {
-      if (!this.fileDraggedOver) return;
+      if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       this.fileDraggedOver = false;
     },
     handleDragOver: function handleDragOver(evt) {},
     handleDrop: function handleDrop(evt) {
-      if (!this.fileDraggedOver) return;
+      if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       this.fileDraggedOver = false;
 
       var file = void 0;
