@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.0.26
+ * vue-croppa v0.0.27
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -429,6 +429,7 @@ var cropper = { render: function render() {
         this.remove();
         return;
       }
+      elm.crossOrigin = 'Anonymous';
       if (u.imageLoaded(elm)) {
         this.img = elm;
         this.imgContentInit();
@@ -483,6 +484,7 @@ var cropper = { render: function render() {
           var fileData = e.target.result;
           var img = new Image();
           img.src = fileData;
+          img.crossOrigin = 'Anonymous';
           img.onload = function () {
             _this3.img = img;
             _this3.imgContentInit();
