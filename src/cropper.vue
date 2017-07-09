@@ -223,6 +223,7 @@
           this.remove()
           return
         }
+        elm.crossOrigin = 'Anonymous'
         if (u.imageLoaded(elm)) {
           this.img = elm
           this.imgContentInit()
@@ -279,6 +280,7 @@
             let fileData = e.target.result
             let img = new Image()
             img.src = fileData
+            img.crossOrigin = 'Anonymous'
             img.onload = () => {
               this.img = img
               this.imgContentInit()
