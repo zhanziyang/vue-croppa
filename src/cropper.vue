@@ -458,12 +458,12 @@
       },
 
       handleDragEnter (evt) {
-        if (this.disabled || this.disableDragAndDrop || this.img) return
+        if (this.disabled || this.disableDragAndDrop || this.img || !u.eventHasFile(evt)) return
         this.fileDraggedOver = true
       },
 
       handleDragLeave (evt) {
-        if (!this.fileDraggedOver) return
+        if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         this.fileDraggedOver = false
       },
 
@@ -471,7 +471,7 @@
       },
 
       handleDrop (evt) {
-        if (!this.fileDraggedOver) return
+        if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         this.fileDraggedOver = false
 
         let file

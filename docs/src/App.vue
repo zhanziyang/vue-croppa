@@ -6,7 +6,8 @@
       <span class="subheader">A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.</span>
       <a href="https://github.com/zhanziyang/vue-croppa">
         <img src="static/github.png"
-             alt="Github repository">
+             alt="Github repository"
+             draggable="true">
       </a>
     </h2>
     <v-divider></v-divider>

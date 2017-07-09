@@ -99,5 +99,18 @@ export default {
         }
       })
     }
+  },
+
+  eventHasFile(evt) {
+    var dt = evt.dataTransfer || evt.originalEvent.dataTransfer
+    if (dt.types) {
+      for (var i = 0, len = dt.types.length; i < len; i++) {
+        if (dt.types[i] == 'Files') {
+          return true
+        }
+      }
+    }
+
+    return false
   }
 }

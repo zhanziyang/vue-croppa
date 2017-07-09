@@ -366,6 +366,6 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Make container optionally resizable.
 - [ ] Make default position customizable.
 - [x] Deprecation warning of `reset()` method.
-- [ ] Ignore non-file dragging.
+- [x] Ignore non-file dragging.
 - [x] Change `accept` default value.
 - [x] Replace `for of` with tranditional `for` loop for better compatibility. 
