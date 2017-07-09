@@ -225,6 +225,11 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - type: `number`
 - default: default size is ajust accordingly to container's size
 
+#### initial-image
+**@0.1.0+** Set initial image url. This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
+- type: `string`
+- default: `undefined`
+
 
 ---
 
@@ -237,7 +242,9 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   <img slot="initial" :src="initialImageUrl" />
 </croppa>
 ```
-##### NOTE: You need to explicitly call `.refresh()` method after changing inital image.
+##### NOTE: 
+- You need to explicitly call `.refresh()` method after changing inital image.
+- If you provide both the slot and `initial-image` prop, the slot will be the one that is used.
 ---
 
 ### 🌱 Methods

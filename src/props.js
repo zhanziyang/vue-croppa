@@ -79,5 +79,6 @@ export default {
   },
   removeButtonSize: {
     type: Number
-  }
+  },
+  initialImage: String
 }

@@ -137,11 +137,8 @@
         this.canvas.style.height = this.height + 'px'
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
-        if (this.$slots.initial && this.$slots.initial[0]) {
-          this.setInitial()
-        } else {
-          this.remove()
-        }
+        this.img = null
+        this.setInitial()
         this.$emit(events.INIT_EVENT, {
           getCanvas: () => this.canvas,
           getContext: () => this.ctx,
@@ -217,23 +214,34 @@
       },
 
       setInitial () {
-        let vNode = this.$slots.initial[0]
-        let { tag, elm } = vNode
-        if (tag !== 'img' || !elm || !elm.src) {
+        let src
+        if (this.$slots.initial && this.$slots.initial[0]) {
+          let vNode = this.$slots.initial[0]
+          let { tag, elm } = vNode
+          if (tag == 'img' && elm && elm.src) {
+            src = elm.src
+          }
+        }
+        if (!src && this.initialImage) {
+          src = this.initialImage
+        }
+        if (!src) {
           this.remove()
           return
         }
-        elm.crossOrigin = 'Anonymous'
-        if (u.imageLoaded(elm)) {
-          this.img = elm
+        var img = new Image()
+        img.setAttribute('crossOrigin', 'anonymous')
+        img.src = src
+        if (u.imageLoaded(img)) {
+          this.img = img
           this.imgContentInit()
         } else {
-          elm.onload = () => {
-            this.img = elm
+          img.onload = () => {
+            this.img = img
             this.imgContentInit()
           }
 
-          elm.onerror = () => {
+          img.onerror = () => {
             this.remove()
           }
         }
