@@ -1,6 +1,6 @@
 {
   "name": "vue-croppa",
-  "version": "0.0.27",
+  "version": "0.1.0",
   "description": "A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.",
   "main": "dist/vue-croppa.js",
   "scripts": {
