@@ -16,7 +16,7 @@ let min = process.env.BUILD === 'production-min'
 
 module.exports = {
   entry: 'src/main.js',
-  dest: `${production ? 'dist' : 'docs/croppa'}/vue-croppa${min ? '.min' : ''}.js`,
+  dest: `${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${min ? '.min' : ''}.js`,
   format: 'umd',
   moduleName: 'Croppa',
   sourceMap: production ? false : 'inline',
@@ -39,7 +39,7 @@ module.exports = {
           result.warnings().forEach(function (warn) {
             console.warn(warn.toString())
           })
-          fs.writeFile(`${production ? 'dist' : 'docs/croppa'}/vue-croppa${min ? '.min' : ''}.css`, result.css, (err) => {
+          fs.writeFile(`${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${min ? '.min' : ''}.css`, result.css, (err) => {
             if (err) throw err
           })
         })
