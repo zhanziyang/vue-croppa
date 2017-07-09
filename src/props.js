@@ -51,7 +51,7 @@ export default {
   },
   accept: {
     type: String,
-    default: 'image/*'
+    default: '.jpg,.png,.gif,.bmp,.webp,.svg,.tiff'
   },
   fileSizeLimit: {
     type: Number,

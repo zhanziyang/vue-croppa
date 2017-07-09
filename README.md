@@ -156,7 +156,7 @@ Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.
 #### accept
 Limits the types of files that users can choose.
 - type: same as what `accept` attribute of HTML `input` element takes.
-- default: `'image/*'`
+- default: `'.jpg,.png,.gif,.bmp,.webp,.svg,.tiff'`
 
 #### file-size-limit
 Limits the byte size of file that users can choose. If set to `0`, then no limit.
@@ -367,5 +367,5 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Make default position customizable.
 - [x] Deprecation warning of `reset()` method.
 - [ ] Ignore non-file dragging.
-- [ ] Change `accept` default value.
+- [x] Change `accept` default value.
 - [x] Replace `for of` with tranditional `for` loop for better compatibility. 

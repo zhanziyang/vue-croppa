@@ -395,7 +395,7 @@
         placeholderColor: 'default',
         quality: 2,
         zoomSpeed: 3,
-        accept: 'image/*',
+        accept: '.jpg,.png,.gif,.bmp,.webp,.svg,.tiff',
         fileSizeLimit: 0,
         disabled: false,
         disableDragAndDrop: false,
