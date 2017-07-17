@@ -72,5 +72,7 @@
     "url-loader": "^0.5.9",
     "vue": "^2.3.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "object-assign": "^4.1.1"
+  }
 }
