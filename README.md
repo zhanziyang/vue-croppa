@@ -43,6 +43,7 @@
         :show-remove-button="true"
         :remove-button-color="'red'"
         :remove-button-size="0"
+        :initial-image="'path/to/initial-image.png'"
         @init="handleCroppaInit"
         @file-choose="handleCroppaFileChoose"
         @file-size-exceed="handleCroppaFileSizeExceed"
@@ -94,10 +95,33 @@ Not using build tools:
 ```js
 Vue.use(Croppa)
 ```
-
 ### 2. Now you have it. The simplest usage:
 ```html
 <croppa v-model="myCroppa"></croppa>
+```
+
+#### NOTE: 
+- Since v0.1.0, you can change the default component name to anything you want.
+
+```js
+import Vue from 'vue'
+import Croppa from 'vue-croppa'
+
+Vue.use(Croppa, { componentName: 'my-image-cropper' })
+```
+
+```html
+<my-image-cropper v-model="myCroppa"></my-image-cropper>
+```
+
+- Since v0.1.1, you can get the component object with `Croppa.component`. This is useful when you want to register the component by yourself manually.
+
+```js
+Vue.component('croppa', Croppa.component)
+```
+```js
+// Register async component (Webpack 2 + ES2015 Example). More about async component: https://vuejs.org/v2/guide/components.html#Async-Components
+Vue.component('croppa', () => import(Croppa.component))
 ```
 
 ## Documentation
@@ -156,7 +180,7 @@ Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.
 #### accept
 Limits the types of files that users can choose.
 - type: same as what `accept` attribute of HTML `input` element takes.
-- default: `'.jpg,.png,.gif,.bmp,.webp,.svg,.tiff'`
+- default: `'.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.tiff'`
 
 #### file-size-limit
 Limits the byte size of file that users can choose. If set to `0`, then no limit.
