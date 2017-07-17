@@ -6,7 +6,7 @@
 ## Features
 - **Straightforward**: What you see is what you get
 - **Highly customizable**: You can almost customize anything except the core functionalities
-- **Lightweight**: 18kb in total
+- **Lightweight**: 20kb in total
 - **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 
 ## Browser Support
