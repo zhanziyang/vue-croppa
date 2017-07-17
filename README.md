@@ -370,3 +370,4 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Make container optionally resizable.
 - [ ] Make default position customizable.
 - [ ] Expose component itself.
+- [ ] Add `async` install option.
