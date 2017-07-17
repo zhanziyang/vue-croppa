@@ -16,8 +16,8 @@ const VueCroppa = {
 
     // registration
     Vue.component(componentName, component)
-  }
-}
+  },
 
-export { component }
+  component
+}
 export default VueCroppa
