@@ -574,6 +574,7 @@
       paintBackground () {
         let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : this.canvasColor
         this.ctx.fillStyle = backgroundColor
+        this.ctx.clearRect(0, 0, this.realWidth, this.realHeight)
         this.ctx.fillRect(0, 0, this.realWidth, this.realHeight)
       },
 
