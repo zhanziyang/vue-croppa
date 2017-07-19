@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.1.1
+ * vue-croppa v0.1.3
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -777,6 +777,7 @@ var component = { render: function render() {
     paintBackground: function paintBackground() {
       var backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : this.canvasColor;
       this.ctx.fillStyle = backgroundColor;
+      this.ctx.clearRect(0, 0, this.realWidth, this.realHeight);
       this.ctx.fillRect(0, 0, this.realWidth, this.realHeight);
     },
     draw: function draw() {
