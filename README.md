@@ -394,3 +394,8 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Expose component itself.
 - [ ] Make container optionally resizable.
 - [ ] Make default position customizable.
+- [ ] Rotation support.
+- [ ] `toDataUrl()`s second argument to specify compression rate.
+- [ ] Doc about file compression.
+- [ ] Add examples to doc.
+- [ ] Add `download()` method.
