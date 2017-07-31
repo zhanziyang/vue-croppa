@@ -83,7 +83,10 @@
         pinchDistance: 0,
         supportTouch: false,
         pointerMoved: false,
-        pointerStartCoord: null
+        pointerStartCoord: null,
+        moveX: 0,
+        moveY: 0,
+        scale: 1
       }
     },
 
@@ -496,79 +499,110 @@
 
       move (offset) {
         if (!offset) return
-        let oldX = this.imgData.startX
-        let oldY = this.imgData.startY
-        this.imgData.startX += offset.x
-        this.imgData.startY += offset.y
-        if (this.preventWhiteSpace) {
-          this.preventMovingToWhiteSpace()
-        }
-        if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
+        let oldX = this.moveX
+        let oldY = this.moveY
+        // this.imgData.startX += offset.x
+        // this.imgData.startY += offset.y
+        this.moveX += offset.x
+        this.moveY += offset.y
+        // if (this.preventWhiteSpace) {
+        this.preventMovingToWhiteSpace()
+        // }
+        if (this.moveX !== oldX || this.moveY !== oldY) {
           this.$emit(events.MOVE_EVENT)
           this.draw()
         }
       },
 
+      transform (x, y) {
+        return {
+          x: this.scale * x + 0 * y + this.moveX,
+          y: 0 * x + this.scale * y + this.moveY
+        }
+      },
+
       preventMovingToWhiteSpace () {
-        if (this.imgData.startX > 0) {
-          this.imgData.startX = 0
+        // if (this.imgData.startX > 0) {
+        //   this.imgData.startX = 0
+        // }
+        // if (this.imgData.startY > 0) {
+        //   this.imgData.startY = 0
+        // }
+        // if (this.realWidth - this.imgData.startX > this.imgData.width) {
+        //   this.imgData.startX = -(this.imgData.width - this.realWidth)
+        // }
+        // if (this.realHeight - this.imgData.startY > this.imgData.height) {
+        //   this.imgData.startY = -(this.imgData.height - this.realHeight)
+        // }
+        let { startX, startY, width, height } = this.imgData
+        var _startPoint = this.transform(startX, startY)
+        var sx = _startPoint.x
+        var sy = _startPoint.y
+        if (sx > 0) {
+          this.moveX = -(this.scale * startX + 0 * startY)
         }
-        if (this.imgData.startY > 0) {
-          this.imgData.startY = 0
+        if (sy > 0) {
+          this.moveY = -(0 * startX + this.scale * startY)
         }
-        if (this.realWidth - this.imgData.startX > this.imgData.width) {
-          this.imgData.startX = -(this.imgData.width - this.realWidth)
+        if (sx + width < this.realWidth) {
+          this.moveX = this.realWidth - width - (this.scale * startX + 0 * startY)
         }
-        if (this.realHeight - this.imgData.startY > this.imgData.height) {
-          this.imgData.startY = -(this.imgData.height - this.realHeight)
+        if (sy + height < this.realHeight) {
+          this.moveY = this.realHeight - height - (0 * startX + this.scale * startY)
         }
       },
 
       zoom (zoomIn, pos, innerAcceleration = 1) {
-        pos = pos || {
-          x: this.imgData.startX + this.imgData.width / 2,
-          y: this.imgData.startY + this.imgData.height / 2
-        }
-        let realSpeed = this.zoomSpeed * innerAcceleration
-        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
-        let x = 1
+        // pos = pos || {
+        //   x: this.imgData.startX + this.imgData.width / 2,
+        //   y: this.imgData.startY + this.imgData.height / 2
+        // }
+        // let realSpeed = this.zoomSpeed * innerAcceleration
+        // let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
+        // let x = 1
+        // if (zoomIn) {
+        //   x = 1 + speed
+        // } else if (this.imgData.width > MIN_WIDTH) {
+        //   x = 1 - speed
+        // }
+
+        // let oldWidth = this.imgData.width
+        // let oldHeight = this.imgData.height
+
+        // this.imgData.width = this.imgData.width * x
+        // this.imgData.height = this.imgData.height * x
+
+        // if (this.preventWhiteSpace) {
+        //   if (this.imgData.width < this.realWidth) {
+        //     let _x = this.realWidth / this.imgData.width
+        //     this.imgData.width = this.realWidth
+        //     this.imgData.height = this.imgData.height * _x
+        //   }
+
+        //   if (this.imgData.height < this.realHeight) {
+        //     let _x = this.realHeight / this.imgData.height
+        //     this.imgData.height = this.realHeight
+        //     this.imgData.width = this.imgData.width * _x
+        //   }
+        // }x
+        // if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
+        //   let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+        //   let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        //   this.imgData.startX = this.imgData.startX - offsetX
+        //   this.imgData.startY = this.imgData.startY - offsetY
+
+        //   if (this.preventWhiteSpace) {
+        //     this.preventMovingToWhiteSpace()
+        //   }
+        //   this.$emit(events.ZOOM_EVENT)
+        //   this.draw()
+        // }
         if (zoomIn) {
-          x = 1 + speed
+          this.scale += 0.05
         } else if (this.imgData.width > MIN_WIDTH) {
-          x = 1 - speed
+          this.scale -= 0.05
         }
-
-        let oldWidth = this.imgData.width
-        let oldHeight = this.imgData.height
-
-        this.imgData.width = this.imgData.width * x
-        this.imgData.height = this.imgData.height * x
-
-        if (this.preventWhiteSpace) {
-          if (this.imgData.width < this.realWidth) {
-            let _x = this.realWidth / this.imgData.width
-            this.imgData.width = this.realWidth
-            this.imgData.height = this.imgData.height * _x
-          }
-
-          if (this.imgData.height < this.realHeight) {
-            let _x = this.realHeight / this.imgData.height
-            this.imgData.height = this.realHeight
-            this.imgData.width = this.imgData.width * _x
-          }
-        }
-        if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
-          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-          this.imgData.startX = this.imgData.startX - offsetX
-          this.imgData.startY = this.imgData.startY - offsetY
-
-          if (this.preventWhiteSpace) {
-            this.preventMovingToWhiteSpace()
-          }
-          this.$emit(events.ZOOM_EVENT)
-          this.draw()
-        }
+        this.draw()
       },
 
       paintBackground () {
@@ -579,18 +613,24 @@
       },
 
       draw () {
-        let ctx = this.ctx
         if (!this.img) return
-        let { startX, startY, width, height } = this.imgData
         if (window.requestAnimationFrame) {
           requestAnimationFrame(() => {
-            this.paintBackground()
-            ctx.drawImage(this.img, startX, startY, width, height)
+            this._drawFrame()
           })
         } else {
-          this.paintBackground()
-          ctx.drawImage(this.img, startX, startY, width, height)
+          this._drawFrame()
         }
+      },
+
+      _drawFrame () {
+        let ctx = this.ctx
+        let { startX, startY, width, height } = this.imgData
+        this.paintBackground()
+        ctx.save()
+        ctx.transform(this.scale, 0, 0, this.scale, this.moveX, this.moveY)
+        ctx.drawImage(this.img, startX, startY, width, height)
+        ctx.restore()
       },
 
       generateDataUrl (type) {
