@@ -230,7 +230,9 @@
           return
         }
         var img = new Image()
-        img.setAttribute('crossOrigin', 'anonymous')
+        if (!/^data:/.test(src) && !/^blob:/.test(src)) {
+          img.setAttribute('crossOrigin', 'anonymous')
+        }
         img.src = src
         if (u.imageLoaded(img)) {
           this.img = img
@@ -288,7 +290,6 @@
             let fileData = e.target.result
             let img = new Image()
             img.src = fileData
-            img.crossOrigin = 'Anonymous'
             img.onload = () => {
               this.img = img
               this.imgContentInit()

@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.1.3
+ * vue-croppa v0.1.4
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -449,7 +449,9 @@ var component = { render: function render() {
         return;
       }
       var img = new Image();
-      img.setAttribute('crossOrigin', 'anonymous');
+      if (!/^data:/.test(src) && !/^blob:/.test(src)) {
+        img.setAttribute('crossOrigin', 'anonymous');
+      }
       img.src = src;
       if (u.imageLoaded(img)) {
         this.img = img;
@@ -505,7 +507,6 @@ var component = { render: function render() {
           var fileData = e.target.result;
           var img = new Image();
           img.src = fileData;
-          img.crossOrigin = 'Anonymous';
           img.onload = function () {
             _this3.img = img;
             _this3.imgContentInit();
