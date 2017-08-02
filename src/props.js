@@ -80,5 +80,5 @@ export default {
   removeButtonSize: {
     type: Number
   },
-  initialImage: String
+  initialImage: [String, Object]
 }

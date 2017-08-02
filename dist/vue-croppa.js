@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.1.4
+ * vue-croppa v0.1.5
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -206,7 +206,7 @@ var props = {
   removeButtonSize: {
     type: Number
   },
-  initialImage: String
+  initialImage: [String, Object]
 };
 
 var events = {
@@ -217,6 +217,12 @@ var events = {
   IMAGE_REMOVE_EVENT: 'image-remove',
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom'
+};
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
 var PCT_PER_ZOOM = 1 / 100000; // The amount of zooming everytime it happens, in percentage of image width.
@@ -431,28 +437,31 @@ var component = { render: function render() {
     setInitial: function setInitial() {
       var _this2 = this;
 
-      var src = void 0;
+      var src = void 0,
+          img = void 0;
       if (this.$slots.initial && this.$slots.initial[0]) {
         var vNode = this.$slots.initial[0];
         var tag = vNode.tag,
             elm = vNode.elm;
 
-        if (tag == 'img' && elm && elm.src) {
-          src = elm.src;
+        if (tag == 'img' && elm) {
+          img = elm;
         }
       }
-      if (!src && this.initialImage) {
+      if (!src && this.initialImage && typeof this.initialImage === 'string') {
         src = this.initialImage;
+        img = new Image();
+        if (!/^data:/.test(src) && !/^blob:/.test(src)) {
+          img.setAttribute('crossOrigin', 'anonymous');
+        }
+        img.src = src;
+      } else if (_typeof(this.initialImage) === 'object' && this.initialImage instanceof Image) {
+        img = this.initialImage;
       }
-      if (!src) {
+      if (!src && !img) {
         this.remove();
         return;
       }
-      var img = new Image();
-      if (!/^data:/.test(src) && !/^blob:/.test(src)) {
-        img.setAttribute('crossOrigin', 'anonymous');
-      }
-      img.src = src;
       if (u.imageLoaded(img)) {
         this.img = img;
         this.imgContentInit();

@@ -214,26 +214,28 @@
       },
 
       setInitial () {
-        let src
+        let src, img
         if (this.$slots.initial && this.$slots.initial[0]) {
           let vNode = this.$slots.initial[0]
           let { tag, elm } = vNode
-          if (tag == 'img' && elm && elm.src) {
-            src = elm.src
+          if (tag == 'img' && elm) {
+            img = elm
           }
         }
-        if (!src && this.initialImage) {
+        if (!src && this.initialImage && typeof this.initialImage === 'string') {
           src = this.initialImage
+          img = new Image()
+          if (!/^data:/.test(src) && !/^blob:/.test(src)) {
+            img.setAttribute('crossOrigin', 'anonymous')
+          }
+          img.src = src
+        } else if (typeof this.initialImage === 'object' && this.initialImage instanceof Image) {
+          img = this.initialImage
         }
-        if (!src) {
+        if (!src && !img) {
           this.remove()
           return
         }
-        var img = new Image()
-        if (!/^data:/.test(src) && !/^blob:/.test(src)) {
-          img.setAttribute('crossOrigin', 'anonymous')
-        }
-        img.src = src
         if (u.imageLoaded(img)) {
           this.img = img
           this.imgContentInit()
