@@ -250,8 +250,8 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: default size is ajust accordingly to container's size
 
 #### initial-image
-**@0.1.0+** Set initial image url. This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
-- type: `string`
+**@0.1.0+** Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
+- type: `string` or `object` (HTMLImageElement instance)
 - default: `undefined`
 
 
