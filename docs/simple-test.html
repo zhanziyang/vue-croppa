@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png">
   <link rel="manifest" href="/static/favicons/manifest.json">
   <link rel="mask-icon" href="/static/favicons/safari-pinned-tab.svg" color="#5bbad5">
-  <link rel="stylesheet" href="croppa/vue-croppa.css">
+  <link rel="stylesheet" href="src/croppa/vue-croppa.css">
   <style>
     #app {
       text-align: center
@@ -23,15 +23,35 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="500" :height="400">
-    </croppa>
+    <croppa v-model="myCroppa" :width="500" :height="400" initial-image="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"></croppa>
+    <br>
+    <button @click="rotate">ROTATE</button>
+    <button @click="flipX">FLIP-X</button>
+    <button @click="flipY">FLIP-Y</button>
   </div>
   <script src="https://unpkg.com/vue@2.3.4/dist/vue.js"></script>
-  <script src="croppa/vue-croppa.js"></script>
+  <script src="src/croppa/vue-croppa.js"></script>
   <script>
     Vue.use(Croppa)
     new Vue({
-      el: '#app'
+      el: '#app',
+      data: {
+        myCroppa: {}
+      },
+
+      methods: {
+        rotate: function () {
+          this.myCroppa.rotate()
+        },
+
+        flipX: function () {
+          this.myCroppa.rotate(2)
+        },
+
+        flipY: function () {
+          this.myCroppa.rotate(4)
+        }
+      }
     })
   </script>
 </body>

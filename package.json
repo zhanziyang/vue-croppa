@@ -73,6 +73,7 @@
     "vue": "^2.3.4"
   },
   "dependencies": {
+    "canvas-exif-orientation": "^0.4.0",
     "object-assign": "^4.1.1"
   }
 }

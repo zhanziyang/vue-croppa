@@ -51,6 +51,8 @@
   import props from './props'
   import events from './events'
 
+  import CanvasExifOrientation from 'canvas-exif-orientation'
+
   const PCT_PER_ZOOM = 1 / 100000 // The amount of zooming everytime it happens, in percentage of image width.
   const MIN_MS_PER_CLICK = 500 // If touch duration is shorter than the value, then it is considered as a click.
   const CLICK_MOVE_THRESHOLD = 100 // If touch move distance is greater than this value, then it will by no mean be considered as a click.
@@ -72,6 +74,7 @@
         instance: null,
         canvas: null,
         ctx: null,
+        originalImage: null,
         img: null,
         dragging: false,
         lastMovingCoord: null,
@@ -83,7 +86,10 @@
         pinchDistance: 0,
         supportTouch: false,
         pointerMoved: false,
-        pointerStartCoord: null
+        pointerStartCoord: null,
+        naturalWidth: 0,
+        naturalHeight: 0,
+        scaleRatio: 1
       }
     },
 
@@ -125,7 +131,9 @@
       placeholder: 'init',
       placeholderColor: 'init',
       realPlaceholderFontSize: 'init',
-      preventWhiteSpace: 'imgContentInit'
+      preventWhiteSpace () {
+        this.imgContentInit(true)
+      }
     },
 
     methods: {
@@ -137,6 +145,7 @@
         this.canvas.style.height = this.height + 'px'
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
+        this.originalImage = null
         this.img = null
         this.setInitial()
         this.$emit(events.INIT_EVENT, {
@@ -164,6 +173,9 @@
           },
           zoomOut: () => {
             this.zoom(false)
+          },
+          rotate: (orientation) => {
+            this.rotate(orientation)
           },
           refresh: () => {
             this.$nextTick(this.init)
@@ -204,6 +216,7 @@
         ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
 
         let hadImage = this.img != null
+        this.originalImage = null
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
@@ -237,10 +250,12 @@
           return
         }
         if (u.imageLoaded(img)) {
+          this.originalImage = img
           this.img = img
           this.imgContentInit()
         } else {
           img.onload = () => {
+            this.originalImage = img
             this.img = img
             this.imgContentInit()
           }
@@ -293,6 +308,7 @@
             let img = new Image()
             img.src = fileData
             img.onload = () => {
+              this.originalImage = img
               this.img = img
               this.imgContentInit()
             }
@@ -330,27 +346,34 @@
         return false
       },
 
-      imgContentInit () {
-        this.imgData.startX = 0
-        this.imgData.startY = 0
+      imgContentInit (forceFix) {
         let imgWidth = this.img.naturalWidth
         let imgHeight = this.img.naturalHeight
         let imgRatio = imgHeight / imgWidth
         let canvasRatio = this.realHeight / this.realWidth
-
-        // display as fit
-        if (imgRatio < canvasRatio) {
-          let ratio = imgHeight / this.realHeight
-          this.imgData.width = imgWidth / ratio
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
-          this.imgData.height = this.realHeight
+        if (forceFix || typeof this.imgData.startX === 'undefined' || typeof this.imgData.startY === 'undefined') {
+          this.imgData.startX = 0
+          this.imgData.startY = 0
+          // display as fit
+          let scaleRatio
+          if (imgRatio < canvasRatio) {
+            scaleRatio = imgHeight / this.realHeight
+            this.imgData.width = imgWidth / scaleRatio
+            this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+            this.imgData.height = this.realHeight
+          } else {
+            scaleRatio = imgWidth / this.realWidth
+            this.imgData.height = imgHeight / scaleRatio
+            this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+            this.imgData.width = this.realWidth
+          }
+          this.naturalWidth = imgWidth
+          this.naturalHeight = imgHeight
+          this.scaleRatio = this.imgData.width / imgWidth
         } else {
-          let ratio = imgWidth / this.realWidth
-          this.imgData.height = imgHeight / ratio
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
-          this.imgData.width = this.realWidth
+          this.imgData.width = imgWidth * this.scaleRatio
+          this.imgData.height = imgHeight * this.scaleRatio
         }
-
         this.draw()
       },
 
@@ -571,6 +594,18 @@
           }
           this.$emit(events.ZOOM_EVENT)
           this.draw()
+          this.scaleRatio = this.imgData.width / this.naturalWidth
+        }
+      },
+
+      rotate (orientation = 6) {
+        if (!this.img) return
+        var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
+        var _img = new Image()
+        _img.src = _canvas.toDataURL('image/jpeg')
+        _img.onload = () => {
+          this.img = _img
+          this.imgContentInit(true)
         }
       },
 
