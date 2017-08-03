@@ -14,6 +14,10 @@
     #app {
       text-align: center
     }
+
+    .external {
+      display: none
+    }
   </style>
   <meta name="theme-color" content="#ffffff">
   <title>Vue Croppa - Simple Test.</title>
@@ -23,7 +27,9 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="500" :height="400" initial-image="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"></croppa>
+    <croppa v-model="myCroppa" :width="500" :height="400" :initial-image="$refs.foo"></croppa>
+    <img src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg" crossorigin="anonymous"
+      ref="foo" class="external">
     <br>
     <button @click="rotate">ROTATE</button>
     <button @click="flipX">FLIP-X</button>
@@ -37,6 +43,13 @@
       el: '#app',
       data: {
         myCroppa: {}
+      },
+
+      mounted: function () {
+        var _this = this
+        this.$refs.foo.onload = function () {
+          _this.myCroppa.refresh()
+        }
       },
 
       methods: {
