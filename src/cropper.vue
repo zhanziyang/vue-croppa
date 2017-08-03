@@ -174,8 +174,40 @@
           zoomOut: () => {
             this.zoom(false)
           },
-          rotate: (orientation) => {
+          rotate: (step = 1) => {
+            step = parseInt(step)
+            if (isNaN(step) || step > 3 || step < -3) {
+              console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
+              step = 1
+            }
+            let orientation = 1
+            switch (step) {
+              case 1:
+                orientation = 6
+                break
+              case 2:
+                orientation = 3
+                break
+              case 3:
+                orientation = 8
+                break
+              case -1:
+                orientation = 8
+                break
+              case -2:
+                orientation = 3
+                break
+              case -3:
+                orientation = 6
+                break
+            }
             this.rotate(orientation)
+          },
+          flipX: () => {
+            this.rotate(2)
+          },
+          flipY: () => {
+            this.rotate(4)
           },
           refresh: () => {
             this.$nextTick(this.init)
@@ -183,10 +215,6 @@
           hasImage: () => {
             return !!this.img
           },
-          reset: () => {
-            console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.')
-            this.remove()
-          }, // soon to be deprecated due to misnamed
           remove: this.remove,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -350,31 +378,93 @@
       },
 
       imgContentInit () {
-        let imgWidth = this.img.naturalWidth
-        let imgHeight = this.img.naturalHeight
-        let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.realHeight / this.realWidth
+        this.naturalWidth = this.img.naturalWidth
+        this.naturalHeight = this.img.naturalHeight
 
         this.imgData.startX = 0
         this.imgData.startY = 0
-        // display as fit
+        if (!this.preventWhiteSpace && this.initialSize == 'contain') {
+          this.aspectFit()
+        } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
+          this.naturalSize()
+        } else {
+          this.aspectFill()
+        }
+        this.scaleRatio = this.imgData.width / this.naturalWidth
+
+        if (/top/.test(this.initialPosition)) {
+          this.imgData.startY = 0
+        } else if (/bottom/.test(this.initialPosition)) {
+          this.imgData.startY = this.realHeight - this.imgData.height
+        }
+
+        if (/left/.test(this.initialPosition)) {
+          this.imgData.startX = 0
+        } else if (/right/.test(this.initialPosition)) {
+          this.imgData.startX = this.realWidth - this.imgData.width
+        }
+
+        if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
+          var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
+          var x = +result[1] / 100
+          var y = +result[2] / 100
+          this.imgData.startX = x * (this.realWidth - this.imgData.width)
+          this.imgData.startY = y * (this.realHeight - this.imgData.height)
+          console.log(this.imgData.startX, this.imgData.startY)
+        }
+
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace()
+        }
+
+        this.draw()
+      },
+
+      aspectFill () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
         let scaleRatio
         if (imgRatio < canvasRatio) {
           scaleRatio = imgHeight / this.realHeight
           this.imgData.width = imgWidth / scaleRatio
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
           this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
         } else {
           scaleRatio = imgWidth / this.realWidth
           this.imgData.height = imgHeight / scaleRatio
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
           this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
         }
-        this.naturalWidth = imgWidth
-        this.naturalHeight = imgHeight
-        this.scaleRatio = this.imgData.width / imgWidth
+      },
 
-        this.draw()
+      aspectFit () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
+        let scaleRatio
+        if (imgRatio < canvasRatio) {
+          scaleRatio = imgWidth / this.realWidth
+          this.imgData.height = imgHeight / scaleRatio
+          this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+        } else {
+          scaleRatio = imgHeight / this.realHeight
+          this.imgData.width = imgWidth / scaleRatio
+          this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        }
+      },
+
+      naturalSize () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        this.imgData.width = imgWidth
+        this.imgData.height = imgHeight
+        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
       },
 
       handlePointerStart (evt) {
@@ -522,106 +612,44 @@
 
       move (offset) {
         if (!offset) return
-        let oldX = this.moveX
-        let oldY = this.moveY
-        // this.imgData.startX += offset.x
-        // this.imgData.startY += offset.y
-        this.moveX += offset.x
-        this.moveY += offset.y
-        // if (this.preventWhiteSpace) {
-        this.preventMovingToWhiteSpace()
-        // }
-        if (this.moveX !== oldX || this.moveY !== oldY) {
+        let oldX = this.imgData.startX
+        let oldY = this.imgData.startY
+        this.imgData.startX += offset.x
+        this.imgData.startY += offset.y
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace()
+        }
+        if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
           this.$emit(events.MOVE_EVENT)
           this.draw()
         }
       },
 
-      transform (x, y) {
-        return {
-          x: this.scale * x + 0 * y + this.moveX,
-          y: 0 * x + this.scale * y + this.moveY
-        }
-      },
-
       preventMovingToWhiteSpace () {
-        // if (this.imgData.startX > 0) {
-        //   this.imgData.startX = 0
-        // }
-        // if (this.imgData.startY > 0) {
-        //   this.imgData.startY = 0
-        // }
-        // if (this.realWidth - this.imgData.startX > this.imgData.width) {
-        //   this.imgData.startX = -(this.imgData.width - this.realWidth)
-        // }
-        // if (this.realHeight - this.imgData.startY > this.imgData.height) {
-        //   this.imgData.startY = -(this.imgData.height - this.realHeight)
-        // }
-        let { startX, startY, width, height } = this.imgData
-        var _startPoint = this.transform(startX, startY)
-        var sx = _startPoint.x
-        var sy = _startPoint.y
-        if (sx > 0) {
-          this.moveX = -(this.scale * startX + 0 * startY)
+        if (this.imgData.startX > 0) {
+          this.imgData.startX = 0
         }
-        if (sy > 0) {
-          this.moveY = -(0 * startX + this.scale * startY)
+        if (this.imgData.startY > 0) {
+          this.imgData.startY = 0
         }
-        if (sx + width < this.realWidth) {
-          this.moveX = this.realWidth - width - (this.scale * startX + 0 * startY)
+        if (this.realWidth - this.imgData.startX > this.imgData.width) {
+          this.imgData.startX = -(this.imgData.width - this.realWidth)
         }
-        if (sy + height < this.realHeight) {
-          this.moveY = this.realHeight - height - (0 * startX + this.scale * startY)
+        if (this.realHeight - this.imgData.startY > this.imgData.height) {
+          this.imgData.startY = -(this.imgData.height - this.realHeight)
         }
       },
 
       zoom (zoomIn, pos, innerAcceleration = 1) {
-        // pos = pos || {
-        //   x: this.imgData.startX + this.imgData.width / 2,
-        //   y: this.imgData.startY + this.imgData.height / 2
-        // }
-        // let realSpeed = this.zoomSpeed * innerAcceleration
-        // let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
-        // let x = 1
-        // if (zoomIn) {
-        //   x = 1 + speed
-        // } else if (this.imgData.width > MIN_WIDTH) {
-        //   x = 1 - speed
-        // }
-
-        // let oldWidth = this.imgData.width
-        // let oldHeight = this.imgData.height
-
-        // this.imgData.width = this.imgData.width * x
-        // this.imgData.height = this.imgData.height * x
-
-        // if (this.preventWhiteSpace) {
-        //   if (this.imgData.width < this.realWidth) {
-        //     let _x = this.realWidth / this.imgData.width
-        //     this.imgData.width = this.realWidth
-        //     this.imgData.height = this.imgData.height * _x
-        //   }
-
-        //   if (this.imgData.height < this.realHeight) {
-        //     let _x = this.realHeight / this.imgData.height
-        //     this.imgData.height = this.realHeight
-        //     this.imgData.width = this.imgData.width * _x
-        //   }
-        // }x
-        // if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
-        //   let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-        //   let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-        //   this.imgData.startX = this.imgData.startX - offsetX
-        //   this.imgData.startY = this.imgData.startY - offsetY
-
-        //   if (this.preventWhiteSpace) {
-        //     this.preventMovingToWhiteSpace()
-        //   }
-        //   this.$emit(events.ZOOM_EVENT)
-        //   this.draw()
-        // }
+        pos = pos || {
+          x: this.imgData.startX + this.imgData.width / 2,
+          y: this.imgData.startY + this.imgData.height / 2
+        }
+        let realSpeed = this.zoomSpeed * innerAcceleration
+        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
+        let x = 1
         if (zoomIn) {
-          this.scale += 0.05
+          x = 1 + speed
         } else if (this.imgData.width > MIN_WIDTH) {
           x = 1 - speed
         }
@@ -673,7 +701,6 @@
         } else {
           this.imgContentInit()
         }
-        this.draw()
       },
 
       paintBackground () {
@@ -684,29 +711,23 @@
       },
 
       draw () {
+        let ctx = this.ctx
         if (!this.img) return
+        let { startX, startY, width, height } = this.imgData
         if (window.requestAnimationFrame) {
           requestAnimationFrame(() => {
-            this._drawFrame()
+            this.paintBackground()
+            ctx.drawImage(this.img, startX, startY, width, height)
           })
         } else {
-          this._drawFrame()
+          this.paintBackground()
+          ctx.drawImage(this.img, startX, startY, width, height)
         }
       },
 
-      _drawFrame () {
-        let ctx = this.ctx
-        let { startX, startY, width, height } = this.imgData
-        this.paintBackground()
-        ctx.save()
-        ctx.transform(this.scale, 0, 0, this.scale, this.moveX, this.moveY)
-        ctx.drawImage(this.img, startX, startY, width, height)
-        ctx.restore()
-      },
-
-      generateDataUrl (type) {
+      generateDataUrl (type, compressionRate) {
         if (!this.img) return ''
-        return this.canvas.toDataURL(type)
+        return this.canvas.toDataURL(type, compressionRate)
       },
 
       generateBlob (callback, mimeType, qualityArgument) {
