@@ -65,7 +65,8 @@
                 @image-remove="handleImageRemove"
                 @move="handleCroppaMove"
                 @zoom="handleCroppaZoom">
-          <img :src="initialImageSrc"
+          <img crossOrigin="anonymous"
+               :src="initialImageSrc"
                slot="initial"
                v-if="withInitialImage">
         </croppa>
@@ -448,7 +449,8 @@
           @image-remove="handleImageRemove"
           @move="handleCroppaMove"
           @zoom="handleCroppaZoom">
-    ${this.withInitialImage ? `<img src="${this.initialImageSrc}"
+    ${this.withInitialImage ? `<img crossOrigin="anonymous" 
+         src="${this.initialImageSrc}"
          slot="initial">` : ''}
   </croppa>`
       },

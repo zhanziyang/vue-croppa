@@ -66,6 +66,7 @@ export default {
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
   disablePinchToZoom: Boolean,
+  disableRotation: Boolean,
   reverseZoomingGesture: Boolean, // deprecated
   reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,

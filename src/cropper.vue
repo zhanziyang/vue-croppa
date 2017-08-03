@@ -132,7 +132,7 @@
       placeholderColor: 'init',
       realPlaceholderFontSize: 'init',
       preventWhiteSpace () {
-        this.imgContentInit(true)
+        this.imgContentInit()
       }
     },
 
@@ -250,20 +250,23 @@
           return
         }
         if (u.imageLoaded(img)) {
-          this.originalImage = img
-          this.img = img
-          this.imgContentInit()
+          this._onload(img, +img.dataset['exifOrientation'])
         } else {
           img.onload = () => {
-            this.originalImage = img
-            this.img = img
-            this.imgContentInit()
+            this._onload(img, +img.dataset['exifOrientation'])
           }
 
           img.onerror = () => {
             this.remove()
           }
         }
+      },
+
+      _onload (img, orientation = 1) {
+        this.originalImage = img
+        this.img = img
+
+        this.rotate(orientation)
       },
 
       chooseFile () {
@@ -305,12 +308,12 @@
           let fr = new FileReader()
           fr.onload = (e) => {
             let fileData = e.target.result
+            let orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData))
+            if (orientation < 1) orientation = 1
             let img = new Image()
             img.src = fileData
             img.onload = () => {
-              this.originalImage = img
-              this.img = img
-              this.imgContentInit()
+              this._onload(img, orientation)
             }
           }
           fr.readAsDataURL(file)
@@ -346,34 +349,31 @@
         return false
       },
 
-      imgContentInit (forceFix) {
+      imgContentInit () {
         let imgWidth = this.img.naturalWidth
         let imgHeight = this.img.naturalHeight
         let imgRatio = imgHeight / imgWidth
         let canvasRatio = this.realHeight / this.realWidth
-        if (forceFix || typeof this.imgData.startX === 'undefined' || typeof this.imgData.startY === 'undefined') {
-          this.imgData.startX = 0
-          this.imgData.startY = 0
-          // display as fit
-          let scaleRatio
-          if (imgRatio < canvasRatio) {
-            scaleRatio = imgHeight / this.realHeight
-            this.imgData.width = imgWidth / scaleRatio
-            this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
-            this.imgData.height = this.realHeight
-          } else {
-            scaleRatio = imgWidth / this.realWidth
-            this.imgData.height = imgHeight / scaleRatio
-            this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
-            this.imgData.width = this.realWidth
-          }
-          this.naturalWidth = imgWidth
-          this.naturalHeight = imgHeight
-          this.scaleRatio = this.imgData.width / imgWidth
+
+        this.imgData.startX = 0
+        this.imgData.startY = 0
+        // display as fit
+        let scaleRatio
+        if (imgRatio < canvasRatio) {
+          scaleRatio = imgHeight / this.realHeight
+          this.imgData.width = imgWidth / scaleRatio
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+          this.imgData.height = this.realHeight
         } else {
-          this.imgData.width = imgWidth * this.scaleRatio
-          this.imgData.height = imgHeight * this.scaleRatio
+          scaleRatio = imgWidth / this.realWidth
+          this.imgData.height = imgHeight / scaleRatio
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+          this.imgData.width = this.realWidth
         }
+        this.naturalWidth = imgWidth
+        this.naturalHeight = imgHeight
+        this.scaleRatio = this.imgData.width / imgWidth
+
         this.draw()
       },
 
@@ -599,13 +599,17 @@
       },
 
       rotate (orientation = 6) {
-        if (!this.img) return
-        var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
-        var _img = new Image()
-        _img.src = _canvas.toDataURL('image/jpeg')
-        _img.onload = () => {
-          this.img = _img
-          this.imgContentInit(true)
+        if (!this.img || this.disableRotation) return
+        if (orientation > 1) {
+          var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
+          var _img = new Image()
+          _img.src = _canvas.toDataURL()
+          _img.onload = () => {
+            this.img = _img
+            this.imgContentInit()
+          }
+        } else {
+          this.imgContentInit()
         }
       },
 

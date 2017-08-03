@@ -27,13 +27,17 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="500" :height="400" :initial-image="$refs.foo"></croppa>
-    <img src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg" crossorigin="anonymous"
+    <croppa v-model="myCroppa" :width="500" :height="400">
+      <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
+        ref="foo" class="external" data-exif-orientation="6">
+    </croppa>
+    <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external">
     <br>
     <button @click="rotate">ROTATE</button>
     <button @click="flipX">FLIP-X</button>
     <button @click="flipY">FLIP-Y</button>
+    <button @click="getUrl">URL</button>
   </div>
   <script src="https://unpkg.com/vue@2.3.4/dist/vue.js"></script>
   <script src="src/croppa/vue-croppa.js"></script>
@@ -42,14 +46,16 @@
     new Vue({
       el: '#app',
       data: {
-        myCroppa: {}
+        myCroppa: {},
+        initialImage: null
       },
 
       mounted: function () {
-        var _this = this
-        this.$refs.foo.onload = function () {
-          _this.myCroppa.refresh()
-        }
+        var image = new Image()
+        image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
+        image.setAttribute('crossorigin', 'anonymous')
+        this.initialImage = image
+        // this.myCroppa.refresh()
       },
 
       methods: {
@@ -63,6 +69,10 @@
 
         flipY: function () {
           this.myCroppa.rotate(4)
+        },
+
+        getUrl: function () {
+          alert(this.myCroppa.generateDataUrl())
         }
       }
     })
