@@ -4,6 +4,11 @@ import App from './App.vue'
 import Index from './pages/index.vue'
 import QuickStart from './pages/quick-start.vue'
 import Registration from './pages/registration.vue'
+import Customization from './pages/customization.vue'
+import Methods from './pages/methods.vue'
+import Events from './pages/events.vue'
+import Help from './pages/help.vue'
+import Demos from './pages/demos.vue'
 
 export default new VueRouter({
   mode: 'history',
@@ -23,6 +28,26 @@ export default new VueRouter({
         {
           path: 'registration',
           component: Registration
+        },
+        {
+          path: 'customization',
+          component: Customization
+        },
+        {
+          path: 'methods',
+          component: Methods
+        },
+        {
+          path: 'events',
+          component: Events
+        },
+        {
+          path: 'help',
+          component: Help
+        },
+        {
+          path: 'demos',
+          component: Demos
         }
       ]
     }

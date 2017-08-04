@@ -38,8 +38,12 @@
       <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{page ? pageFormatted : 'Introduction'}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn>GITHUB</v-btn>
-      <v-btn>DOC</v-btn>
+      <v-btn to="https://github.com/zhanziyang/vue-croppa"
+             tag="a">
+        GITHUB
+      </v-btn>
+      <v-btn to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
+             tag="a">DOC</v-btn>
     </v-toolbar>
     <main>
       <v-container fluid>
