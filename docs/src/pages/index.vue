@@ -24,7 +24,7 @@
       </v-chip>
     </div>
     <br>
-    <v-card class="teal darken-2 white--text">
+    <v-card class="white--text try-out">
       <v-container fluid
                    grid-list-lg>
         <v-layout row-md
@@ -401,4 +401,6 @@
       margin: 4px 0
   .croppa-container
     float: right
+  .card.try-out
+    background-color: #35495e !important;
 </style>

@@ -81,5 +81,30 @@ export default {
   removeButtonSize: {
     type: Number
   },
-  initialImage: [String, HTMLImageElement]
+  initialImage: [String, HTMLImageElement],
+  initialSize: {
+    type: String,
+    default: 'cover',
+    validator: function (val) {
+      return val === 'cover' || val === 'contain' || val === 'natural'
+    }
+  },
+  initialPosition: {
+    type: String,
+    default: 'center',
+    validator: function (val) {
+      var valids = [
+        'center',
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'top left',
+        'top right',
+        'bottom left',
+        'bottom right'
+      ]
+      return valids.indexOf(val) >= 0 || /^-?\d+% -?\d+%$/.test(val)
+    }
+  }
 }

@@ -174,8 +174,40 @@
           zoomOut: () => {
             this.zoom(false)
           },
-          rotate: (orientation) => {
+          rotate: (step = 1) => {
+            step = parseInt(step)
+            if (isNaN(step) || step > 3 || step < -3) {
+              console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
+              step = 1
+            }
+            let orientation = 1
+            switch (step) {
+              case 1:
+                orientation = 6
+                break
+              case 2:
+                orientation = 3
+                break
+              case 3:
+                orientation = 8
+                break
+              case -1:
+                orientation = 8
+                break
+              case -2:
+                orientation = 3
+                break
+              case -3:
+                orientation = 6
+                break
+            }
             this.rotate(orientation)
+          },
+          flipX: () => {
+            this.rotate(2)
+          },
+          flipY: () => {
+            this.rotate(4)
           },
           refresh: () => {
             this.$nextTick(this.init)
@@ -183,10 +215,6 @@
           hasImage: () => {
             return !!this.img
           },
-          reset: () => {
-            console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.')
-            this.remove()
-          }, // soon to be deprecated due to misnamed
           remove: this.remove,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -350,31 +378,93 @@
       },
 
       imgContentInit () {
-        let imgWidth = this.img.naturalWidth
-        let imgHeight = this.img.naturalHeight
-        let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.realHeight / this.realWidth
+        this.naturalWidth = this.img.naturalWidth
+        this.naturalHeight = this.img.naturalHeight
 
         this.imgData.startX = 0
         this.imgData.startY = 0
-        // display as fit
+        if (!this.preventWhiteSpace && this.initialSize == 'contain') {
+          this.aspectFit()
+        } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
+          this.naturalSize()
+        } else {
+          this.aspectFill()
+        }
+        this.scaleRatio = this.imgData.width / this.naturalWidth
+
+        if (/top/.test(this.initialPosition)) {
+          this.imgData.startY = 0
+        } else if (/bottom/.test(this.initialPosition)) {
+          this.imgData.startY = this.realHeight - this.imgData.height
+        }
+
+        if (/left/.test(this.initialPosition)) {
+          this.imgData.startX = 0
+        } else if (/right/.test(this.initialPosition)) {
+          this.imgData.startX = this.realWidth - this.imgData.width
+        }
+
+        if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
+          var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
+          var x = +result[1] / 100
+          var y = +result[2] / 100
+          this.imgData.startX = x * (this.realWidth - this.imgData.width)
+          this.imgData.startY = y * (this.realHeight - this.imgData.height)
+          console.log(this.imgData.startX, this.imgData.startY)
+        }
+
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace()
+        }
+
+        this.draw()
+      },
+
+      aspectFill () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
         let scaleRatio
         if (imgRatio < canvasRatio) {
           scaleRatio = imgHeight / this.realHeight
           this.imgData.width = imgWidth / scaleRatio
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
           this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
         } else {
           scaleRatio = imgWidth / this.realWidth
           this.imgData.height = imgHeight / scaleRatio
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
           this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
         }
-        this.naturalWidth = imgWidth
-        this.naturalHeight = imgHeight
-        this.scaleRatio = this.imgData.width / imgWidth
+      },
 
-        this.draw()
+      aspectFit () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
+        let scaleRatio
+        if (imgRatio < canvasRatio) {
+          scaleRatio = imgWidth / this.realWidth
+          this.imgData.height = imgHeight / scaleRatio
+          this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+        } else {
+          scaleRatio = imgHeight / this.realHeight
+          this.imgData.width = imgWidth / scaleRatio
+          this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        }
+      },
+
+      naturalSize () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        this.imgData.width = imgWidth
+        this.imgData.height = imgHeight
+        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
       },
 
       handlePointerStart (evt) {
@@ -635,9 +725,9 @@
         }
       },
 
-      generateDataUrl (type) {
+      generateDataUrl (type, compressionRate) {
         if (!this.img) return ''
-        return this.canvas.toDataURL(type)
+        return this.canvas.toDataURL(type, compressionRate)
       },
 
       generateBlob (callback, mimeType, qualityArgument) {

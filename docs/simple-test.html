@@ -27,7 +27,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="500" :height="400">
+    <croppa v-model="myCroppa" :width="500" :height="400" prevent-white-space>
       <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6">
     </croppa>
@@ -60,15 +60,15 @@
 
       methods: {
         rotate: function () {
-          this.myCroppa.rotate()
+          this.myCroppa.rotate(3)
         },
 
         flipX: function () {
-          this.myCroppa.rotate(2)
+          this.myCroppa.flipX()
         },
 
         flipY: function () {
-          this.myCroppa.rotate(4)
+          this.myCroppa.flipY()
         },
 
         getUrl: function () {
