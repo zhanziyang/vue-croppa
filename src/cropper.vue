@@ -758,6 +758,7 @@
     transition: all .3s
     position: relative
     font-size: 0
+    background-color: #e6e6e6
     canvas
       transition: all .3s
     &:hover

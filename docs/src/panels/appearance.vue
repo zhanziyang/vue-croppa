@@ -154,8 +154,9 @@
 
 <style scoped>
   .croppa-container {
-    background: orange;
     border-radius: 8px;
+    background: url('~/static/dashed-border.png') center/94% 94% no-repeat;
+    background-color: orange;
   }
 </style>
 
