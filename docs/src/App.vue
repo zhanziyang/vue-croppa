@@ -38,11 +38,13 @@
       <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{page ? pageFormatted : 'Introduction'}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn to="https://github.com/zhanziyang/vue-croppa"
+      <v-btn class="grey darken-3"
+             to="https://github.com/zhanziyang/vue-croppa"
              tag="a">
         GITHUB
       </v-btn>
-      <v-btn to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
+      <v-btn class="grey darken-3"
+             to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
              tag="a">DOC</v-btn>
     </v-toolbar>
     <main>

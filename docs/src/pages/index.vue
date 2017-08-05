@@ -361,7 +361,7 @@
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   @font-face {
     font-family: 'Black Ops One';
     font-style: normal;

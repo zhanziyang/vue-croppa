@@ -112,9 +112,6 @@
       u.rAFPolyfill()
       u.toBlobPolyfill()
 
-      if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
-        console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).')
-      }
       let supports = this.supportDetection()
       if (!supports.basic) {
         console.warn('Your browser does not support vue-croppa functionality.')

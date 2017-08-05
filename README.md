@@ -399,3 +399,4 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Doc about file compression.
 - [ ] Add examples to doc.
 - [ ] Download example.
+- [ ] Image placeholder
