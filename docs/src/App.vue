@@ -38,11 +38,13 @@
       <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{page ? pageFormatted : 'Introduction'}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn to="https://github.com/zhanziyang/vue-croppa"
+      <v-btn class="grey darken-3"
+             to="https://github.com/zhanziyang/vue-croppa"
              tag="a">
         GITHUB
       </v-btn>
-      <v-btn to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
+      <v-btn class="grey darken-3"
+             to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
              tag="a">DOC</v-btn>
     </v-toolbar>
     <main>
@@ -65,7 +67,9 @@
           { divider: true },
           { title: 'Registration', icon: 'power', link: '/registration' },
           { title: 'Customization', icon: 'settings', link: '/customization' },
-          { title: 'Methods', icon: 'content_cut', link: '/methods' },
+          { title: 'Input', icon: 'file_download', link: '/input' },
+          { title: 'Manipulation', icon: 'content_cut', link: '/manipulation' },
+          { title: 'Outpu', icon: 'file_upload', link: '/output' },
           { title: 'Events', icon: 'hearing', link: '/events' },
           { divider: true },
           { title: 'Help', icon: 'help', link: '/help' },

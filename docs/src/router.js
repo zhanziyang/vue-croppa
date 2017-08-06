@@ -5,7 +5,7 @@ import Index from './pages/index.vue'
 import QuickStart from './pages/quick-start.vue'
 import Registration from './pages/registration.vue'
 import Customization from './pages/customization.vue'
-import Methods from './pages/methods.vue'
+import Manipulation from './pages/manipulation.vue'
 import Events from './pages/events.vue'
 import Help from './pages/help.vue'
 import Demos from './pages/demos.vue'
@@ -34,8 +34,8 @@ export default new VueRouter({
           component: Customization
         },
         {
-          path: 'methods',
-          component: Methods
+          path: 'manipulation',
+          component: Manipulation
         },
         {
           path: 'events',

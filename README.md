@@ -355,7 +355,11 @@ const blob = await this.myCroppa.promisedBlob()
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
+#### new-image
+- emitted when new valid image is set onto croppa.
+
 #### image-remove
+- emitted when image remove from croppa.
 
 #### move
 
@@ -399,3 +403,4 @@ const blob = await this.myCroppa.promisedBlob()
 - [ ] Doc about file compression.
 - [ ] Add examples to doc.
 - [ ] Download example.
+- [ ] Image placeholder

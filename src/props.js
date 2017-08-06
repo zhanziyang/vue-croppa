@@ -33,7 +33,7 @@ export default {
     }
   },
   canvasColor: {
-    default: '#e6e6e6'
+    default: 'transparent'
   },
   quality: {
     type: Number,

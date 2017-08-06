@@ -5,6 +5,9 @@
   transition: all 0.3s;
   position: relative;
   font-size: 0;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+  background-color: #e6e6e6;
 }
 .croppa-container canvas {
   -webkit-transition: all 0.3s;
