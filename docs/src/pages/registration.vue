@@ -76,7 +76,7 @@ import Vue from 'vue'
             expand: true
           },
           {
-            title: 'Set custom component name (v0.1.0+)',
+            title: 'With custom component name (v0.1.0+)',
             code: `\
 import Vue from 'vue'
  import Croppa from 'vue-croppa'

@@ -5,41 +5,12 @@
       <div slot="header"
            class="title">Appearance</div>
       <div class="pt-2 pl-2">
-        You can change croppa's default appearance throught some props or css.
+        You can change croppa's default appearance through some props or css.
       </div>
       <div class="pt-2 pl-2">
-        The props that changes the default look:
-      </div>
-      <div class="pt-2 pl-2">
-        <ul>
-          <li>
-            <code>width</code>
-          </li>
-          <li>
-            <code>height</code>
-          </li>
-          <li>
-            <code>placeholder</code>
-          </li>
-          <li>
-            <code>placeholder-color</code>
-          </li>
-          <li>
-            <code>placeholder-font-size</code>
-          </li>
-          <li>
-            <code>canvas-color</code>
-          </li>
-          <li>
-            <code>show-remove-button</code>
-          </li>
-          <li>
-            <code>remove-button-color</code>
-          </li>
-          <li>
-            <code>remove-button-size</code>
-          </li>
-        </ul>
+        Note:
+        <code>canvas-color</code> affects the output image - it will fill out the transparent parts of the image. So if you want the transparent part remain transparent, you should use css to change the background color. Since v0.2.0,
+        <code>canvas-color</code> is transparent by default.
       </div>
       <v-layout row
                 fluid
@@ -58,6 +29,8 @@
         </croppa>
         <v-flex class="ml-2">
           <pre v-highlightjs="templateCode"><code class="html"></code></pre>
+          <br>
+          <pre v-highlightjs="cssCode"><code class="css"></code></pre>
           <v-layout>
             <v-flex>
               <v-text-field v-model="width"
@@ -104,10 +77,6 @@
           </v-layout>
         </v-flex>
       </v-layout>
-      <div class="pt-2 pl-2">
-        Note:
-        <code>canvas-color</code> affects the output image - it will fill out the transparent parts of the image. So if you want the transparent part remain transparent, you should use css to change the background color.
-      </div>
     </v-expansion-panel-content>
   </v-expansion-panel>
 </template>
@@ -118,8 +87,8 @@
       return {
         croppa: {},
         width: 350,
-        height: 480,
-        placeholder: 'click me or drop on me',
+        height: 630,
+        placeholder: 'Yes, you can modify the text here',
         placeholderColor: '#000',
         placeholderFontSize: 16,
         canvasColor: 'transparent',
@@ -147,6 +116,20 @@
           :remove-button-color="${this.removeButtonColor}"
           :remove-button-size="${this.removeButtonSize}">
   </croppa>`
+      },
+
+      cssCode () {
+        return `\
+ .croppa-container {
+    background-color: lightblue;
+    border: 2px solid grey;
+    border-radius: 8px;
+  }
+  
+  .croppa-container:hover {
+    opacity: 1;
+    background-color: #8ac9ef;
+  }`
       }
     }
   }
@@ -154,9 +137,19 @@
 
 <style scoped>
   .croppa-container {
-    border-radius: 8px;
-    background: url('~/static/dashed-border.png') center/94% 94% no-repeat;
-    background-color: orange;
+    border-radius: 4px;
+    /* background: url('~/static/dashed-border.png') center/94% 94% no-repeat; */
+    background-color: lightblue;
+    border: 2px solid grey;
+  }
+  
+  .croppa-container>>>canvas {
+    border-radius: 2px;
+  }
+  
+  .croppa-container:hover {
+    opacity: 1;
+    background-color: #8ac9ef;
   }
 </style>
 

@@ -1,5 +1,6 @@
 <template>
-  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
+  <div ref="wrapper"
+       :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
        @dragenter.stop.prevent="handleDragEnter"
        @dragleave.stop.prevent="handleDragLeave"
        @dragover.stop.prevent="handleDragOver"
@@ -140,6 +141,8 @@
         this.canvas.height = this.realHeight
         this.canvas.style.width = this.width + 'px'
         this.canvas.style.height = this.height + 'px'
+        // this.$refs.wrapper.style.width = this.width + 'px'
+        // this.$refs.wrapper.style.height = this.height + 'px'
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
         this.originalImage = null
@@ -172,6 +175,7 @@
             this.zoom(false)
           },
           rotate: (step = 1) => {
+            if (this.disableRotation || this.disabled) return
             step = parseInt(step)
             if (isNaN(step) || step > 3 || step < -3) {
               console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
@@ -201,9 +205,11 @@
             this.rotate(orientation)
           },
           flipX: () => {
+            if (this.disableRotation || this.disabled) return
             this.rotate(2)
           },
           flipY: () => {
+            if (this.disableRotation || this.disabled) return
             this.rotate(4)
           },
           refresh: () => {
@@ -339,6 +345,7 @@
             img.src = fileData
             img.onload = () => {
               this._onload(img, orientation)
+              this.$emit(events.NEW_IMAGE)
             }
           }
           fr.readAsDataURL(file)
@@ -686,7 +693,7 @@
       },
 
       rotate (orientation = 6) {
-        if (!this.img || this.disableRotation) return
+        if (!this.img) return
         if (orientation > 1) {
           var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
           var _img = new Image()
@@ -758,6 +765,7 @@
     transition: all .3s
     position: relative
     font-size: 0
+    align-self: flex-start
     background-color: #e6e6e6
     canvas
       transition: all .3s

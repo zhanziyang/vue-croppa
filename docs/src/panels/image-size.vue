@@ -22,14 +22,12 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
+                initial-image="https://unsplash.it/600/500"
                 :width="width"
                 :height="height"
                 :quality="quality"
                 class="ml-1"
                 @image-remove="outputUrl = ''">
-          <img crossOrigin="anonymous"
-               src="https://unsplash.it/600/500"
-               slot="initial">
         </croppa>
         <v-flex class="ml-2">
           <pre v-highlightjs="sizeCroppaCode"><code class="html"></code></pre>
@@ -80,6 +78,7 @@
       sizeCroppaCode () {
         return `\
  <croppa v-model="croppa"
+          initial-image="https://unsplash.it/600/500"
           :width="${this.width}"
           :height="${this.height}"
           :quality="${this.quality}">
