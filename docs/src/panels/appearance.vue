@@ -8,9 +8,16 @@
         You can change croppa's default appearance through some props or css.
       </div>
       <div class="pt-2 pl-2">
-        Note:
+        Note 1:
         <code>canvas-color</code> affects the output image - it will fill out the transparent parts of the image. So if you want the transparent part remain transparent, you should use css to change the background color. Since v0.2.0,
         <code>canvas-color</code> is transparent by default.
+      </div>
+      <div class="pt-2 pl-2">
+        Note 2: CSS style won't have any effect on the output image.
+      </div>
+      <div class="pt-2 pl-2">
+        Note 3: You can still call
+        <code>remove()</code> method to remove current image after hiding the default "remove button".
       </div>
       <v-layout row
                 fluid
@@ -108,12 +115,12 @@
  <croppa v-model="croppa"
           :width="${this.width}"
           :height="${this.height}"
-          :placeholder="${this.placeholder}"
-          :placeholder-color="${this.placeholderColor}"
+          placeholder="${this.placeholder}"
+          placeholder-color="${this.placeholderColor}"
           :placeholder-font-size="${this.placeholderFontSize}"
-          :canvas-color="${this.canvasColor}"
+          canvas-color="${this.canvasColor}"
           :show-remove-button="${this.showRemoveButton}"
-          :remove-button-color="${this.removeButtonColor}"
+          remove-button-color="${this.removeButtonColor}"
           :remove-button-size="${this.removeButtonSize}">
   </croppa>`
       },

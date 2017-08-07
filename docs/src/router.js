@@ -5,6 +5,7 @@ import Index from './pages/index.vue'
 import QuickStart from './pages/quick-start.vue'
 import Registration from './pages/registration.vue'
 import Customization from './pages/customization.vue'
+import Input from './pages/input.vue'
 import Manipulation from './pages/manipulation.vue'
 import Events from './pages/events.vue'
 import Help from './pages/help.vue'
@@ -34,6 +35,10 @@ export default new VueRouter({
           component: Customization
         },
         {
+          path: 'file-input',
+          component: Input
+        },
+        {
           path: 'manipulation',
           component: Manipulation
         },
@@ -51,5 +56,8 @@ export default new VueRouter({
         }
       ]
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    return { x: 0, y: 0 }
+  }
 })

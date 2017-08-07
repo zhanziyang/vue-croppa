@@ -188,7 +188,9 @@
         <v-btn block
                secondary
                large
-               dark>More Customizations</v-btn>
+               dark
+               to="/customization"
+               router>More Customizations</v-btn>
         <br>
       </v-flex>
     </v-layout>
@@ -279,7 +281,10 @@
     },
 
     mounted () {
-      this.$refs.preload.src = 'https://zhanziyang.github.io/vue-croppa/static/initial-image.png'
+      // this.$refs.preload.src = ''
+      this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
+      this.preload('https://unsplash.it/400/400')
+      this.preload('https://unsplash.it/600/500')
     },
 
     watch: {
@@ -292,6 +297,10 @@
     },
 
     methods: {
+      preload (src) {
+        new Image().src = src
+      },
+
       getDataUrl () {
         alert(this.myCroppa.generateDataUrl())
       },

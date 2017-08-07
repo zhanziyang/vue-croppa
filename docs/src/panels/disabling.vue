@@ -4,7 +4,7 @@
       <div slot="header"
            class="title">Disablings</div>
       <div class="pt-2 pl-2">
-        You can turn off one or all built-in operations through some props.
+        You can turn off one or all built-in features through some props.
       </div>
       <v-layout row
                 fluid

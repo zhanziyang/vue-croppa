@@ -3,21 +3,23 @@
     <v-layout row
               wrap>
       <v-flex>
-        <PanelAppearance></PanelAppearance>
+        <PanelAppearance :expand="defaultExpand === 'appearance'"></PanelAppearance>
         <br>
-        <PanelInitialImage></PanelInitialImage>
+        <PanelInitialImage :expand="defaultExpand === 'initial-image'"></PanelInitialImage>
         <br>
-        <PanelImageSize></PanelImageSize>
+        <PanelImageSize :expand="defaultExpand === 'image-size'"></PanelImageSize>
         <br>
-        <PanelFilter></PanelFilter>
+        <PanelFilter :expand="defaultExpand === 'filter'"></PanelFilter>
         <br>
-        <PanelDisabling></PanelDisabling>
+        <PanelDisabling :expand="defaultExpand === 'disablings'"></PanelDisabling>
         <br>
-        <PanelNoWhiteSpace></PanelNoWhiteSpace>
+        <PanelNoWhiteSpace :expand="defaultExpand === 'prevent-white-space'"></PanelNoWhiteSpace>
         <br>
-        <PanelZoomControl></PanelZoomControl>
+        <PanelZoomControl :expand="defaultExpand === 'zoom-control'"></PanelZoomControl>
         <br>
-        <PanelInitialSize></PanelInitialSize>
+        <PanelInitialSize :expand="defaultExpand === 'initial-size'"></PanelInitialSize>
+        <br>
+        <PanelInitialPosition :expand="defaultExpand === 'initial-position'"></PanelInitialPosition>
       </v-flex>
     </v-layout>
   </div>
@@ -32,6 +34,7 @@
   import PanelNoWhiteSpace from './../panels/white-space.vue'
   import PanelZoomControl from './../panels/zoom-control.vue'
   import PanelInitialSize from './../panels/initial-size.vue'
+  import PanelInitialPosition from './../panels/initial-position.vue'
   export default {
     components: {
       PanelAppearance,
@@ -41,7 +44,20 @@
       PanelDisabling,
       PanelNoWhiteSpace,
       PanelZoomControl,
-      PanelInitialSize
+      PanelInitialSize,
+      PanelInitialPosition
+    },
+
+    computed: {
+      defaultExpand () {
+        return this.$route.query.sec
+      }
+    },
+
+    mounted () {
+      var script = document.createElement('script')
+      script.src = 'https://production-assets.codepen.io/assets/embed/ei.js'
+      document.body.appendChild(script)
     }
   }
 </script>

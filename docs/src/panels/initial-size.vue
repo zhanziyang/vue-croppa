@@ -44,12 +44,15 @@
         size: 'cover'
       }
     },
+    props: {
+      expand: Boolean
+    },
     computed: {
       templateCode () {
         return `\
  <croppa v-model="croppa"
           initial-image="https://unsplash.it/600/500"
-          :initial-size="${this.size}">
+          initial-size="${this.size}">
   </croppa>`
       }
     },

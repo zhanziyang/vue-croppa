@@ -37,7 +37,9 @@
           </v-flex>
         </v-layout>
         <br>
-        <p>3. Register it as a vue plugin.</p>
+        <p>3. Register it as a vue plugin.
+          <router-link to="/registration">More ways to register it.</router-link>
+        </p>
         <v-layout row
                   wrap>
           <v-flex md5>

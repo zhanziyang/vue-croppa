@@ -24,6 +24,7 @@
           <v-layout>
             <v-flex>
               <v-slider v-model="zoomSpeed"
+                        label="speed"
                         thumb-label
                         :step="1"
                         :min="1"
@@ -49,6 +50,9 @@
         zoomSpeed: 5,
         reverse: false
       }
+    },
+    props: {
+      expand: Boolean
     },
     computed: {
       templateCode () {

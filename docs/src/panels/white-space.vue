@@ -38,6 +38,9 @@
         preventWS: true
       }
     },
+    props: {
+      expand: Boolean
+    },
     computed: {
       templateCode () {
         return `\

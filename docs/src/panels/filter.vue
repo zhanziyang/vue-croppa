@@ -48,7 +48,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          :accept="${this.accept}"
+          accept="${this.accept}"
           :file-size-limit="${this.sizeLimit}"
           @file-type-mismatch="onFileTypeMismatch"
           @file-size-exceed="onFileSizeExceed">

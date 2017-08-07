@@ -90,3 +90,11 @@
     </v-expansion-panel-content>
   </v-expansion-panel>
 </template>
+
+<script>
+  export default {
+    props: {
+      expand: Boolean
+    }
+  }
+</script>

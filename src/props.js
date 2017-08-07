@@ -102,7 +102,11 @@ export default {
         'top left',
         'top right',
         'bottom left',
-        'bottom right'
+        'bottom right',
+        'left top',
+        'right top',
+        'left bottom',
+        'right bottom'
       ]
       return valids.indexOf(val) >= 0 || /^-?\d+% -?\d+%$/.test(val)
     }
