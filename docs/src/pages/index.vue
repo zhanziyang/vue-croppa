@@ -49,9 +49,6 @@
             </div>
           </v-flex>
           <v-flex md8>
-            <img src=""
-                 class="preload"
-                 ref="preload">
             <croppa v-model="myCroppa"
                     :width="+width"
                     :height="+height"
@@ -281,7 +278,6 @@
     },
 
     mounted () {
-      // this.$refs.preload.src = ''
       this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
       this.preload('https://unsplash.it/400/400')
       this.preload('https://unsplash.it/600/500')

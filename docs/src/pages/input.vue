@@ -10,10 +10,16 @@
             <div class="pt-2 pl-2">By default, when there is no image on croppa, users can click or touch (on mobile) to open the os file chooser to choose a file.</div>
             <v-layout class="pt-2 pl-2">
               <v-flex>
-                [图片：click to choose]
+                <img src="http://i.imgur.com/GAKSc4K.gif"
+                     width="100%">
               </v-flex>
               <v-flex>
-                [图片：touch to choose]
+                <video autoplay=""
+                       loop=""
+                       style="height: 315px">
+                  <source type="video/mp4"
+                          src="//i.imgur.com/ENmVbdo.mp4">
+                </video>
               </v-flex>
             </v-layout>
             <div class="pt-2 pl-2 pb-2">You can disable this feature with
@@ -52,7 +58,8 @@
             <div class="pt-2 pl-2">On PC devices, users can drag and drop an image file to croppa.</div>
             <v-layout class="pt-2 pl-2">
               <v-flex>
-                [图片：drag and drop a file]
+                <img src="http://i.imgur.com/UaCzMPd.gif"
+                     width="400">
               </v-flex>
             </v-layout>
             <div class="pt-2 pl-2 pb-2">You can disable this feature with
@@ -83,7 +90,8 @@
             </div>
             <v-layout class="pt-2 pl-2">
               <v-flex>
-                [图片：remove a file using remove button]
+                <img src="http://i.imgur.com/gxBsFG2.gif"
+                     width="350">
               </v-flex>
             </v-layout>
             <div class="pt-2 pl-2">
