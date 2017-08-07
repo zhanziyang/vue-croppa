@@ -33,7 +33,7 @@ export default {
     }
   },
   canvasColor: {
-    default: '#e6e6e6'
+    default: 'transparent'
   },
   quality: {
     type: Number,
@@ -66,6 +66,7 @@ export default {
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
   disablePinchToZoom: Boolean,
+  disableRotation: Boolean,
   reverseZoomingGesture: Boolean, // deprecated
   reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,
@@ -80,5 +81,34 @@ export default {
   removeButtonSize: {
     type: Number
   },
-  initialImage: String
+  initialImage: [String, HTMLImageElement],
+  initialSize: {
+    type: String,
+    default: 'cover',
+    validator: function (val) {
+      return val === 'cover' || val === 'contain' || val === 'natural'
+    }
+  },
+  initialPosition: {
+    type: String,
+    default: 'center',
+    validator: function (val) {
+      var valids = [
+        'center',
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'top left',
+        'top right',
+        'bottom left',
+        'bottom right',
+        'left top',
+        'right top',
+        'left bottom',
+        'right bottom'
+      ]
+      return valids.indexOf(val) >= 0 || /^-?\d+% -?\d+%$/.test(val)
+    }
+  }
 }

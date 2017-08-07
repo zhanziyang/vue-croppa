@@ -1,5 +1,6 @@
 <template>
-  <div :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
+  <div ref="wrapper"
+       :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
        @dragenter.stop.prevent="handleDragEnter"
        @dragleave.stop.prevent="handleDragLeave"
        @dragover.stop.prevent="handleDragOver"
@@ -51,6 +52,8 @@
   import props from './props'
   import events from './events'
 
+  import CanvasExifOrientation from 'canvas-exif-orientation'
+
   const PCT_PER_ZOOM = 1 / 100000 // The amount of zooming everytime it happens, in percentage of image width.
   const MIN_MS_PER_CLICK = 500 // If touch duration is shorter than the value, then it is considered as a click.
   const CLICK_MOVE_THRESHOLD = 100 // If touch move distance is greater than this value, then it will by no mean be considered as a click.
@@ -72,6 +75,7 @@
         instance: null,
         canvas: null,
         ctx: null,
+        originalImage: null,
         img: null,
         dragging: false,
         lastMovingCoord: null,
@@ -83,7 +87,10 @@
         pinchDistance: 0,
         supportTouch: false,
         pointerMoved: false,
-        pointerStartCoord: null
+        pointerStartCoord: null,
+        naturalWidth: 0,
+        naturalHeight: 0,
+        scaleRatio: 1
       }
     },
 
@@ -106,9 +113,6 @@
       u.rAFPolyfill()
       u.toBlobPolyfill()
 
-      if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
-        console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).')
-      }
       let supports = this.supportDetection()
       if (!supports.basic) {
         console.warn('Your browser does not support vue-croppa functionality.')
@@ -125,7 +129,9 @@
       placeholder: 'init',
       placeholderColor: 'init',
       realPlaceholderFontSize: 'init',
-      preventWhiteSpace: 'imgContentInit'
+      preventWhiteSpace () {
+        this.imgContentInit()
+      }
     },
 
     methods: {
@@ -135,8 +141,11 @@
         this.canvas.height = this.realHeight
         this.canvas.style.width = this.width + 'px'
         this.canvas.style.height = this.height + 'px'
+        // this.$refs.wrapper.style.width = this.width + 'px'
+        // this.$refs.wrapper.style.height = this.height + 'px'
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
+        this.originalImage = null
         this.img = null
         this.setInitial()
         this.$emit(events.INIT_EVENT, {
@@ -165,16 +174,50 @@
           zoomOut: () => {
             this.zoom(false)
           },
+          rotate: (step = 1) => {
+            if (this.disableRotation || this.disabled) return
+            step = parseInt(step)
+            if (isNaN(step) || step > 3 || step < -3) {
+              console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
+              step = 1
+            }
+            let orientation = 1
+            switch (step) {
+              case 1:
+                orientation = 6
+                break
+              case 2:
+                orientation = 3
+                break
+              case 3:
+                orientation = 8
+                break
+              case -1:
+                orientation = 8
+                break
+              case -2:
+                orientation = 3
+                break
+              case -3:
+                orientation = 6
+                break
+            }
+            this.rotate(orientation)
+          },
+          flipX: () => {
+            if (this.disableRotation || this.disabled) return
+            this.rotate(2)
+          },
+          flipY: () => {
+            if (this.disableRotation || this.disabled) return
+            this.rotate(4)
+          },
           refresh: () => {
             this.$nextTick(this.init)
           },
           hasImage: () => {
             return !!this.img
           },
-          reset: () => {
-            console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.')
-            this.remove()
-          }, // soon to be deprecated due to misnamed
           remove: this.remove,
           chooseFile: this.chooseFile,
           generateDataUrl: this.generateDataUrl,
@@ -204,6 +247,7 @@
         ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
 
         let hadImage = this.img != null
+        this.originalImage = null
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
@@ -214,37 +258,46 @@
       },
 
       setInitial () {
-        let src
+        let src, img
         if (this.$slots.initial && this.$slots.initial[0]) {
           let vNode = this.$slots.initial[0]
           let { tag, elm } = vNode
-          if (tag == 'img' && elm && elm.src) {
-            src = elm.src
+          if (tag == 'img' && elm) {
+            img = elm
           }
         }
-        if (!src && this.initialImage) {
+        if (!src && this.initialImage && typeof this.initialImage === 'string') {
           src = this.initialImage
+          img = new Image()
+          if (!/^data:/.test(src) && !/^blob:/.test(src)) {
+            img.setAttribute('crossOrigin', 'anonymous')
+          }
+          img.src = src
+        } else if (typeof this.initialImage === 'object' && this.initialImage instanceof Image) {
+          img = this.initialImage
         }
-        if (!src) {
+        if (!src && !img) {
           this.remove()
           return
         }
-        var img = new Image()
-        img.setAttribute('crossOrigin', 'anonymous')
-        img.src = src
         if (u.imageLoaded(img)) {
-          this.img = img
-          this.imgContentInit()
+          this._onload(img, +img.dataset['exifOrientation'])
         } else {
           img.onload = () => {
-            this.img = img
-            this.imgContentInit()
+            this._onload(img, +img.dataset['exifOrientation'])
           }
 
           img.onerror = () => {
             this.remove()
           }
         }
+      },
+
+      _onload (img, orientation = 1) {
+        this.originalImage = img
+        this.img = img
+
+        this.rotate(orientation)
       },
 
       chooseFile () {
@@ -286,12 +339,13 @@
           let fr = new FileReader()
           fr.onload = (e) => {
             let fileData = e.target.result
+            let orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData))
+            if (orientation < 1) orientation = 1
             let img = new Image()
             img.src = fileData
-            img.crossOrigin = 'Anonymous'
             img.onload = () => {
-              this.img = img
-              this.imgContentInit()
+              this._onload(img, orientation)
+              this.$emit(events.NEW_IMAGE)
             }
           }
           fr.readAsDataURL(file)
@@ -328,27 +382,93 @@
       },
 
       imgContentInit () {
+        this.naturalWidth = this.img.naturalWidth
+        this.naturalHeight = this.img.naturalHeight
+
         this.imgData.startX = 0
         this.imgData.startY = 0
-        let imgWidth = this.img.naturalWidth
-        let imgHeight = this.img.naturalHeight
-        let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.realHeight / this.realWidth
-
-        // display as fit
-        if (imgRatio < canvasRatio) {
-          let ratio = imgHeight / this.realHeight
-          this.imgData.width = imgWidth / ratio
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
-          this.imgData.height = this.realHeight
+        if (!this.preventWhiteSpace && this.initialSize == 'contain') {
+          this.aspectFit()
+        } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
+          this.naturalSize()
         } else {
-          let ratio = imgWidth / this.realWidth
-          this.imgData.height = imgHeight / ratio
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
-          this.imgData.width = this.realWidth
+          this.aspectFill()
+        }
+        this.scaleRatio = this.imgData.width / this.naturalWidth
+
+        if (/top/.test(this.initialPosition)) {
+          this.imgData.startY = 0
+        } else if (/bottom/.test(this.initialPosition)) {
+          this.imgData.startY = this.realHeight - this.imgData.height
+        }
+
+        if (/left/.test(this.initialPosition)) {
+          this.imgData.startX = 0
+        } else if (/right/.test(this.initialPosition)) {
+          this.imgData.startX = this.realWidth - this.imgData.width
+        }
+
+        if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
+          var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
+          var x = +result[1] / 100
+          var y = +result[2] / 100
+          this.imgData.startX = x * (this.realWidth - this.imgData.width)
+          this.imgData.startY = y * (this.realHeight - this.imgData.height)
+          console.log(this.imgData.startX, this.imgData.startY)
+        }
+
+        if (this.preventWhiteSpace) {
+          this.preventMovingToWhiteSpace()
         }
 
         this.draw()
+      },
+
+      aspectFill () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
+        let scaleRatio
+        if (imgRatio < canvasRatio) {
+          scaleRatio = imgHeight / this.realHeight
+          this.imgData.width = imgWidth / scaleRatio
+          this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        } else {
+          scaleRatio = imgWidth / this.realWidth
+          this.imgData.height = imgHeight / scaleRatio
+          this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+        }
+      },
+
+      aspectFit () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        let imgRatio = imgHeight / imgWidth
+        let canvasRatio = this.realHeight / this.realWidth
+        let scaleRatio
+        if (imgRatio < canvasRatio) {
+          scaleRatio = imgWidth / this.realWidth
+          this.imgData.height = imgHeight / scaleRatio
+          this.imgData.width = this.realWidth
+          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+        } else {
+          scaleRatio = imgHeight / this.realHeight
+          this.imgData.width = imgWidth / scaleRatio
+          this.imgData.height = this.realHeight
+          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        }
+      },
+
+      naturalSize () {
+        let imgWidth = this.naturalWidth
+        let imgHeight = this.naturalHeight
+        this.imgData.width = imgWidth
+        this.imgData.height = imgHeight
+        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
       },
 
       handlePointerStart (evt) {
@@ -568,12 +688,29 @@
           }
           this.$emit(events.ZOOM_EVENT)
           this.draw()
+          this.scaleRatio = this.imgData.width / this.naturalWidth
+        }
+      },
+
+      rotate (orientation = 6) {
+        if (!this.img) return
+        if (orientation > 1) {
+          var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
+          var _img = new Image()
+          _img.src = _canvas.toDataURL()
+          _img.onload = () => {
+            this.img = _img
+            this.imgContentInit()
+          }
+        } else {
+          this.imgContentInit()
         }
       },
 
       paintBackground () {
         let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : this.canvasColor
         this.ctx.fillStyle = backgroundColor
+        this.ctx.clearRect(0, 0, this.realWidth, this.realHeight)
         this.ctx.fillRect(0, 0, this.realWidth, this.realHeight)
       },
 
@@ -592,9 +729,9 @@
         }
       },
 
-      generateDataUrl (type) {
+      generateDataUrl (type, compressionRate) {
         if (!this.img) return ''
-        return this.canvas.toDataURL(type)
+        return this.canvas.toDataURL(type, compressionRate)
       },
 
       generateBlob (callback, mimeType, qualityArgument) {
@@ -628,6 +765,8 @@
     transition: all .3s
     position: relative
     font-size: 0
+    align-self: flex-start
+    background-color: #e6e6e6
     canvas
       transition: all .3s
     &:hover

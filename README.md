@@ -250,8 +250,8 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: default size is ajust accordingly to container's size
 
 #### initial-image
-**@0.1.0+** Set initial image url. This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
-- type: `string`
+**@0.1.0+** Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
+- type: `string` or `object` (HTMLImageElement instance)
 - default: `undefined`
 
 
@@ -355,7 +355,11 @@ const blob = await this.myCroppa.promisedBlob()
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
+#### new-image
+- emitted when new valid image is set onto croppa.
+
 #### image-remove
+- emitted when image remove from croppa.
 
 #### move
 
@@ -393,4 +397,11 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Replace `for of` with tranditional `for` loop for better compatibility. 
 - [x] Expose component itself.
 - [ ] Make container optionally resizable.
-- [ ] Make default position customizable.
+- [x] Make default position customizable.
+- [x] Rotation support.
+- [x] `toDataUrl()`s second argument to specify compression rate.
+- [ ] Doc about file compression.
+- [ ] Add examples to doc.
+- [ ] Download example.
+- [ ] Image placeholder.
+- [ ] ondraw event.
