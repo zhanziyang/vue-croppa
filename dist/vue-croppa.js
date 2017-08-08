@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.1.6
+ * vue-croppa v0.2.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -226,7 +226,6 @@ var props = {
   disableScrollToZoom: Boolean,
   disablePinchToZoom: Boolean,
   disableRotation: Boolean,
-  reverseZoomingGesture: Boolean, // deprecated
   reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,
   showRemoveButton: {
@@ -943,9 +942,9 @@ var component = { render: function render() {
       evt.preventDefault();
       var coord = u.getPointerCoords(evt, this);
       if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-        this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord);
+        this.zoom(this.reverseScrollToZoom, coord);
       } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-        this.zoom(!this.reverseZoomingGesture && !this.reverseScrollToZoom, coord);
+        this.zoom(!this.reverseScrollToZoom, coord);
       }
     },
     handleDragEnter: function handleDragEnter(evt) {
