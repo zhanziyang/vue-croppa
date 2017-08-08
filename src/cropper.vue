@@ -181,28 +181,7 @@
               console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
               step = 1
             }
-            let orientation = 1
-            switch (step) {
-              case 1:
-                orientation = 6
-                break
-              case 2:
-                orientation = 3
-                break
-              case 3:
-                orientation = 8
-                break
-              case -1:
-                orientation = 8
-                break
-              case -2:
-                orientation = 3
-                break
-              case -3:
-                orientation = 6
-                break
-            }
-            this.rotate(orientation)
+            this.rotateByStep(step)
           },
           flipX: () => {
             if (this.disableRotation || this.disabled) return
@@ -225,6 +204,32 @@
           promisedBlob: this.promisedBlob,
           supportDetection: this.supportDetection
         })
+      },
+
+      rotateByStep (step) {
+        let orientation = 1
+        switch (step) {
+          case 1:
+            orientation = 6
+            break
+          case 2:
+            orientation = 3
+            break
+          case 3:
+            orientation = 8
+            break
+          case -1:
+            orientation = 8
+            break
+          case -2:
+            orientation = 3
+            break
+          case -3:
+            orientation = 6
+            break
+        }
+        console.log(orientation)
+        this.rotate(orientation)
       },
 
       supportDetection () {
@@ -715,18 +720,21 @@
       },
 
       draw () {
-        let ctx = this.ctx
         if (!this.img) return
-        let { startX, startY, width, height } = this.imgData
         if (window.requestAnimationFrame) {
-          requestAnimationFrame(() => {
-            this.paintBackground()
-            ctx.drawImage(this.img, startX, startY, width, height)
-          })
+          requestAnimationFrame(this._drawFrame)
         } else {
-          this.paintBackground()
-          ctx.drawImage(this.img, startX, startY, width, height)
+          this._drawFrame()
         }
+      },
+
+      _drawFrame () {
+        let ctx = this.ctx
+        let { startX, startY, width, height } = this.imgData
+
+        this.paintBackground()
+        ctx.drawImage(this.img, startX, startY, width, height)
+        this.$emit(events.DRAW, ctx)
       },
 
       generateDataUrl (type, compressionRate) {

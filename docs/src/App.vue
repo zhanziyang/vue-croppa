@@ -69,8 +69,7 @@
           { title: 'Customization', icon: 'settings', link: '/customization' },
           { title: 'File Input', icon: 'file_download', link: '/file-input' },
           { title: 'Manipulation', icon: 'content_cut', link: '/manipulation' },
-          { title: 'Output', icon: 'file_upload', link: '/output' },
-          { title: 'Events', icon: 'hearing', link: '/events' },
+          { title: 'File Output', icon: 'file_upload', link: '/file-output' },
           { divider: true },
           { title: 'Help', icon: 'help', link: '/help' },
           { title: 'Demos', icon: 'content_copy', link: '/demos' }

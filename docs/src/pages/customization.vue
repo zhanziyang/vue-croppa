@@ -1,5 +1,5 @@
 <template>
-  <div id="registration">
+  <div id="customization">
     <v-layout row
               wrap>
       <v-flex>
