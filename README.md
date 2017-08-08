@@ -6,8 +6,9 @@
 ## Features
 - **Straightforward**: What you see is what you get
 - **Highly customizable**: You can almost customize anything except the core functionalities
-- **Lightweight**: 20kb in total
+- **Lightweight**: 24kb in total
 - **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
+- **EXIF orientation**: v0.2.0+ Support correctly show image with EXIF orientation
 
 ## Browser Support
 - IE 10+
@@ -38,6 +39,7 @@
         :disable-click-to-choose="false"
         :disable-drag-to-move="false"
         :disable-scroll-to-zoom="false"
+        :disable-rotation="false"
         :prevent-white-space="false"
         :reverse-scroll-to-zoom="false"
         :show-remove-button="true"
@@ -99,6 +101,22 @@ Vue.use(Croppa)
 ```html
 <croppa v-model="myCroppa"></croppa>
 ```
+```js
+new Vue({
+  // ... other vm options omitted
+  data: {
+    myCroppa: {}
+  },
+
+  methods: {
+    uploadCroppedImage() {
+      this.myCroppa.generateBlob((blob) => {
+        // write code to upload the cropped image file (a file is a blob)
+      }, 'image/jpeg', 0.8) // 80% compressed jpeg file
+    }
+  }
+})
+```
 
 #### NOTE: 
 - Since v0.1.0, you can change the default component name to anything you want.
@@ -131,7 +149,6 @@ Vue.component('croppa', () => import(Croppa.component))
 #### v-model
 A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "[Methods](#-methods)" section).
 - type: `object`
-- default: `null`
 
 #### width
 Display width of the preview container.
@@ -163,7 +180,7 @@ Placeholder text font size in pixel. When set to `0`, the font size will be ajus
 #### canvas-color
 Initial background color and white space color if there is an image.
 - type: same as what `CanvasRenderingContext2D.fillStyle` accepts.
-- default: `'#e6e6e6'`
+- default: before v0.2.0 - `'#e6e6e6'`; after v0.2.0 - `'transparent'`
 
 #### quality
 Specifies how many times larger the actual image is than the container's display size.
@@ -171,7 +188,7 @@ Specifies how many times larger the actual image is than the container's display
 - default: `2`
 - valid: `isInteger(val) && val > 0
 
-#### zoom speed
+#### zoom-speed
 Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.
 - type: `number`
 - default: `3`
@@ -217,6 +234,11 @@ Disables the default "pinch with two fingers to zoom" user interaction **on mobi
 - type: `boolean`
 - default: `false`
 
+#### disable-rotation
+v0.2.0+ Rotation methods won't work if this is set to `true`
+- type: `boolean`
+- default: `false`
+
 #### <s>reverse-zooming-gesture</s>
 **Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. The name isn't proper because you can not reverse pinch to zoom.
 
@@ -250,10 +272,31 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: default size is ajust accordingly to container's size
 
 #### initial-image
-**@0.1.0+** Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
+**v0.1.0+** Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
 - type: `string` or `object` (HTMLImageElement instance)
 - default: `undefined`
 
+#### initial-size
+**v0.2.0+** works similar to css's background-size. It specifies the image's size when it is first loaded on croppa.
+- type: `string`
+- default: `'cover'`
+- valid: one of `'cover'`, `'contain'`, `'natural'`
+
+#### initial-position
+**v0.2.0+** works similar to css's background-position. It specifies the image's position relative to croppa container when it is first loaded.
+- type: `string`
+- default: `'center'`
+- valid: 
+  - `'center'` (default value)
+  - `'30% 40%'` (similar to background-position in css)
+  - `'top'`
+  - `'bottom'`
+  - `'left'`
+  - `'right'`
+  - `'top left'` or  `'left top'`
+  - `'top right'` or  `'right top'`
+  - `'bottom left'` or  `'left bottom'`
+  - `'bottom right'` or  `'right bottom'`
 
 ---
 
@@ -296,6 +339,17 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 
 #### myCroppa.zoomOut()
 
+#### myCroppa.rotate(step: number)
+- 1 step = 90 deg
+- positive number: rotates clockwise
+- negative number: rotates counterclockwise.
+
+#### myCroppa.flipX()
+- Horizontally flip image.
+
+#### myCroppa.flipY()
+- Vertically flip image.
+
 #### myCroppa.chooseFile()
 - Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
@@ -312,13 +366,14 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 #### myCroppa.hasImage()
 - Return boolean value indicating whether currently there is a image.
 
-#### myCroppa.generateDataUrl( type: string )
-- Returns a data-URL containing a representation of the image in the format specified by the type parameter (defaults to  png).
+#### myCroppa.generateDataUrl( type: string, compressionRate: number )
+- Returns a data-URL containing a representation of the image in the format specified by the `type` parameter (defaults to  png). 
+- `compressionRate` (v0.2.0+) defaults to `1`, you can pass a number between 0 and 1 to get a compressed output image.
 
-#### myCroppa.generateBlob( callback: function, mimeType: string, qualityArgument: number )
+#### myCroppa.generateBlob( callback: function, mimeType: string, compressionRate: number )
 - Creates a Blob object representing the image contained in the canvas. Look up  argument definition [here](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob).
 
-#### myCroppa.promisedBlob( mimeType: string, qualityArgument: number )
+#### myCroppa.promisedBlob( mimeType: string, compressionRate: number )
 - This method returns a `Promise` wrapping around `generateBlob()`, so that you can use `async/await` syntax instead of a callback to get blob data, it's simpler.
 ```js
 const blob = await this.myCroppa.promisedBlob()
@@ -355,8 +410,8 @@ const blob = await this.myCroppa.promisedBlob()
 - handler(file)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
-#### new-image
-- emitted when new valid image is set onto croppa.
+#### new-image 
+- emitted when new valid image is set onto croppa (v0.2.0).
 
 #### image-remove
 - emitted when image remove from croppa.
@@ -400,7 +455,7 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Make default position customizable.
 - [x] Rotation support.
 - [x] `toDataUrl()`s second argument to specify compression rate.
-- [ ] Doc about file compression.
+- [x] Doc about file compression.
 - [ ] Add examples to doc.
 - [ ] Download example.
 - [ ] Image placeholder.

@@ -576,9 +576,9 @@
         evt.preventDefault()
         let coord = u.getPointerCoords(evt, this)
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-          this.zoom(this.reverseZoomingGesture || this.reverseScrollToZoom, coord)
+          this.zoom(this.reverseScrollToZoom, coord)
         } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-          this.zoom(!this.reverseZoomingGesture && !this.reverseScrollToZoom, coord)
+          this.zoom(!this.reverseScrollToZoom, coord)
         }
       },
 

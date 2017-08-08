@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.1.5
+ * vue-croppa v0.1.6
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -121,6 +121,39 @@ var u = {
     }
 
     return false;
+  },
+  getFileOrientation: function getFileOrientation(arrayBuffer) {
+    var view = new DataView(arrayBuffer);
+    if (view.getUint16(0, false) != 0xFFD8) return -2;
+    var length = view.byteLength;
+    var offset = 2;
+    while (offset < length) {
+      var marker = view.getUint16(offset, false);
+      offset += 2;
+      if (marker == 0xFFE1) {
+        if (view.getUint32(offset += 2, false) != 0x45786966) return -1;
+        var little = view.getUint16(offset += 6, false) == 0x4949;
+        offset += view.getUint32(offset + 4, little);
+        var tags = view.getUint16(offset, little);
+        offset += 2;
+        for (var i = 0; i < tags; i++) {
+          if (view.getUint16(offset + i * 12, little) == 0x0112) {
+            return view.getUint16(offset + i * 12 + 8, little);
+          }
+        }
+      } else if ((marker & 0xFF00) != 0xFF00) break;else offset += view.getUint16(offset, false);
+    }
+    return -1;
+  },
+  base64ToArrayBuffer: function base64ToArrayBuffer(base64) {
+    base64 = base64.replace(/^data:([^;]+);base64,/gmi, '');
+    var binaryString = atob(base64);
+    var len = binaryString.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
   }
 };
 
@@ -159,7 +192,7 @@ var props = {
     }
   },
   canvasColor: {
-    default: '#e6e6e6'
+    default: 'transparent'
   },
   quality: {
     type: Number,
@@ -192,6 +225,7 @@ var props = {
   disableDragToMove: Boolean,
   disableScrollToZoom: Boolean,
   disablePinchToZoom: Boolean,
+  disableRotation: Boolean,
   reverseZoomingGesture: Boolean, // deprecated
   reverseScrollToZoom: Boolean,
   preventWhiteSpace: Boolean,
@@ -206,7 +240,22 @@ var props = {
   removeButtonSize: {
     type: Number
   },
-  initialImage: [String, Object]
+  initialImage: [String, HTMLImageElement],
+  initialSize: {
+    type: String,
+    default: 'cover',
+    validator: function validator(val) {
+      return val === 'cover' || val === 'contain' || val === 'natural';
+    }
+  },
+  initialPosition: {
+    type: String,
+    default: 'center',
+    validator: function validator(val) {
+      var valids = ['center', 'top', 'bottom', 'left', 'right', 'top left', 'top right', 'bottom left', 'bottom right', 'left top', 'right top', 'left bottom', 'right bottom'];
+      return valids.indexOf(val) >= 0 || /^-?\d+% -?\d+%$/.test(val);
+    }
+  }
 };
 
 var events = {
@@ -214,10 +263,115 @@ var events = {
   FILE_CHOOSE_EVENT: 'file-choose',
   FILE_SIZE_EXCEED_EVENT: 'file-size-exceed',
   FILE_TYPE_MISMATCH_EVENT: 'file-type-mismatch',
+  NEW_IMAGE: 'new-image',
   IMAGE_REMOVE_EVENT: 'image-remove',
   MOVE_EVENT: 'move',
-  ZOOM_EVENT: 'zoom'
+  ZOOM_EVENT: 'zoom',
+  DRAW: 'draw'
 };
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var index = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+    if (typeof undefined === 'function' && undefined.amd) {
+        undefined([], factory);
+    } else {
+        module.exports = factory();
+    }
+}(commonjsGlobal, function () {
+  'use strict';
+
+  function drawImage(img, orientation, x, y, width, height) {
+    if (!/^[1-8]$/.test(orientation)) throw new Error('orientation should be [1-8]');
+
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    if (width == null) width = img.width;
+    if (height == null) height = img.height;
+
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.save();
+    switch (+orientation) {
+      // 1 = The 0th row is at the visual top of the image, and the 0th column is the visual left-hand side.
+      case 1:
+          break;
+
+      // 2 = The 0th row is at the visual top of the image, and the 0th column is the visual right-hand side.
+      case 2:
+         ctx.translate(width, 0);
+         ctx.scale(-1, 1);
+         break;
+
+      // 3 = The 0th row is at the visual bottom of the image, and the 0th column is the visual right-hand side.
+      case 3:
+          ctx.translate(width, height);
+          ctx.rotate(180 / 180 * Math.PI);
+          break;
+
+      // 4 = The 0th row is at the visual bottom of the image, and the 0th column is the visual left-hand side.
+      case 4:
+          ctx.translate(0, height);
+          ctx.scale(1, -1);
+          break;
+
+      // 5 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual top.
+      case 5:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(90 / 180 * Math.PI);
+          ctx.scale(1, -1);
+          break;
+
+      // 6 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual top.
+      case 6:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(90 / 180 * Math.PI);
+          ctx.translate(0, -height);
+          break;
+
+      // 7 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual bottom.
+      case 7:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(270 / 180 * Math.PI);
+          ctx.translate(-width, height);
+          ctx.scale(1, -1);
+          break;
+
+      // 8 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual bottom.
+      case 8:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.translate(0, width);
+          ctx.rotate(270 / 180 * Math.PI);
+          break;
+    }
+
+    ctx.drawImage(img, x, y, width, height);
+    ctx.restore();
+
+    return canvas;
+  }
+
+  return {
+    drawImage: drawImage
+  };
+}));
+});
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
@@ -234,7 +388,7 @@ var PINCH_ACCELERATION = 2; // The amount of times by which the pinching is more
 var DEBUG = false;
 
 var component = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { ref: "wrapper", class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDragEnter($event);
         }, "dragleave": function dragleave($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDragLeave($event);
@@ -286,6 +440,7 @@ var component = { render: function render() {
       instance: null,
       canvas: null,
       ctx: null,
+      originalImage: null,
       img: null,
       dragging: false,
       lastMovingCoord: null,
@@ -297,7 +452,10 @@ var component = { render: function render() {
       pinchDistance: 0,
       supportTouch: false,
       pointerMoved: false,
-      pointerStartCoord: null
+      pointerStartCoord: null,
+      naturalWidth: 0,
+      naturalHeight: 0,
+      scaleRatio: 1
     };
   },
 
@@ -319,9 +477,6 @@ var component = { render: function render() {
     u.rAFPolyfill();
     u.toBlobPolyfill();
 
-    if (this.$options._parentListeners['initial-image-load'] || this.$options._parentListeners['initial-image-error']) {
-      console.warn('initial-image-load and initial-image-error events are already deprecated. Please bind them directly on the <img> tag (the slot).');
-    }
     var supports = this.supportDetection();
     if (!supports.basic) {
       console.warn('Your browser does not support vue-croppa functionality.');
@@ -339,7 +494,9 @@ var component = { render: function render() {
     placeholder: 'init',
     placeholderColor: 'init',
     realPlaceholderFontSize: 'init',
-    preventWhiteSpace: 'imgContentInit'
+    preventWhiteSpace: function preventWhiteSpace() {
+      this.imgContentInit();
+    }
   },
 
   methods: {
@@ -351,8 +508,11 @@ var component = { render: function render() {
       this.canvas.height = this.realHeight;
       this.canvas.style.width = this.width + 'px';
       this.canvas.style.height = this.height + 'px';
+      // this.$refs.wrapper.style.width = this.width + 'px'
+      // this.$refs.wrapper.style.height = this.height + 'px'
       this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
+      this.originalImage = null;
       this.img = null;
       this.setInitial();
       this.$emit(events.INIT_EVENT, {
@@ -389,16 +549,31 @@ var component = { render: function render() {
         zoomOut: function zoomOut() {
           _this.zoom(false);
         },
+        rotate: function rotate() {
+          var step = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+          if (_this.disableRotation || _this.disabled) return;
+          step = parseInt(step);
+          if (isNaN(step) || step > 3 || step < -3) {
+            console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.');
+            step = 1;
+          }
+          _this.rotateByStep(step);
+        },
+        flipX: function flipX() {
+          if (_this.disableRotation || _this.disabled) return;
+          _this.rotate(2);
+        },
+        flipY: function flipY() {
+          if (_this.disableRotation || _this.disabled) return;
+          _this.rotate(4);
+        },
         refresh: function refresh() {
           _this.$nextTick(_this.init);
         },
         hasImage: function hasImage() {
           return !!_this.img;
         },
-        reset: function reset() {
-          console.warn('"reset()" method will be deprecated in the near future due to misnaming. Please use "remove()" instead. They have the same effect.');
-          _this.remove();
-        }, // soon to be deprecated due to misnamed
         remove: this.remove,
         chooseFile: this.chooseFile,
         generateDataUrl: this.generateDataUrl,
@@ -406,6 +581,31 @@ var component = { render: function render() {
         promisedBlob: this.promisedBlob,
         supportDetection: this.supportDetection
       });
+    },
+    rotateByStep: function rotateByStep(step) {
+      var orientation = 1;
+      switch (step) {
+        case 1:
+          orientation = 6;
+          break;
+        case 2:
+          orientation = 3;
+          break;
+        case 3:
+          orientation = 8;
+          break;
+        case -1:
+          orientation = 8;
+          break;
+        case -2:
+          orientation = 3;
+          break;
+        case -3:
+          orientation = 6;
+          break;
+      }
+      console.log(orientation);
+      this.rotate(orientation);
     },
     supportDetection: function supportDetection() {
       var div = document.createElement('div');
@@ -426,6 +626,7 @@ var component = { render: function render() {
       ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2);
 
       var hadImage = this.img != null;
+      this.originalImage = null;
       this.img = null;
       this.$refs.fileInput.value = '';
       this.imgData = {};
@@ -463,18 +664,24 @@ var component = { render: function render() {
         return;
       }
       if (u.imageLoaded(img)) {
-        this.img = img;
-        this.imgContentInit();
+        this._onload(img, +img.dataset['exifOrientation']);
       } else {
         img.onload = function () {
-          _this2.img = img;
-          _this2.imgContentInit();
+          _this2._onload(img, +img.dataset['exifOrientation']);
         };
 
         img.onerror = function () {
           _this2.remove();
         };
       }
+    },
+    _onload: function _onload(img) {
+      var orientation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+      this.originalImage = img;
+      this.img = img;
+
+      this.rotate(orientation);
     },
     chooseFile: function chooseFile() {
       this.$refs.fileInput.click();
@@ -514,11 +721,13 @@ var component = { render: function render() {
         var fr = new FileReader();
         fr.onload = function (e) {
           var fileData = e.target.result;
+          var orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData));
+          if (orientation < 1) orientation = 1;
           var img = new Image();
           img.src = fileData;
           img.onload = function () {
-            _this3.img = img;
-            _this3.imgContentInit();
+            _this3._onload(img, orientation);
+            _this3.$emit(events.NEW_IMAGE);
           };
         };
         fr.readAsDataURL(file);
@@ -552,27 +761,90 @@ var component = { render: function render() {
       return false;
     },
     imgContentInit: function imgContentInit() {
+      this.naturalWidth = this.img.naturalWidth;
+      this.naturalHeight = this.img.naturalHeight;
+
       this.imgData.startX = 0;
       this.imgData.startY = 0;
-      var imgWidth = this.img.naturalWidth;
-      var imgHeight = this.img.naturalHeight;
-      var imgRatio = imgHeight / imgWidth;
-      var canvasRatio = this.realHeight / this.realWidth;
-
-      // display as fit
-      if (imgRatio < canvasRatio) {
-        var ratio = imgHeight / this.realHeight;
-        this.imgData.width = imgWidth / ratio;
-        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2;
-        this.imgData.height = this.realHeight;
+      if (!this.preventWhiteSpace && this.initialSize == 'contain') {
+        this.aspectFit();
+      } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
+        this.naturalSize();
       } else {
-        var _ratio = imgWidth / this.realWidth;
-        this.imgData.height = imgHeight / _ratio;
-        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2;
-        this.imgData.width = this.realWidth;
+        this.aspectFill();
+      }
+      this.scaleRatio = this.imgData.width / this.naturalWidth;
+
+      if (/top/.test(this.initialPosition)) {
+        this.imgData.startY = 0;
+      } else if (/bottom/.test(this.initialPosition)) {
+        this.imgData.startY = this.realHeight - this.imgData.height;
+      }
+
+      if (/left/.test(this.initialPosition)) {
+        this.imgData.startX = 0;
+      } else if (/right/.test(this.initialPosition)) {
+        this.imgData.startX = this.realWidth - this.imgData.width;
+      }
+
+      if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
+        var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition);
+        var x = +result[1] / 100;
+        var y = +result[2] / 100;
+        this.imgData.startX = x * (this.realWidth - this.imgData.width);
+        this.imgData.startY = y * (this.realHeight - this.imgData.height);
+        console.log(this.imgData.startX, this.imgData.startY);
+      }
+
+      if (this.preventWhiteSpace) {
+        this.preventMovingToWhiteSpace();
       }
 
       this.draw();
+    },
+    aspectFill: function aspectFill() {
+      var imgWidth = this.naturalWidth;
+      var imgHeight = this.naturalHeight;
+      var imgRatio = imgHeight / imgWidth;
+      var canvasRatio = this.realHeight / this.realWidth;
+      var scaleRatio = void 0;
+      if (imgRatio < canvasRatio) {
+        scaleRatio = imgHeight / this.realHeight;
+        this.imgData.width = imgWidth / scaleRatio;
+        this.imgData.height = this.realHeight;
+        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2;
+      } else {
+        scaleRatio = imgWidth / this.realWidth;
+        this.imgData.height = imgHeight / scaleRatio;
+        this.imgData.width = this.realWidth;
+        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2;
+      }
+    },
+    aspectFit: function aspectFit() {
+      var imgWidth = this.naturalWidth;
+      var imgHeight = this.naturalHeight;
+      var imgRatio = imgHeight / imgWidth;
+      var canvasRatio = this.realHeight / this.realWidth;
+      var scaleRatio = void 0;
+      if (imgRatio < canvasRatio) {
+        scaleRatio = imgWidth / this.realWidth;
+        this.imgData.height = imgHeight / scaleRatio;
+        this.imgData.width = this.realWidth;
+        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2;
+      } else {
+        scaleRatio = imgHeight / this.realHeight;
+        this.imgData.width = imgWidth / scaleRatio;
+        this.imgData.height = this.realHeight;
+        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2;
+      }
+    },
+    naturalSize: function naturalSize() {
+      var imgWidth = this.naturalWidth;
+      var imgHeight = this.naturalHeight;
+      this.imgData.width = imgWidth;
+      this.imgData.height = imgHeight;
+      this.imgData.startX = -(this.imgData.width - this.realWidth) / 2;
+      this.imgData.startY = -(this.imgData.height - this.realHeight) / 2;
     },
     handlePointerStart: function handlePointerStart(evt) {
       if (DEBUG) {
@@ -766,9 +1038,9 @@ var component = { render: function render() {
         }
 
         if (this.imgData.height < this.realHeight) {
-          var _x3 = this.realHeight / this.imgData.height;
+          var _x5 = this.realHeight / this.imgData.height;
           this.imgData.height = this.realHeight;
-          this.imgData.width = this.imgData.width * _x3;
+          this.imgData.width = this.imgData.width * _x5;
         }
       }
       if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
@@ -782,6 +1054,25 @@ var component = { render: function render() {
         }
         this.$emit(events.ZOOM_EVENT);
         this.draw();
+        this.scaleRatio = this.imgData.width / this.naturalWidth;
+      }
+    },
+    rotate: function rotate() {
+      var _this4 = this;
+
+      var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
+
+      if (!this.img) return;
+      if (orientation > 1) {
+        var _canvas = index.drawImage(this.img, orientation);
+        var _img = new Image();
+        _img.src = _canvas.toDataURL();
+        _img.onload = function () {
+          _this4.img = _img;
+          _this4.imgContentInit();
+        };
+      } else {
+        this.imgContentInit();
       }
     },
     paintBackground: function paintBackground() {
@@ -791,29 +1082,29 @@ var component = { render: function render() {
       this.ctx.fillRect(0, 0, this.realWidth, this.realHeight);
     },
     draw: function draw() {
-      var _this4 = this;
-
-      var ctx = this.ctx;
       if (!this.img) return;
+      if (window.requestAnimationFrame) {
+        requestAnimationFrame(this._drawFrame);
+      } else {
+        this._drawFrame();
+      }
+    },
+    _drawFrame: function _drawFrame() {
+      var ctx = this.ctx;
       var _imgData = this.imgData,
           startX = _imgData.startX,
           startY = _imgData.startY,
           width = _imgData.width,
           height = _imgData.height;
 
-      if (window.requestAnimationFrame) {
-        requestAnimationFrame(function () {
-          _this4.paintBackground();
-          ctx.drawImage(_this4.img, startX, startY, width, height);
-        });
-      } else {
-        this.paintBackground();
-        ctx.drawImage(this.img, startX, startY, width, height);
-      }
+
+      this.paintBackground();
+      ctx.drawImage(this.img, startX, startY, width, height);
+      this.$emit(events.DRAW, ctx);
     },
-    generateDataUrl: function generateDataUrl(type) {
+    generateDataUrl: function generateDataUrl(type, compressionRate) {
       if (!this.img) return '';
-      return this.canvas.toDataURL(type);
+      return this.canvas.toDataURL(type, compressionRate);
     },
     generateBlob: function generateBlob(callback, mimeType, qualityArgument) {
       if (!this.img) return null;
@@ -906,7 +1197,7 @@ function shouldUseNative() {
 	}
 }
 
-var index = shouldUseNative() ? Object.assign : function (target, source) {
+var index$1 = shouldUseNative() ? Object.assign : function (target, source) {
 	var from;
 	var to = toObject(target);
 	var symbols;
@@ -939,7 +1230,7 @@ var defaultOptions = {
 
 var VueCroppa = {
   install: function install(Vue, options) {
-    options = index({}, defaultOptions, options);
+    options = index$1({}, defaultOptions, options);
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');
