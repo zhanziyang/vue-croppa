@@ -16,7 +16,7 @@
              webkit-playsinline=""
              style="width: 524px; height: 413.96px;">
         <source type="video/mp4"
-                src="//i.imgur.com/YhWLgqL.mp4">
+                src="//i.imgur.com/vO1FgQM.mp4">
       </video>
       <video class="post video-post"
              id="video-element"
