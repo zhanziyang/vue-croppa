@@ -12,7 +12,6 @@ import Help from './pages/help.vue'
 import Demos from './pages/demos.vue'
 
 export default new VueRouter({
-  mode: 'history',
   routes: [
     {
       path: '/',
