@@ -6,6 +6,32 @@
       <span class="subheader">A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.</span>
     </h2>
     <div class="text-xs-center">
+      <video class="post video-post"
+             id="video-element"
+             autoplay
+             loop
+             poster="//i.imgur.com/YhWLgqLh.jpg"
+             preload="auto"
+             muted="muted"
+             webkit-playsinline=""
+             style="width: 524px; height: 413.96px;">
+        <source type="video/mp4"
+                src="//i.imgur.com/YhWLgqL.mp4">
+      </video>
+      <video class="post video-post"
+             id="video-element"
+             autoplay
+             loop
+             poster="//i.imgur.com/sJAQPo7h.jpg"
+             preload="auto"
+             muted="muted"
+             webkit-playsinline=""
+             style="height: 413.96px;">
+        <source type="video/mp4"
+                src="//i.imgur.com/sJAQPo7.mp4">
+      </video>
+  
+      <br>
       <v-chip class="orange white--text">
         What You See Is What You Get
         <v-icon right>star</v-icon>
@@ -44,7 +70,6 @@
                 <li class="subheading">Tab to choose a file</li>
                 <li class="subheading">Drag to move</li>
                 <li class="subheading">Pinch with two fingers to zoom</li>
-                <li class="subheading">Rotate with two fingers</li>
               </p>
             </div>
           </v-flex>

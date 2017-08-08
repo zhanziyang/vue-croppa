@@ -12,9 +12,23 @@
               <code>:disable-drag-to-move="true"</code> -
               <router-link to="/customization?sec=disablings">Try here</router-link>.</div>
             <v-layout class="pt-2 pl-2">
-              <v-flex>
-                [图片：drag to move]
-              </v-flex>
+              <div class="mr-2"
+                   style="width: 388.88px">
+                <video autoplay=""
+                       loop=""
+                       width="100%">
+                  <source type="video/mp4"
+                          src="//i.imgur.com/tbMCe1M.mp4">
+                </video>
+              </div>
+              <div style="height: 315px">
+                <video autoplay=""
+                       loop=""
+                       height="100%">
+                  <source type="video/mp4"
+                          src="//i.imgur.com/YPBtFaq.mp4">
+                </video>
+              </div>
             </v-layout>
             <div class="pt-2 pl-2">
               You can also move image by calling these methods:
@@ -58,12 +72,23 @@
               <code>zoom-speed</code> -
               <router-link to="/customization?sec=zoom-control">Try here</router-link>.</div>
             <v-layout class="pt-2 pl-2">
-              <v-flex>
-                [图片：scroll to zoom]
-              </v-flex>
-              <v-flex>
-                [图片：pinch to zoom]
-              </v-flex>
+              <div class="mr-2"
+                   style="width: 395px">
+                <video autoplay=""
+                       loop=""
+                       width="100%">
+                  <source type="video/mp4"
+                          src="//i.imgur.com/MOsxBnj.mp4">
+                </video>
+              </div>
+              <div style="height: 315px">
+                <video autoplay=""
+                       loop=""
+                       height="100%">
+                  <source type="video/mp4"
+                          src="//i.imgur.com/Vt301a9.mp4">
+                </video>
+              </div>
             </v-layout>
             <div class="pt-2 pl-2">
               You can also zoom image by calling these methods:
