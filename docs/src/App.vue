@@ -19,9 +19,9 @@
           <v-divider v-if="item.divider"
                      :key="index"></v-divider>
           <v-list-tile v-else
-                       :class="[{'active': page === item.link}]"
+                       :class="[{'active': $route.path == item.link}]"
                        router
-                       :href="item.link"
+                       :href="'#' + item.link"
                        :key="index">
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
@@ -111,6 +111,6 @@ code
   height: 0
   visibility: 0
   display: block
-.navigation-drawer li.active
+.navigation-drawer li.active .icon
   color: #41b883
 </style>

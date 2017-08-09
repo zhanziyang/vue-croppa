@@ -23,9 +23,9 @@
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
                 initial-image="https://unsplash.it/600/500"
-                :width="width"
-                :height="height"
-                :quality="quality"
+                :width="+width"
+                :height="+height"
+                :quality="+quality"
                 class="ml-1"
                 @image-remove="outputUrl = ''">
         </croppa>

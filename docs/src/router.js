@@ -12,7 +12,7 @@ import App from './App.vue'
 // import Demos from './pages/demos.vue'
 
 export default new VueRouter({
-  base: '/vue-croppa/',
+  base: '/vue-croppa',
   routes: [
     {
       path: '/',

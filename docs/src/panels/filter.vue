@@ -11,11 +11,11 @@
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
                 placeholder="Choose a file > 100kb or drag and drop a non-png file"
-                placeholder-font-size="12"
+                :placeholder-font-size="12"
                 :width="380"
                 :height="386"
                 :accept="accept"
-                :file-size-limit="sizeLimit"
+                :file-size-limit="+sizeLimit"
                 @file-type-mismatch="onFileTypeMismatch"
                 @file-size-exceed="onFileSizeExceed"
                 class="ml-1">

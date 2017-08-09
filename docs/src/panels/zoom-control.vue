@@ -15,7 +15,7 @@
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
                 initial-image="https://unsplash.it/600/500"
-                :zoom-speed="zoomSpeed"
+                :zoom-speed="+zoomSpeed"
                 :reverse-scroll-to-zoom="reverse"
                 class="ml-1">
         </croppa>

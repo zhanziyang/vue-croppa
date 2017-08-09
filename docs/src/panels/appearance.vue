@@ -23,15 +23,15 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                :width="width"
-                :height="height"
+                :width="+width"
+                :height="+height"
                 :placeholder="placeholder"
                 :placeholder-color="placeholderColor"
-                :placeholder-font-size="placeholderFontSize"
+                :placeholder-font-size="+placeholderFontSize"
                 :canvas-color="canvasColor"
                 :show-remove-button="showRemoveButton"
                 :remove-button-color="removeButtonColor"
-                :remove-button-size="removeButtonSize"
+                :remove-button-size="+removeButtonSize"
                 class="ml-1">
         </croppa>
         <v-flex class="ml-2">
