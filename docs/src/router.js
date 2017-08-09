@@ -21,55 +21,55 @@ export default new VueRouter({
         {
           path: '',
           component: resolve => {
-            resolve(require('./pages/index.vue'))
+            require(['./pages/index.vue'], resolve)
           }
         },
         {
           path: 'quick-start',
           component: resolve => {
-            resolve(require('./pages/quick-start.vue'))
+            require(['./pages/quick-start.vue'], resolve)
           }
         },
         {
           path: 'registration',
           component: resolve => {
-            resolve(require('./pages/registration.vue'))
+            require(['./pages/registration.vue'], resolve)
           }
         },
         {
           path: 'customization',
           component: resolve => {
-            resolve(require('./pages/customization.vue'))
+            require(['./pages/customization.vue'], resolve)
           }
         },
         {
           path: 'file-input',
           component: resolve => {
-            resolve(require('./pages/input.vue'))
+            require(['./pages/input.vue'], resolve)
           }
         },
         {
           path: 'manipulation',
           component: resolve => {
-            resolve(require('./pages/manipulation.vue'))
+            require(['./pages/manipulation.vue'], resolve)
           }
         },
         {
           path: 'file-output',
           component: resolve => {
-            resolve(require('./pages/output.vue'))
+            require(['./pages/output.vue'], resolve)
           }
         },
         {
           path: 'help',
           component: resolve => {
-            resolve(require('./pages/help.vue'))
+            require(['./pages/help.vue'], resolve)
           }
         },
         {
           path: 'demos',
           component: resolve => {
-            resolve(require('./pages/demos.vue'))
+            require(['./pages/demos.vue'], resolve)
           }
         }
       ]
