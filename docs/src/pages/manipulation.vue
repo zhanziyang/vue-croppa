@@ -18,7 +18,7 @@
                        loop=""
                        width="100%">
                   <source type="video/mp4"
-                          src="//i.imgur.com/tbMCe1M.mp4">
+                          src="https://i.imgur.com/tbMCe1M.mp4">
                 </video>
               </div>
               <div style="height: 315px">
@@ -26,7 +26,7 @@
                        loop=""
                        height="100%">
                   <source type="video/mp4"
-                          src="//i.imgur.com/YPBtFaq.mp4">
+                          src="https://i.imgur.com/YPBtFaq.mp4">
                 </video>
               </div>
             </v-layout>
@@ -78,7 +78,7 @@
                        loop=""
                        width="100%">
                   <source type="video/mp4"
-                          src="//i.imgur.com/MOsxBnj.mp4">
+                          src="https://i.imgur.com/MOsxBnj.mp4">
                 </video>
               </div>
               <div style="height: 315px">
@@ -86,7 +86,7 @@
                        loop=""
                        height="100%">
                   <source type="video/mp4"
-                          src="//i.imgur.com/Vt301a9.mp4">
+                          src="https://i.imgur.com/Vt301a9.mp4">
                 </video>
               </div>
             </v-layout>

@@ -1,15 +1,15 @@
 import VueRouter from 'vue-router'
 
 import App from './App.vue'
-import Index from './pages/index.vue'
-import QuickStart from './pages/quick-start.vue'
-import Registration from './pages/registration.vue'
-import Customization from './pages/customization.vue'
-import Input from './pages/input.vue'
-import Output from './pages/output.vue'
-import Manipulation from './pages/manipulation.vue'
-import Help from './pages/help.vue'
-import Demos from './pages/demos.vue'
+// import Index from './pages/index.vue'
+// import QuickStart from './pages/quick-start.vue'
+// import Registration from './pages/registration.vue'
+// import Customization from './pages/customization.vue'
+// import Input from './pages/input.vue'
+// import Output from './pages/output.vue'
+// import Manipulation from './pages/manipulation.vue'
+// import Help from './pages/help.vue'
+// import Demos from './pages/demos.vue'
 
 export default new VueRouter({
   base: '/vue-croppa/',
@@ -20,39 +20,57 @@ export default new VueRouter({
       children: [
         {
           path: '',
-          component: Index
+          component: resolve => {
+            resolve(require('./pages/index.vue'))
+          }
         },
         {
           path: 'quick-start',
-          component: QuickStart
+          component: resolve => {
+            resolve(require('./pages/quick-start.vue'))
+          }
         },
         {
           path: 'registration',
-          component: Registration
+          component: resolve => {
+            resolve(require('./pages/registration.vue'))
+          }
         },
         {
           path: 'customization',
-          component: Customization
+          component: resolve => {
+            resolve(require('./pages/customization.vue'))
+          }
         },
         {
           path: 'file-input',
-          component: Input
+          component: resolve => {
+            resolve(require('./pages/input.vue'))
+          }
         },
         {
           path: 'manipulation',
-          component: Manipulation
+          component: resolve => {
+            resolve(require('./pages/manipulation.vue'))
+          }
         },
         {
           path: 'file-output',
-          component: Output
+          component: resolve => {
+            resolve(require('./pages/output.vue'))
+          }
         },
         {
           path: 'help',
-          component: Help
+          component: resolve => {
+            resolve(require('./pages/help.vue'))
+          }
         },
         {
           path: 'demos',
-          component: Demos
+          component: resolve => {
+            resolve(require('./pages/demos.vue'))
+          }
         }
       ]
     }

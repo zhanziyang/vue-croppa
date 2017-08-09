@@ -2,7 +2,6 @@ import 'babel-polyfill'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import router from './router'
-import App from './App.vue'
 import Croppa from './croppa/vue-croppa'
 import './croppa/vue-croppa.css'
 

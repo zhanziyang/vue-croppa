@@ -18,7 +18,7 @@
                        loop=""
                        style="height: 315px">
                   <source type="video/mp4"
-                          src="//i.imgur.com/ENmVbdo.mp4">
+                          src="https://i.imgur.com/ENmVbdo.mp4">
                 </video>
               </v-flex>
             </v-layout>

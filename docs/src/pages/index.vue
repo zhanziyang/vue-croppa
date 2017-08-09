@@ -10,25 +10,25 @@
              id="video-element"
              autoplay
              loop
-             poster="//i.imgur.com/YhWLgqLh.jpg"
+             poster="https://i.imgur.com/YhWLgqLh.jpg"
              preload="auto"
              muted="muted"
              webkit-playsinline=""
              style="width: 524px; height: 413.96px;">
         <source type="video/mp4"
-                src="//i.imgur.com/vO1FgQM.mp4">
+                src="https://i.imgur.com/vO1FgQM.mp4">
       </video>
       <video class="post video-post"
              id="video-element"
              autoplay
              loop
-             poster="//i.imgur.com/sJAQPo7h.jpg"
+             poster="https://i.imgur.com/sJAQPo7h.jpg"
              preload="auto"
              muted="muted"
              webkit-playsinline=""
              style="height: 413.96px;">
         <source type="video/mp4"
-                src="//i.imgur.com/sJAQPo7.mp4">
+                src="https://i.imgur.com/sJAQPo7.mp4">
       </video>
   
       <br>
