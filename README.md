@@ -453,12 +453,12 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Change `accept` default value.
 - [x] Replace `for of` with tranditional `for` loop for better compatibility. 
 - [x] Expose component itself.
-- [ ] Make container optionally resizable.
+- [ ] <s>Make container optionally resizable.</s>
 - [x] Make default position customizable.
 - [x] Rotation support.
 - [x] `toDataUrl()`s second argument to specify compression rate.
 - [x] Doc about file compression.
-- [ ] Add examples to doc.
-- [ ] Download example.
+- [x] Add examples to doc.
+- [x] Download example.
 - [ ] Image placeholder.
 - [ ] ondraw event.
