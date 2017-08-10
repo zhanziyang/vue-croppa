@@ -117,6 +117,7 @@ new Vue({
   }
 })
 ```
+Live example: https://jsfiddle.net/jdcvpvty/2/
 
 #### NOTE: 
 - Since v0.1.0, you can change the default component name to anything you want.
@@ -149,6 +150,7 @@ Vue.component('croppa', () => import(Croppa.component))
 #### v-model
 A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "[Methods](#-methods)" section).
 - type: `object`
+- live example: https://jsfiddle.net/jdcvpvty/2/
 
 #### width
 Display width of the preview container.
