@@ -39,12 +39,12 @@
       <v-toolbar-title>{{page ? pageFormatted : 'Introduction'}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="grey darken-3"
-             to="https://github.com/zhanziyang/vue-croppa"
+             href="https://github.com/zhanziyang/vue-croppa"
              tag="a">
         GITHUB
       </v-btn>
       <v-btn class="grey darken-3"
-             to="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
+             href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
              tag="a">DOC</v-btn>
     </v-toolbar>
     <main>

@@ -3,6 +3,7 @@
     <v-expansion-panel-content :value="expand">
       <div slot="header"
            class="title">Output Image Size</div>
+      <div class="pt-2 pl-2">NOTIC: We are talking about <strong>image visual size like 200X200 etc</strong>, not file size like xxx kb.</div>           
       <div class="pt-2 pl-2">There are three props that determine the output image size:
         <code>width</code>,
         <code>height</code> and

@@ -109,7 +109,7 @@
               order-md1>
         <v-layout row
                   wrap>
-          <v-flex md4
+          <v-flex md6
                   xs12>
             <v-slider v-model="width"
                       label="width"
@@ -117,20 +117,13 @@
                       :max="500"
                       :min="100"></v-slider>
           </v-flex>
-          <v-flex md4
+          <v-flex md6
                   xs12>
             <v-slider v-model="height"
                       label="height"
                       thumb-label
                       :max="500"
                       :min="100"></v-slider>
-          </v-flex>
-          <v-flex md4
-                  xs12>
-            <v-select :items="['', 'black', 'grey', '#00bcd4', 'rgb(205, 220, 57)']"
-                      v-model="canvasColor"
-                      @input="onInput"
-                      label="canvasColor"></v-select>
           </v-flex>
         </v-layout>
         <v-layout row
@@ -148,24 +141,18 @@
         </v-layout>
         <v-layout row
                   wrap>
-          <v-flex md4
+          <v-flex md6
                   xs12>
             <v-text-field name="placeholder"
                           label="placeholder"
                           v-model="placeholder"></v-text-field>
           </v-flex>
-          <v-flex md4
+          <v-flex md6
                   xs12>
             <v-text-field name="placeholderFontSize"
                           label="placeholderFontSize (px)"
                           type="number"
                           v-model="placeholderFontSize"></v-text-field>
-          </v-flex>
-          <v-flex md4
-                  xs12>
-            <v-select :items="['', 'white', 'grey', '#ffc107', 'rgb(0, 150, 136)']"
-                      v-model="placeholderColor"
-                      label="placeholderColor"></v-select>
           </v-flex>
         </v-layout>
         <v-layout row
@@ -182,29 +169,8 @@
           </v-flex>
           <v-flex md4
                   xs12>
-            <v-switch :label="`reverseScrollToZoom`"
-                      v-model="reverseScrollToZoom"></v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout row
-                  wrap>
-          <v-flex md4
-                  xs12>
             <v-switch :label="`showRemoveButton`"
                       v-model="showRemoveButton"></v-switch>
-          </v-flex>
-          <v-flex md4
-                  xs12>
-            <v-select :items="['red', 'black', 'purple', '#ffc107', 'rgb(0, 150, 136)']"
-                      v-model="removeButtonColor"
-                      label="removeButtonColor"></v-select>
-          </v-flex>
-          <v-flex md4
-                  xs12>
-            <v-text-field name="removeButtonSize"
-                          label="removeButtonSize (px)"
-                          type="number"
-                          v-model="removeButtonSize"></v-text-field>
           </v-flex>
         </v-layout>
         <v-btn block
@@ -246,17 +212,12 @@
         myCroppa: {},
         width: 350,
         height: 350,
-        canvasColor: '',
         placeholder: 'Choose an image',
         placeholderFontSize: 0,
-        placeholderColor: '',
         disabled: false,
         preventWhiteSpace: false,
         disablePinchToZoom: false,
-        reverseScrollToZoom: false,
         showRemoveButton: true,
-        removeButtonColor: 'red',
-        removeButtonSize: 0,
         withInitialImage: false,
         initialImageSrc: 'https://zhanziyang.github.io/vue-croppa/static/initial-image.png'
       }
@@ -269,16 +230,11 @@
   <croppa v-model="myCroppa"
           :width="${this.width}"
           :height="${this.height}"
-          canvas-color="${this.canvasColor}"
           placeholder="${this.placeholder}"
           :placeholder-font-size="${this.placeholderFontSize}"
-          placeholder-color="${this.placeholderColor}"
           :disabled="${this.disabled}"
           :prevent-white-space="${this.preventWhiteSpace}"
-          :reverse-scroll-to-zoom="${this.reverseScrollToZoom}"
           :show-remove-button="${this.showRemoveButton}"
-          remove-button-color="${this.removeButtonColor}"
-          :remove-button-size="${this.removeButtonSize}"
           @file-choose="handleCroppaFileChoose"
           @file-size-exceed="handleCroppaFileSizeExceed"
           @file-type-mismatch="handleCroppaFileTypeMismatch"

@@ -57,12 +57,7 @@
           <pre v-highlightjs="templateCode"><code class="html"></code></pre>
           <br>
           <v-layout>
-            <v-flex>
-              <v-select :items="['center', '100% 20%', 'left', 'bottom', 'right bottom']"
-                        v-model="position"
-                        @input="onChange"
-                        label="initialPosition"></v-select>
-            </v-flex>
+            <v-radio v-for="item in ['center', '100% 20%', 'left', 'bottom', 'right bottom']" :key="item" v-model="position" :value="item" :label="item" hide-details @change="onChange"></v-radio>
           </v-layout>
         </v-flex>
       </v-layout>

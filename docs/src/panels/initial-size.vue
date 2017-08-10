@@ -23,12 +23,7 @@
           <pre v-highlightjs="templateCode"><code class="html"></code></pre>
           <br>
           <v-layout>
-            <v-flex>
-              <v-select :items="['cover', 'contain', 'natural']"
-                        v-model="size"
-                        @input="onChange"
-                        label="initialSize"></v-select>
-            </v-flex>
+              <v-radio v-for="item in ['cover', 'contain', 'natural']" :key="item" v-model="size" :value="item" :label="item" hide-details @change="onChange"></v-radio>
           </v-layout>
         </v-flex>
       </v-layout>
