@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.2.0
+ * vue-croppa v0.2.1
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -487,12 +487,44 @@ var component = { render: function render() {
     value: function value(val) {
       this.instance = val;
     },
-    realWidth: 'init',
-    realHeight: 'init',
-    canvasColor: 'init',
-    placeholder: 'init',
-    placeholderColor: 'init',
-    realPlaceholderFontSize: 'init',
+    realWidth: function realWidth() {
+      if (!this.img) {
+        this.init();
+      } else {
+        this.setSize();
+        this.imgContentInit();
+      }
+    },
+    realHeight: function realHeight() {
+      if (!this.img) {
+        this.init();
+      } else {
+        this.setSize();
+        this.imgContentInit();
+      }
+    },
+    canvasColor: function canvasColor() {
+      if (!this.img) {
+        this.init();
+      } else {
+        this.draw();
+      }
+    },
+    placeholder: function placeholder() {
+      if (!this.img) {
+        this.init();
+      }
+    },
+    placeholderColor: function placeholderColor() {
+      if (!this.img) {
+        this.init();
+      }
+    },
+    realPlaceholderFontSize: function realPlaceholderFontSize() {
+      if (!this.img) {
+        this.init();
+      }
+    },
     preventWhiteSpace: function preventWhiteSpace() {
       this.imgContentInit();
     }
@@ -503,13 +535,8 @@ var component = { render: function render() {
       var _this = this;
 
       this.canvas = this.$refs.canvas;
-      this.canvas.width = this.realWidth;
-      this.canvas.height = this.realHeight;
-      this.canvas.style.width = this.width + 'px';
-      this.canvas.style.height = this.height + 'px';
-      // this.$refs.wrapper.style.width = this.width + 'px'
-      // this.$refs.wrapper.style.height = this.height + 'px'
-      this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
+      this.setSize();
+      this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? 'transparent' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
       this.originalImage = null;
       this.img = null;
@@ -580,6 +607,14 @@ var component = { render: function render() {
         promisedBlob: this.promisedBlob,
         supportDetection: this.supportDetection
       });
+    },
+    setSize: function setSize() {
+      this.canvas.width = this.realWidth;
+      this.canvas.height = this.realHeight;
+      this.canvas.style.width = this.width + 'px';
+      this.canvas.style.height = this.height + 'px';
+      // this.$refs.wrapper.style.width = this.width + 'px'
+      // this.$refs.wrapper.style.height = this.height + 'px'
     },
     rotateByStep: function rotateByStep(step) {
       var orientation = 1;
@@ -1075,7 +1110,7 @@ var component = { render: function render() {
       }
     },
     paintBackground: function paintBackground() {
-      var backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? '#e6e6e6' : this.canvasColor;
+      var backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? 'transparent' : this.canvasColor;
       this.ctx.fillStyle = backgroundColor;
       this.ctx.clearRect(0, 0, this.realWidth, this.realHeight);
       this.ctx.fillRect(0, 0, this.realWidth, this.realHeight);
