@@ -123,12 +123,44 @@
       value: function (val) {
         this.instance = val
       },
-      realWidth: 'init',
-      realHeight: 'init',
-      canvasColor: 'init',
-      placeholder: 'init',
-      placeholderColor: 'init',
-      realPlaceholderFontSize: 'init',
+      realWidth: function () {
+        if (!this.img) {
+          this.init()
+        } else {
+          this.setSize()
+          this.imgContentInit()
+        }
+      },
+      realHeight: function () {
+        if (!this.img) {
+          this.init()
+        } else {
+          this.setSize()
+          this.imgContentInit()
+        }
+      },
+      canvasColor: function () {
+        if (!this.img) {
+          this.init()
+        } else {
+          this.draw()
+        }
+      },
+      placeholder: function () {
+        if (!this.img) {
+          this.init()
+        }
+      },
+      placeholderColor: function () {
+        if (!this.img) {
+          this.init()
+        }
+      },
+      realPlaceholderFontSize: function () {
+        if (!this.img) {
+          this.init()
+        }
+      },
       preventWhiteSpace () {
         this.imgContentInit()
       }
@@ -137,13 +169,8 @@
     methods: {
       init () {
         this.canvas = this.$refs.canvas
-        this.canvas.width = this.realWidth
-        this.canvas.height = this.realHeight
-        this.canvas.style.width = this.width + 'px'
-        this.canvas.style.height = this.height + 'px'
-        // this.$refs.wrapper.style.width = this.width + 'px'
-        // this.$refs.wrapper.style.height = this.height + 'px'
-        this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
+        this.setSize()
+        this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
         this.originalImage = null
         this.img = null
@@ -204,6 +231,15 @@
           promisedBlob: this.promisedBlob,
           supportDetection: this.supportDetection
         })
+      },
+
+      setSize () {
+        this.canvas.width = this.realWidth
+        this.canvas.height = this.realHeight
+        this.canvas.style.width = this.width + 'px'
+        this.canvas.style.height = this.height + 'px'
+        // this.$refs.wrapper.style.width = this.width + 'px'
+        // this.$refs.wrapper.style.height = this.height + 'px'
       },
 
       rotateByStep (step) {
@@ -713,7 +749,7 @@
       },
 
       paintBackground () {
-        let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? '#e6e6e6' : this.canvasColor
+        let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : this.canvasColor
         this.ctx.fillStyle = backgroundColor
         this.ctx.clearRect(0, 0, this.realWidth, this.realHeight)
         this.ctx.fillRect(0, 0, this.realWidth, this.realHeight)
