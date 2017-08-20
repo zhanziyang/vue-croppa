@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 var BrowserSync = require('browser-sync-webpack-plugin')
+var express = require('express')
 
 module.exports = {
   entry: './src/main.js',
@@ -53,7 +54,10 @@ module.exports = {
     }
   },
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
+    setup(app) {
+      app.use('/vue-croppa/static/', express.static(path.resolve(__dirname, './static')))
+    }
   },
   performance: {
     hints: false
