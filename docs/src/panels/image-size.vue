@@ -24,7 +24,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="/static/500.jpeg"
+                initial-image="/vue-croppa/static/500.jpeg"
                 :width="+width"
                 :height="+height"
                 :quality="+quality"
@@ -80,7 +80,7 @@
       sizeCroppaCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="/static/500.jpeg"
+          initial-image="/vue-croppa/static/500.jpeg"
           :width="${this.width}"
           :height="${this.height}"
           :quality="${this.quality}">

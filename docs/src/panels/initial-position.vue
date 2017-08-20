@@ -48,7 +48,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="/static/500.jpeg"
+                initial-image="/vue-croppa/static/500.jpeg"
                 initial-size="natural"
                 :initial-position="position"
                 class="ml-1">
@@ -86,7 +86,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="/static/500.jpeg"
+          initial-image="/vue-croppa/static/500.jpeg"
           initial-size="natural"
           initial-position="${this.position}">
   </croppa>`

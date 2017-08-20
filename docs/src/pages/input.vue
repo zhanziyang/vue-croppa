@@ -167,7 +167,7 @@
 
     mounted () {
       var script = document.createElement('script')
-      script.src = '/static/ei.js'
+      script.src = '/vue-croppa/static/ei.js'
       document.body.appendChild(script)
     }
   }

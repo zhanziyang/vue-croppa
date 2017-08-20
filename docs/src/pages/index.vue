@@ -256,8 +256,8 @@
     mounted () {
       setTimeout(() => {
         this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
-        this.preload('/static/400.jpeg')
-        this.preload('/static/500.jpeg')
+        this.preload('/vue-croppa/static/400.jpeg')
+        this.preload('/vue-croppa/static/500.jpeg')
       }, 1000)
     },
 
