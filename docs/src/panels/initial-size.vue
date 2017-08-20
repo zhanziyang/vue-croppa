@@ -15,7 +15,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="https://unsplash.it/600/500"
+                initial-image="/static/500.jpeg"
                 :initial-size="size"
                 class="ml-1">
         </croppa>
@@ -23,7 +23,13 @@
           <pre v-highlightjs="templateCode"><code class="html"></code></pre>
           <br>
           <v-layout>
-              <v-radio v-for="item in ['cover', 'contain', 'natural']" :key="item" v-model="size" :value="item" :label="item" hide-details @change="onChange"></v-radio>
+            <v-radio v-for="item in ['cover', 'contain', 'natural']"
+                     :key="item"
+                     v-model="size"
+                     :value="item"
+                     :label="item"
+                     hide-details
+                     @change="onChange"></v-radio>
           </v-layout>
         </v-flex>
       </v-layout>
@@ -46,7 +52,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="https://unsplash.it/600/500"
+          initial-image="/static/500.jpeg"
           initial-size="${this.size}">
   </croppa>`
       }

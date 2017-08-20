@@ -14,7 +14,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="https://unsplash.it/600/500"
+                initial-image="/static/500.jpeg"
                 :zoom-speed="+zoomSpeed"
                 :reverse-scroll-to-zoom="reverse"
                 class="ml-1">
@@ -58,7 +58,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="https://unsplash.it/600/500"
+          initial-image="/static/500.jpeg"
           :zoom-speed="${this.zoomSpeed}"
           :reverse-scroll-to-zoom="${this.reverse}">
   </croppa>`

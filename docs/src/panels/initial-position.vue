@@ -48,7 +48,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="https://unsplash.it/600/500"
+                initial-image="/static/500.jpeg"
                 initial-size="natural"
                 :initial-position="position"
                 class="ml-1">
@@ -57,7 +57,13 @@
           <pre v-highlightjs="templateCode"><code class="html"></code></pre>
           <br>
           <v-layout>
-            <v-radio v-for="item in ['center', '100% 20%', 'left', 'bottom', 'right bottom']" :key="item" v-model="position" :value="item" :label="item" hide-details @change="onChange"></v-radio>
+            <v-radio v-for="item in ['center', '100% 20%', 'left', 'bottom', 'right bottom']"
+                     :key="item"
+                     v-model="position"
+                     :value="item"
+                     :label="item"
+                     hide-details
+                     @change="onChange"></v-radio>
           </v-layout>
         </v-flex>
       </v-layout>
@@ -80,7 +86,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="https://unsplash.it/600/500"
+          initial-image="/static/500.jpeg"
           initial-size="natural"
           initial-position="${this.position}">
   </croppa>`

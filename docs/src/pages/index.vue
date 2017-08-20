@@ -30,7 +30,7 @@
         <source type="video/mp4"
                 src="https://i.imgur.com/sJAQPo7.mp4">
       </video>
-  
+
       <br>
       <v-chip class="orange white--text">
         What You See Is What You Get
@@ -97,7 +97,7 @@
         </v-layout>
       </v-container>
     </v-card>
-  
+
     <br>
     <v-layout>
       <v-flex xs12
@@ -177,7 +177,7 @@
         <br>
       </v-flex>
     </v-layout>
-  
+
     <br>
     <pre v-highlightjs="code"><code class="html" style="margin-bottom: 16px"></code></pre>
     <div class="headline">Browser Support</div>
@@ -196,7 +196,7 @@
     <v-divider></v-divider>
     <p class="pt-2">ISC License (ISC)
       <br> Copyright 2017 Chris Chan</p>
-  
+
   </div>
 </template>
 
@@ -254,9 +254,11 @@
     },
 
     mounted () {
-      this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
-      this.preload('https://unsplash.it/400/400')
-      this.preload('https://unsplash.it/600/500')
+      setTimeout(() => {
+        this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
+        this.preload('/static/400.jpeg')
+        this.preload('/static/500.jpeg')
+      }, 1000)
     },
 
     watch: {

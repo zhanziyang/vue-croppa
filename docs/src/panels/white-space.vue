@@ -12,7 +12,7 @@
                 fluid
                 class="pa-2 pt-3">
         <croppa v-model="croppa"
-                initial-image="https://unsplash.it/600/500"
+                initial-image="/static/500.jpeg"
                 :prevent-white-space="preventWS"
                 class="ml-1">
         </croppa>
@@ -45,7 +45,7 @@
       templateCode () {
         return `\
  <croppa v-model="croppa"
-          initial-image="https://unsplash.it/600/500"
+          initial-image="/static/500.jpeg"
           :prevent-white-space="${this.preventWS}">
   </croppa>`
       }

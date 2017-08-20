@@ -71,7 +71,7 @@
   export default {
     mounted () {
       var script = document.createElement('script')
-      script.src = 'https://production-assets.codepen.io/assets/embed/ei.js'
+      script.src = '/static/ei.js'
       document.body.appendChild(script)
     }
   }
