@@ -36,8 +36,9 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <img src="static/favicons/android-chrome-512x512.png" alt="" class="addon">
+    <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
     <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw">
+      <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
     </croppa>
@@ -99,7 +100,8 @@
 
         onDraw: function (ctx) {
           ctx.save()
-          ctx.drawImage(document.querySelector('.addon'), 0, 0, 800, 800)
+          ctx.globalAlpha = 0.5
+          ctx.drawImage(document.querySelector('.addon'), 700, 700, 100, 100)
           ctx.restore()
         }
       }

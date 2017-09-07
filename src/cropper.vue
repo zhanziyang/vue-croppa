@@ -11,9 +11,10 @@
            ref="fileInput"
            hidden
            @change="handleInputChange" />
-    <div class="initial"
+    <div class="slots"
          style="width: 0; height: 0; visibility: hidden;">
       <slot name="initial"></slot>
+      <slot name="placeholder"></slot>
     </div>
     <canvas ref="canvas"
             @click.stop.prevent="handleClick"
@@ -282,6 +283,8 @@
       remove () {
         let ctx = this.ctx
         this.paintBackground()
+
+        this.setImagePlaceholder()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
         let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
@@ -303,6 +306,29 @@
         }
       },
 
+      setImagePlaceholder () {
+        let img
+        if (this.$slots.placeholder && this.$slots.placeholder[0]) {
+          let vNode = this.$slots.placeholder[0]
+          let { tag, elm } = vNode
+          if (tag == 'img' && elm) {
+            img = elm
+          }
+        }
+
+        if (!img) return
+
+        var onLoad = () => {
+          this.ctx.drawImage(img, 0, 0, this.realWidth, this.realHeight)
+        }
+
+        if (u.imageLoaded(img)) {
+          onLoad()
+        } else {
+          img.onload = onLoad
+        }
+      },
+
       setInitial () {
         let src, img
         if (this.$slots.initial && this.$slots.initial[0]) {
@@ -312,7 +338,7 @@
             img = elm
           }
         }
-        if (!src && this.initialImage && typeof this.initialImage === 'string') {
+        if (this.initialImage && typeof this.initialImage === 'string') {
           src = this.initialImage
           img = new Image()
           if (!/^data:/.test(src) && !/^blob:/.test(src)) {
