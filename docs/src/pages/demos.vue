@@ -3,26 +3,26 @@
     <v-layout row
               wrap>
       <v-flex>
-        <v-expansion-panel expand>
-          <v-expansion-panel-content :value="false">
-            <div slot="header"
-                 class="title">Zoom Slider</div>
-            <div class="pt-2 pl-2">
-              <p data-height="416"
-                 data-theme-id="19967"
-                 data-slug-hash="EvXjXx"
-                 data-default-tab="js,result"
-                 data-user="zhanziyang"
-                 data-embed-version="2"
-                 data-pen-title="Vue Croppa exif orientation"
-                 class="codepen">See the Pen
-                <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
-                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
-                <a href="https://codepen.io">CodePen</a>.</p>
-            </div>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-        <br>
+        <!-- <v-expansion-panel expand>
+            <v-expansion-panel-content :value="false">
+              <div slot="header"
+                   class="title">Zoom Slider</div>
+              <div class="pt-2 pl-2">
+                <p data-height="416"
+                   data-theme-id="19967"
+                   data-slug-hash="EvXjXx"
+                   data-default-tab="js,result"
+                   data-user="zhanziyang"
+                   data-embed-version="2"
+                   data-pen-title="Vue Croppa exif orientation"
+                   class="codepen">See the Pen
+                  <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
+                  <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                  <a href="https://codepen.io">CodePen</a>.</p>
+              </div>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <br> -->
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="false">
             <div slot="header"
@@ -140,11 +140,29 @@
                      large
                      @click="applyMetadata">APPLY METADATA</v-btn>
               <br>
-              <pre v-highlightjs="stickerTpl"><code class="html"></code></pre>
+              <pre v-highlightjs="metadataTpl"><code class="html"></code></pre>
               <br>
-              <pre v-highlightjs="stickerScript"><code class="javascript"></code></pre>
+              <pre v-highlightjs="metadataScript"><code class="javascript"></code></pre>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <br>
+        <v-expansion-panel expand>
+          <v-expansion-panel-content :value="false">
+            <div slot="header"
+                 class="title">Image Placeholder</div>
+            <div class="pt-2 pl-2">If you are not satified with the simple text placeholder. Since v0.3.0, you can apply an
+              <code>&lt;img&gt;</code> slot named
+              <code>placeholder</code> to get an image placeholder! The image will be draw on croppa under the placeholder text when it is empty.</div>
+            <div class="pt-2 pl-2">
+              <croppa v-model="croppa3"
+                      :width="400"
+                      :height="400">
+                <img slot="placeholder"
+                     src="static/favicons/android-chrome-512x512.png">
+              </croppa>
               <br>
-              <pre v-highlightjs="stickerStyle"><code class="stylus"></code></pre>
+              <pre v-highlightjs="imagePlaceholderTpl"><code class="html"></code></pre>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -290,6 +308,69 @@
       }
     }
   }`
+      },
+
+      metadataTpl () {
+        return `\
+ <croppa v-model="croppa2"
+          initial-image="/vue-croppa/static/500.jpeg"
+          :width="400"
+          :height="400"></croppa>
+  <br>
+  <v-btn @click="rotate">ROTATE</v-btn>
+  <v-btn @click="flipX">FLIP-X</v-btn>
+  <v-btn @click="flipY">FLIP-Y</v-btn>
+  <br>
+  <v-btn dark
+          large
+          @click="saveMetadata">SAVE METADATA</v-btn>
+  <v-btn dark
+          large
+          @click="applyMetadata">APPLY METADATA</v-btn>`
+      },
+
+      metadataScript () {
+        return `\
+ export default {
+    data () {
+      return {
+        croppa2: {}
+      }
+    },
+
+    methods: {
+      rotate: function () {
+        this.croppa2.rotate()
+      },
+
+      flipX: function () {
+        this.croppa2.flipX()
+      },
+
+      flipY: function () {
+        this.croppa2.flipY()
+      },
+
+      saveMetadata: function () {
+        localStorage.setItem('metadata', JSON.stringify(this.croppa2.getMetadata()))
+      },
+
+      applyMetadata: function () {
+        var metadata = JSON.parse(localStorage.getItem('metadata'))
+        this.croppa2.applyMetadata(metadata)
+      }
+    }
+  }`
+      },
+
+      imagePlaceholderTpl () {
+        return `\
+ <croppa v-model="croppa3"
+          :width="400"
+          :height="400">
+    <img slot="placeholder"
+         src="static/favicons/android-chrome-512x512.png">
+  </croppa>`
       }
     },
 
