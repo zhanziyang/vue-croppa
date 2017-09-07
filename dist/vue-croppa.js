@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.2.1
+ * vue-croppa v0.3.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -11,6 +11,109 @@
 	typeof define === 'function' && define.amd ? define(factory) :
 	(global.Croppa = factory());
 }(this, (function () { 'use strict';
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var index = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+    if (typeof undefined === 'function' && undefined.amd) {
+        undefined([], factory);
+    } else {
+        module.exports = factory();
+    }
+}(commonjsGlobal, function () {
+  'use strict';
+
+  function drawImage(img, orientation, x, y, width, height) {
+    if (!/^[1-8]$/.test(orientation)) throw new Error('orientation should be [1-8]');
+
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    if (width == null) width = img.width;
+    if (height == null) height = img.height;
+
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.save();
+    switch (+orientation) {
+      // 1 = The 0th row is at the visual top of the image, and the 0th column is the visual left-hand side.
+      case 1:
+          break;
+
+      // 2 = The 0th row is at the visual top of the image, and the 0th column is the visual right-hand side.
+      case 2:
+         ctx.translate(width, 0);
+         ctx.scale(-1, 1);
+         break;
+
+      // 3 = The 0th row is at the visual bottom of the image, and the 0th column is the visual right-hand side.
+      case 3:
+          ctx.translate(width, height);
+          ctx.rotate(180 / 180 * Math.PI);
+          break;
+
+      // 4 = The 0th row is at the visual bottom of the image, and the 0th column is the visual left-hand side.
+      case 4:
+          ctx.translate(0, height);
+          ctx.scale(1, -1);
+          break;
+
+      // 5 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual top.
+      case 5:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(90 / 180 * Math.PI);
+          ctx.scale(1, -1);
+          break;
+
+      // 6 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual top.
+      case 6:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(90 / 180 * Math.PI);
+          ctx.translate(0, -height);
+          break;
+
+      // 7 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual bottom.
+      case 7:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.rotate(270 / 180 * Math.PI);
+          ctx.translate(-width, height);
+          ctx.scale(1, -1);
+          break;
+
+      // 8 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual bottom.
+      case 8:
+          canvas.width = height;
+          canvas.height = width;
+          ctx.translate(0, width);
+          ctx.rotate(270 / 180 * Math.PI);
+          break;
+    }
+
+    ctx.drawImage(img, x, y, width, height);
+    ctx.restore();
+
+    return canvas;
+  }
+
+  return {
+    drawImage: drawImage
+  };
+}));
+});
 
 var u = {
   onePointCoord: function onePointCoord(point, vm) {
@@ -154,6 +257,47 @@ var u = {
       bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
+  },
+  getRotatedImage: function getRotatedImage(img, orientation) {
+    var _canvas = index.drawImage(img, orientation);
+    var _img = new Image();
+    _img.src = _canvas.toDataURL();
+    return _img;
+  },
+  flipX: function flipX(ori) {
+    if (ori % 2 == 0) {
+      return ori - 1;
+    }
+
+    return ori + 1;
+  },
+  flipY: function flipY(ori) {
+    var map = {
+      1: 4,
+      4: 1,
+      2: 3,
+      3: 2,
+      5: 8,
+      8: 5,
+      6: 7,
+      7: 6
+    };
+
+    return map[ori];
+  },
+  rotate90: function rotate90(ori) {
+    var map = {
+      1: 6,
+      2: 7,
+      3: 8,
+      4: 5,
+      5: 2,
+      6: 3,
+      7: 4,
+      8: 1
+    };
+
+    return map[ori];
   }
 };
 
@@ -269,109 +413,6 @@ var events = {
   DRAW: 'draw'
 };
 
-var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-
-
-
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var index = createCommonjsModule(function (module, exports) {
-(function (root, factory) {
-    if (typeof undefined === 'function' && undefined.amd) {
-        undefined([], factory);
-    } else {
-        module.exports = factory();
-    }
-}(commonjsGlobal, function () {
-  'use strict';
-
-  function drawImage(img, orientation, x, y, width, height) {
-    if (!/^[1-8]$/.test(orientation)) throw new Error('orientation should be [1-8]');
-
-    if (x == null) x = 0;
-    if (y == null) y = 0;
-    if (width == null) width = img.width;
-    if (height == null) height = img.height;
-
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    canvas.width = width;
-    canvas.height = height;
-
-    ctx.save();
-    switch (+orientation) {
-      // 1 = The 0th row is at the visual top of the image, and the 0th column is the visual left-hand side.
-      case 1:
-          break;
-
-      // 2 = The 0th row is at the visual top of the image, and the 0th column is the visual right-hand side.
-      case 2:
-         ctx.translate(width, 0);
-         ctx.scale(-1, 1);
-         break;
-
-      // 3 = The 0th row is at the visual bottom of the image, and the 0th column is the visual right-hand side.
-      case 3:
-          ctx.translate(width, height);
-          ctx.rotate(180 / 180 * Math.PI);
-          break;
-
-      // 4 = The 0th row is at the visual bottom of the image, and the 0th column is the visual left-hand side.
-      case 4:
-          ctx.translate(0, height);
-          ctx.scale(1, -1);
-          break;
-
-      // 5 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual top.
-      case 5:
-          canvas.width = height;
-          canvas.height = width;
-          ctx.rotate(90 / 180 * Math.PI);
-          ctx.scale(1, -1);
-          break;
-
-      // 6 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual top.
-      case 6:
-          canvas.width = height;
-          canvas.height = width;
-          ctx.rotate(90 / 180 * Math.PI);
-          ctx.translate(0, -height);
-          break;
-
-      // 7 = The 0th row is the visual right-hand side of the image, and the 0th column is the visual bottom.
-      case 7:
-          canvas.width = height;
-          canvas.height = width;
-          ctx.rotate(270 / 180 * Math.PI);
-          ctx.translate(-width, height);
-          ctx.scale(1, -1);
-          break;
-
-      // 8 = The 0th row is the visual left-hand side of the image, and the 0th column is the visual bottom.
-      case 8:
-          canvas.width = height;
-          canvas.height = width;
-          ctx.translate(0, width);
-          ctx.rotate(270 / 180 * Math.PI);
-          break;
-    }
-
-    ctx.drawImage(img, x, y, width, height);
-    ctx.restore();
-
-    return canvas;
-  }
-
-  return {
-    drawImage: drawImage
-  };
-}));
-});
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
@@ -395,7 +436,7 @@ var component = { render: function render() {
           $event.stopPropagation();$event.preventDefault();_vm.handleDragOver($event);
         }, "drop": function drop($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDrop($event);
-        } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "initial", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+        } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._t("placeholder")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleClick($event);
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();_vm.handlePointerStart($event);
@@ -454,7 +495,9 @@ var component = { render: function render() {
       pointerStartCoord: null,
       naturalWidth: 0,
       naturalHeight: 0,
-      scaleRatio: 1
+      scaleRatio: 1,
+      orientation: 1,
+      userMetadata: null
     };
   },
 
@@ -605,7 +648,13 @@ var component = { render: function render() {
         generateDataUrl: this.generateDataUrl,
         generateBlob: this.generateBlob,
         promisedBlob: this.promisedBlob,
-        supportDetection: this.supportDetection
+        supportDetection: this.supportDetection,
+        getMetadata: this.getMetadata,
+        applyMetadata: function applyMetadata(metadata) {
+          if (!metadata || !_this.img) return;
+          _this.userMetadata = metadata;
+          _this.rotate(metadata.orientation || _this.orientation, true);
+        }
       });
     },
     setSize: function setSize() {
@@ -613,8 +662,6 @@ var component = { render: function render() {
       this.canvas.height = this.realHeight;
       this.canvas.style.width = this.width + 'px';
       this.canvas.style.height = this.height + 'px';
-      // this.$refs.wrapper.style.width = this.width + 'px'
-      // this.$refs.wrapper.style.height = this.height + 'px'
     },
     rotateByStep: function rotateByStep(step) {
       var orientation = 1;
@@ -638,7 +685,6 @@ var component = { render: function render() {
           orientation = 6;
           break;
       }
-      console.log(orientation);
       this.rotate(orientation);
     },
     supportDetection: function supportDetection() {
@@ -651,6 +697,8 @@ var component = { render: function render() {
     remove: function remove() {
       var ctx = this.ctx;
       this.paintBackground();
+
+      this.setImagePlaceholder();
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
       var defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length;
@@ -664,13 +712,41 @@ var component = { render: function render() {
       this.img = null;
       this.$refs.fileInput.value = '';
       this.imgData = {};
+      this.orientation = 1;
+      this.userMetadata = null;
 
       if (hadImage) {
         this.$emit(events.IMAGE_REMOVE_EVENT);
       }
     },
-    setInitial: function setInitial() {
+    setImagePlaceholder: function setImagePlaceholder() {
       var _this2 = this;
+
+      var img = void 0;
+      if (this.$slots.placeholder && this.$slots.placeholder[0]) {
+        var vNode = this.$slots.placeholder[0];
+        var tag = vNode.tag,
+            elm = vNode.elm;
+
+        if (tag == 'img' && elm) {
+          img = elm;
+        }
+      }
+
+      if (!img) return;
+
+      var onLoad = function onLoad() {
+        _this2.ctx.drawImage(img, 0, 0, _this2.realWidth, _this2.realHeight);
+      };
+
+      if (u.imageLoaded(img)) {
+        onLoad();
+      } else {
+        img.onload = onLoad;
+      }
+    },
+    setInitial: function setInitial() {
+      var _this3 = this;
 
       var src = void 0,
           img = void 0;
@@ -683,7 +759,7 @@ var component = { render: function render() {
           img = elm;
         }
       }
-      if (!src && this.initialImage && typeof this.initialImage === 'string') {
+      if (this.initialImage && typeof this.initialImage === 'string') {
         src = this.initialImage;
         img = new Image();
         if (!/^data:/.test(src) && !/^blob:/.test(src)) {
@@ -701,11 +777,11 @@ var component = { render: function render() {
         this._onload(img, +img.dataset['exifOrientation']);
       } else {
         img.onload = function () {
-          _this2._onload(img, +img.dataset['exifOrientation']);
+          _this3._onload(img, +img.dataset['exifOrientation']);
         };
 
         img.onerror = function () {
-          _this2.remove();
+          _this3.remove();
         };
       }
     },
@@ -739,7 +815,7 @@ var component = { render: function render() {
       this.onNewFileIn(file);
     },
     onNewFileIn: function onNewFileIn(file) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.$emit(events.FILE_CHOOSE_EVENT, file);
       if (!this.fileSizeIsValid(file)) {
@@ -760,8 +836,8 @@ var component = { render: function render() {
           var img = new Image();
           img.src = fileData;
           img.onload = function () {
-            _this3._onload(img, orientation);
-            _this3.$emit(events.NEW_IMAGE);
+            _this4._onload(img, orientation);
+            _this4.$emit(events.NEW_IMAGE);
           };
         };
         fr.readAsDataURL(file);
@@ -827,8 +903,9 @@ var component = { render: function render() {
         var y = +result[2] / 100;
         this.imgData.startX = x * (this.realWidth - this.imgData.width);
         this.imgData.startY = y * (this.realHeight - this.imgData.height);
-        console.log(this.imgData.startX, this.imgData.startY);
       }
+
+      this.applyMetadata();
 
       if (this.preventWhiteSpace) {
         this.preventMovingToWhiteSpace();
@@ -1092,21 +1169,39 @@ var component = { render: function render() {
       }
     },
     rotate: function rotate() {
-      var _this4 = this;
+      var _this5 = this;
 
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
+      var useOriginal = arguments[1];
 
       if (!this.img) return;
       if (orientation > 1) {
-        var _canvas = index.drawImage(this.img, orientation);
-        var _img = new Image();
-        _img.src = _canvas.toDataURL();
+        var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
-          _this4.img = _img;
-          _this4.imgContentInit();
+          _this5.img = _img;
+          _this5.imgContentInit();
         };
       } else {
         this.imgContentInit();
+      }
+
+      if (orientation == 2) {
+        // flip x
+        this.orientation = u.flipX(this.orientation);
+      } else if (orientation == 4) {
+        // flip y
+        this.orientation = u.flipY(this.orientation);
+      } else if (orientation == 6) {
+        // 90 deg
+        this.orientation = u.rotate90(this.orientation);
+      } else if (orientation == 3) {
+        // 180 deg
+        this.orientation = u.rotate90(u.rotate90(this.orientation));
+      } else if (orientation == 8) {
+        // 270 deg
+        this.orientation = u.rotate90(u.rotate90(u.rotate90(this.orientation)));
+      } else {
+        this.orientation = orientation;
       }
     },
     paintBackground: function paintBackground() {
@@ -1145,7 +1240,7 @@ var component = { render: function render() {
       this.canvas.toBlob(callback, mimeType, qualityArgument);
     },
     promisedBlob: function promisedBlob() {
-      var _this5 = this;
+      var _this6 = this;
 
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -1157,13 +1252,52 @@ var component = { render: function render() {
       }
       return new Promise(function (resolve, reject) {
         try {
-          _this5.generateBlob(function (blob) {
+          _this6.generateBlob(function (blob) {
             resolve(blob);
           }, args);
         } catch (err) {
           reject(err);
         }
       });
+    },
+    getMetadata: function getMetadata() {
+      if (!this.img) return {};
+      var _imgData2 = this.imgData,
+          startX = _imgData2.startX,
+          startY = _imgData2.startY;
+
+
+      return {
+        startX: startX,
+        startY: startY,
+        scale: this.scaleRatio,
+        orientation: this.orientation
+      };
+    },
+    applyMetadata: function applyMetadata() {
+      if (!this.userMetadata) return;
+      var _userMetadata = this.userMetadata,
+          startX = _userMetadata.startX,
+          startY = _userMetadata.startY,
+          scale = _userMetadata.scale;
+
+      startX = +startX;
+      startY = +startY;
+      scale = +scale;
+
+      if (!isNaN(startX)) {
+        this.imgData.startX = startX;
+      }
+
+      if (!isNaN(startY)) {
+        this.imgData.startY = startY;
+      }
+
+      if (!isNaN(scale)) {
+        this.imgData.width = this.naturalWidth * scale;
+        this.imgData.height = this.naturalHeight * scale;
+        this.scaleRatio = scale;
+      }
     }
   }
 };
