@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.3.0
+ * vue-croppa v0.3.1
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -1201,6 +1201,10 @@ var component = { render: function render() {
         // 270 deg
         this.orientation = u.rotate90(u.rotate90(u.rotate90(this.orientation)));
       } else {
+        this.orientation = orientation;
+      }
+
+      if (useOriginal) {
         this.orientation = orientation;
       }
     },
