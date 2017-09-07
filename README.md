@@ -6,7 +6,7 @@
 ## Features
 - **Straightforward**: What you see is what you get
 - **Highly customizable**: You can almost customize anything except the core functionalities
-- **Lightweight**: 24kb in total
+- **Lightweight**: 24kb in total (33kb since v0.3.0)
 - **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 - **EXIF orientation**: v0.2.0+ Support correctly show image with EXIF orientation
 
