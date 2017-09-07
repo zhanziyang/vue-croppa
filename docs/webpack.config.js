@@ -63,7 +63,11 @@ module.exports = {
     new BrowserSync({
       host: 'localhost',
       port: 3000,
-      proxy: 'http://localhost:8080/'
+      proxy: 'http://localhost:8080/',
+      serveStatic: [{
+        route: '/vue-croppa/static',
+        dir: 'static'
+      }]
     }, { reload: false })
   ]
 }
