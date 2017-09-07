@@ -354,9 +354,11 @@
         }
         if (u.imageLoaded(img)) {
           this._onload(img, +img.dataset['exifOrientation'])
+          this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
         } else {
           img.onload = () => {
             this._onload(img, +img.dataset['exifOrientation'])
+            this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
           }
 
           img.onerror = () => {
@@ -890,7 +892,7 @@
 </script>
 
 <style lang="stylus">
-  .croppa-container 
+  .croppa-container
     display: inline-block
     cursor: pointer
     transition: all .3s
@@ -906,7 +908,7 @@
       box-shadow: inset 0 0 10px lightness(black, 20%)
       canvas
         opacity: .5
-    &.croppa--disabled-cc 
+    &.croppa--disabled-cc
       cursor: default
       &:hover
         opacity: 1
