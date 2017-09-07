@@ -144,6 +144,21 @@
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
+        <br>
+        <v-expansion-panel expand>
+          <v-expansion-panel-content :value="true">
+            <div slot="header"
+                 class="title">Save state and retrieve it</div>
+            <div class="pt-2 pl-2">Inspired by
+              <a href="https://github.com/zhanziyang/vue-croppa/issues/24">this issue</a>, since v0.3.0, you can get the metadata that describes current user manipulations (moving, zooming, rotating), save it somewhere, and later you can apply it to retrieve the previous state. These are done by using
+              <code>getMetadata()</code> and
+              <code>applyMetadata(metadata)</code> methods.</div>
+            <div class="pt-2 pl-2">
+              See demo "Use Metadata" in the
+              <router-link to="demos">demo page</router-link>.
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
       </v-flex>
     </v-layout>
   </div>

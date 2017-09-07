@@ -326,6 +326,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 ##### NOTE: 
 - It is recommended to use a small-sized image as the placeholder image.
 - The image will be drawn with 100% width and height of croppa container, i.e. it will cover the container. So it is recommended to use a images with the same aspect ratio as the container.
+- Find demo "Image Placeholder" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos)
 
 
 
@@ -410,11 +411,14 @@ console.log(metadata)
 } 
 */
 ```
+- Find demo "Use Metadata" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
+
 
 #### applyMetadata(metadata)
 - Require v0.3.0+
 - Apply metadata to get to a certain manipulation state (moving, zooming, rotating).
 - `metadata` can have one or more of these 4 properties: `startX`, `startY`, `scale`, `orientation`. Usually you will use the object returned by `getMetadata()`.
+
 ```js
 var metadata = {
   startX:-535.5180530546083,
@@ -425,6 +429,7 @@ var metadata = {
 
 this.myCroppa.applyMetadata(metadata)
 ```
+- Find demo "Use Metadata" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
 
 #### supportDetection()
 - Return an object indicating browser supports. Like this:
@@ -471,6 +476,7 @@ this.myCroppa.applyMetadata(metadata)
 - emitted on every view update (including init, move, zoom, rotate) when it is not empty. It is useful when you want to add attachment on image.
 - handler(ctx)
   - `ctx` is the `CanvasRenderingContext2D` object for you to draw anything you want on the current image. You can also get it with the method `getContext()`.
+- Find demo "Attachments" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
 
 #### <s>initial-image-load</s>
 - **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@load` event on img tag.

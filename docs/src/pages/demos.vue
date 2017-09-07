@@ -4,25 +4,25 @@
               wrap>
       <v-flex>
         <!-- <v-expansion-panel expand>
-            <v-expansion-panel-content :value="false">
-              <div slot="header"
-                   class="title">Zoom Slider</div>
-              <div class="pt-2 pl-2">
-                <p data-height="416"
-                   data-theme-id="19967"
-                   data-slug-hash="EvXjXx"
-                   data-default-tab="js,result"
-                   data-user="zhanziyang"
-                   data-embed-version="2"
-                   data-pen-title="Vue Croppa exif orientation"
-                   class="codepen">See the Pen
-                  <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
-                  <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
-                  <a href="https://codepen.io">CodePen</a>.</p>
-              </div>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-          <br> -->
+                <v-expansion-panel-content :value="false">
+                  <div slot="header"
+                       class="title">Zoom Slider</div>
+                  <div class="pt-2 pl-2">
+                    <p data-height="416"
+                       data-theme-id="19967"
+                       data-slug-hash="EvXjXx"
+                       data-default-tab="js,result"
+                       data-user="zhanziyang"
+                       data-embed-version="2"
+                       data-pen-title="Vue Croppa exif orientation"
+                       class="codepen">See the Pen
+                      <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
+                      <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                      <a href="https://codepen.io">CodePen</a>.</p>
+                  </div>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <br> -->
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="false">
             <div slot="header"
@@ -119,7 +119,7 @@
             <div slot="header"
                  class="title">Use Metadata</div>
             <div class="pt-2 pl-2">Inspired by
-              <a href="https://github.com/zhanziyang/vue-croppa/issues/24">this issue</a>, since v0.3.0, you can get the metadata that describes current user manipulations (moving, zooming, rotating), save it somewhere, and later you can apply it later to retrieve the previous state. These are done by using
+              <a href="https://github.com/zhanziyang/vue-croppa/issues/24">this issue</a>, since v0.3.0, you can get the metadata that describes current user manipulations (moving, zooming, rotating), save it somewhere, and later you can apply it to retrieve the previous state. These are done by using
               <code>getMetadata()</code> and
               <code>applyMetadata(metadata)</code> methods.</div>
             <div class="pt-2 pl-2">In the following exmaple, first do some manipulations like zooming, moving or rotating, and then click "Save Metadata" button to save it locally, then do some manipulations again, now click "Apply Metadata" to get back to the previous state.</div>
@@ -339,23 +339,23 @@
     },
 
     methods: {
-      rotate: function () {
+      rotate () {
         this.croppa2.rotate()
       },
 
-      flipX: function () {
+      flipX () {
         this.croppa2.flipX()
       },
 
-      flipY: function () {
+      flipY () {
         this.croppa2.flipY()
       },
 
-      saveMetadata: function () {
+      saveMetadata () {
         localStorage.setItem('metadata', JSON.stringify(this.croppa2.getMetadata()))
       },
 
-      applyMetadata: function () {
+      applyMetadata () {
         var metadata = JSON.parse(localStorage.getItem('metadata'))
         this.croppa2.applyMetadata(metadata)
       }
@@ -417,30 +417,30 @@
         document.documentElement.style.cursor = 'default'
       },
 
-      onDraw: function (ctx) {
+      onDraw (ctx) {
         ctx.save()
         ctx.globalAlpha = 0.7
         ctx.drawImage(document.querySelector('.addon'), 400, 400, 400, 400)
         ctx.restore()
       },
 
-      rotate: function () {
+      rotate () {
         this.croppa2.rotate()
       },
 
-      flipX: function () {
+      flipX () {
         this.croppa2.flipX()
       },
 
-      flipY: function () {
+      flipY () {
         this.croppa2.flipY()
       },
 
-      saveMetadata: function () {
+      saveMetadata () {
         localStorage.setItem('metadata', JSON.stringify(this.croppa2.getMetadata()))
       },
 
-      applyMetadata: function () {
+      applyMetadata () {
         var metadata = JSON.parse(localStorage.getItem('metadata'))
         this.croppa2.applyMetadata(metadata)
       }
