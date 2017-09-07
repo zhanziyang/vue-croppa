@@ -22,7 +22,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var index = createCommonjsModule(function (module, exports) {
+var canvasExifOrientation = createCommonjsModule(function (module, exports) {
 (function (root, factory) {
     if (typeof undefined === 'function' && undefined.amd) {
         undefined([], factory);
@@ -259,7 +259,7 @@ var u = {
     return bytes.buffer;
   },
   getRotatedImage: function getRotatedImage(img, orientation) {
-    var _canvas = index.drawImage(img, orientation);
+    var _canvas = canvasExifOrientation.drawImage(img, orientation);
     var _img = new Image();
     _img.src = _canvas.toDataURL();
     return _img;
@@ -410,7 +410,8 @@ var events = {
   IMAGE_REMOVE_EVENT: 'image-remove',
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom',
-  DRAW: 'draw'
+  DRAW: 'draw',
+  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded'
 };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -775,9 +776,11 @@ var component = { render: function render() {
       }
       if (u.imageLoaded(img)) {
         this._onload(img, +img.dataset['exifOrientation']);
+        this.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
       } else {
         img.onload = function () {
           _this3._onload(img, +img.dataset['exifOrientation']);
+          _this3.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
         };
 
         img.onerror = function () {
@@ -1369,7 +1372,7 @@ function shouldUseNative() {
 	}
 }
 
-var index$1 = shouldUseNative() ? Object.assign : function (target, source) {
+var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
 	var from;
 	var to = toObject(target);
 	var symbols;
@@ -1402,7 +1405,7 @@ var defaultOptions = {
 
 var VueCroppa = {
   install: function install(Vue, options) {
-    options = index$1({}, defaultOptions, options);
+    options = objectAssign({}, defaultOptions, options);
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');

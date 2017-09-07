@@ -8,5 +8,5 @@ export default {
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom',
   DRAW: 'draw',
-  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded',
+  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded'
 }
