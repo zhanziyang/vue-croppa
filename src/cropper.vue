@@ -795,6 +795,10 @@
         } else {
           this.orientation = orientation
         }
+
+        if (useOriginal) {
+          this.orientation = orientation
+        }
       },
 
       paintBackground () {

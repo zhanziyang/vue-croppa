@@ -237,7 +237,7 @@ Disables the default "pinch with two fingers to zoom" user interaction **on mobi
 - default: `false`
 
 #### disable-rotation
-v0.2.0+ Rotation methods won't work if this is set to `true`
+(**v0.2.0+**) Rotation methods won't work if this is set to `true`
 - type: `boolean`
 - default: `false`
 
@@ -274,18 +274,18 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: default size is ajust accordingly to container's size
 
 #### initial-image
-**v0.1.0+** Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
+(**v0.1.0+**) Set initial image. You can pass a string as the url or an Image object (HTMLImageElement instance). This is an alternative way to set initial image besides using slot. Useful when you want to set cross origin image as initial image.
 - type: `string` or `object` (HTMLImageElement instance)
 - default: `undefined`
 
 #### initial-size
-**v0.2.0+** works similar to css's background-size. It specifies the image's size when it is first loaded on croppa.
+(**v0.2.0+**) works similar to css's background-size. It specifies the image's size when it is first loaded on croppa.
 - type: `string`
 - default: `'cover'`
 - valid: one of `'cover'`, `'contain'`, `'natural'`
 
 #### initial-position
-**v0.2.0+** works similar to css's background-position. It specifies the image's position relative to croppa container when it is first loaded.
+(**v0.2.0+**) works similar to css's background-position. It specifies the image's position relative to croppa container when it is first loaded.
 - type: `string`
 - default: `'center'`
 - valid: 
@@ -395,6 +395,7 @@ const blob = await this.myCroppa.promisedBlob()
 ```
 
 #### getMetadata()
+- Require v0.3.0+
 - Get metadata that describes current user manipulations (moving, zooming, rotating).
 ```js
 var metadata = this.myCroppa.getMetadata()
@@ -411,6 +412,7 @@ console.log(metadata)
 ```
 
 #### applyMetadata(metadata)
+- Require v0.3.0+
 - Apply metadata to get to a certain manipulation state (moving, zooming, rotating).
 - `metadata` can have one or more of these 4 properties: `startX`, `startY`, `scale`, `orientation`. Usually you will use the object returned by `getMetadata()`.
 ```js
