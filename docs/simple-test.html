@@ -18,6 +18,15 @@
     .external {
       display: none
     }
+
+    .addon {
+      height: 0;
+      width: 0;
+      line-height: 1;
+      font-size: 0;
+      visibility: 0;
+      border: 0;
+    }
   </style>
   <meta name="theme-color" content="#ffffff">
   <title>Vue Croppa - Simple Test.</title>
@@ -27,7 +36,8 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="300" :height="400" prevent-white-space accept="image/*">
+    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw">
+      <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
     </croppa>
@@ -37,6 +47,9 @@
     <button @click="rotate">ROTATE</button>
     <button @click="flipX">FLIP-X</button>
     <button @click="flipY">FLIP-Y</button>
+    <br>
+    <button @click="saveMetadata">SAVE METADATA</button>
+    <button @click="applyMetadata">APPLY METADATA</button>
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
   <script src="https://unpkg.com/vue@2.3.4/dist/vue.js"></script>
@@ -73,6 +86,22 @@
 
         getUrl: function () {
           alert(this.myCroppa.generateDataUrl())
+        },
+
+        saveMetadata: function () {
+          localStorage.setItem('metadata', JSON.stringify(this.myCroppa.getMetadata()))
+        },
+
+        applyMetadata: function () {
+          var metadata = JSON.parse(localStorage.getItem('metadata'))
+          this.myCroppa.applyMetadata(metadata)
+        },
+
+        onDraw: function (ctx) {
+          ctx.save()
+          ctx.globalAlpha = 0.5
+          ctx.drawImage(document.querySelector('.addon'), 700, 700, 100, 100)
+          ctx.restore()
         }
       }
     })

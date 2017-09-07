@@ -1,5 +1,7 @@
+import CanvasExifOrientation from 'canvas-exif-orientation'
+
 export default {
-  onePointCoord(point, vm) {
+  onePointCoord (point, vm) {
     let { canvas, quality } = vm
     let rect = canvas.getBoundingClientRect()
     let clientX = point.clientX
@@ -10,7 +12,7 @@ export default {
     }
   },
 
-  getPointerCoords(evt, vm) {
+  getPointerCoords (evt, vm) {
     let pointer
     if (evt.touches && evt.touches[0]) {
       pointer = evt.touches[0]
@@ -22,7 +24,7 @@ export default {
     return this.onePointCoord(pointer, vm)
   },
 
-  getPinchDistance(evt, vm) {
+  getPinchDistance (evt, vm) {
     let pointer1 = evt.touches[0]
     let pointer2 = evt.touches[1]
     let coord1 = this.onePointCoord(pointer1, vm)
@@ -31,7 +33,7 @@ export default {
     return Math.sqrt(Math.pow(coord1.x - coord2.x, 2) + Math.pow(coord1.y - coord2.y, 2))
   },
 
-  getPinchCenterCoord(evt, vm) {
+  getPinchCenterCoord (evt, vm) {
     let pointer1 = evt.touches[0]
     let pointer2 = evt.touches[1]
     let coord1 = this.onePointCoord(pointer1, vm)
@@ -43,11 +45,11 @@ export default {
     }
   },
 
-  imageLoaded(img) {
+  imageLoaded (img) {
     return img.complete && img.naturalWidth !== 0
   },
 
-  rAFPolyfill() {
+  rAFPolyfill () {
     // rAF polyfill
     if (typeof document == 'undefined' || typeof window == 'undefined') return
     var lastTime = 0
@@ -81,7 +83,7 @@ export default {
     }
   },
 
-  toBlobPolyfill() {
+  toBlobPolyfill () {
     if (typeof document == 'undefined' || typeof window == 'undefined' || !HTMLCanvasElement) return
     var binStr, len, arr
     if (!HTMLCanvasElement.prototype.toBlob) {
@@ -101,7 +103,7 @@ export default {
     }
   },
 
-  eventHasFile(evt) {
+  eventHasFile (evt) {
     var dt = evt.dataTransfer || evt.originalEvent.dataTransfer
     if (dt.types) {
       for (var i = 0, len = dt.types.length; i < len; i++) {
@@ -114,7 +116,7 @@ export default {
     return false
   },
 
-  getFileOrientation(arrayBuffer) {
+  getFileOrientation (arrayBuffer) {
     var view = new DataView(arrayBuffer)
     if (view.getUint16(0, false) != 0xFFD8) return -2
     var length = view.byteLength
@@ -139,7 +141,7 @@ export default {
     return -1
   },
 
-  base64ToArrayBuffer(base64) {
+  base64ToArrayBuffer (base64) {
     base64 = base64.replace(/^data:([^;]+);base64,/gmi, '')
     var binaryString = atob(base64)
     var len = binaryString.length
@@ -148,5 +150,50 @@ export default {
       bytes[i] = binaryString.charCodeAt(i)
     }
     return bytes.buffer
+  },
+
+  getRotatedImage (img, orientation) {
+    var _canvas = CanvasExifOrientation.drawImage(img, orientation)
+    var _img = new Image()
+    _img.src = _canvas.toDataURL()
+    return _img
+  },
+
+  flipX (ori) {
+    if (ori % 2 == 0) {
+      return ori - 1
+    }
+
+    return ori + 1
+  },
+
+  flipY (ori) {
+    const map = {
+      1: 4,
+      4: 1,
+      2: 3,
+      3: 2,
+      5: 8,
+      8: 5,
+      6: 7,
+      7: 6
+    }
+
+    return map[ori]
+  },
+
+  rotate90 (ori) {
+    const map = {
+      1: 6,
+      2: 7,
+      3: 8,
+      4: 5,
+      5: 2,
+      6: 3,
+      7: 4,
+      8: 1
+    }
+
+    return map[ori]
   }
 }

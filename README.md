@@ -316,72 +316,115 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - If you provide both the slot and `initial-image` prop, the slot will be the one that is used.
 ---
 
+#### placeholder
+- If you are not satified with the simple text placeholder. Since v0.3.0, you can apply an `<img>` slot named `placeholder` to get an image placeholder! The image will be draw on croppa under the placeholder text when it is empty.
+```html
+<croppa v-model="myCroppa">
+  <img slot="placeholder" src="static/placeholder-image.png" />
+</croppa>
+```
+##### NOTE: 
+- It is recommended to use a small-sized image as the placeholder image.
+- The image will be drawn with 100% width and height of croppa container, i.e. it will cover the container. So it is recommended to use a images with the same aspect ratio as the container.
+
+
+
 ### 🌱 Methods
 
-#### myCroppa.getCanvas()
+#### getCanvas()
 - returns the canvas object
 
-#### myCroppa.getContext()
+#### getContext()
 - returns the canvas context object
 
-#### myCroppa.getChosenFile()
+#### getChosenFile()
 
-#### myCroppa.getActualImageSize()
+#### getActualImageSize()
 - Return an object `{ width, height }` describing the real image size (preview size ` * quality`)
 
-#### myCroppa.moveUpwards( amountInPx: number )
+#### moveUpwards( amountInPx: number )
 
-#### myCroppa.moveDownwards( amountInPx: number )
+#### moveDownwards( amountInPx: number )
 
-#### myCroppa.moveLeftwards( amountInPx: number )
+#### moveLeftwards( amountInPx: number )
 
-#### myCroppa.moveRightwards( amountInPx: number )
+#### moveRightwards( amountInPx: number )
 
-#### myCroppa.zoomIn()
+#### zoomIn()
 
-#### myCroppa.zoomOut()
+#### zoomOut()
 
-#### myCroppa.rotate(step: number)
+#### rotate(step: number)
 - 1 step = 90 deg
 - positive number: rotates clockwise
 - negative number: rotates counterclockwise.
 
-#### myCroppa.flipX()
+#### flipX()
 - Horizontally flip image.
 
-#### myCroppa.flipY()
+#### flipY()
 - Vertically flip image.
 
-#### myCroppa.chooseFile()
+#### chooseFile()
 - Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
 #### <s>myCroppa.reset()</s>
 - **To Be Deprecated** This will be deprecated in the future due to misnaming 😅 . Please use `remove()` instead.
 - Removes the current image, can be used to implement your own remove-button.
 
-#### myCroppa.remove()
+#### remove()
 - Removes the current image, can be used to implement your own remove-button.
 
-#### myCroppa.refresh()
+#### refresh()
 - Reinitialize the component. Useful when you want to change initial image.
 
-#### myCroppa.hasImage()
+#### hasImage()
 - Return boolean value indicating whether currently there is a image.
 
-#### myCroppa.generateDataUrl( type: string, compressionRate: number )
+#### generateDataUrl( type: string, compressionRate: number )
 - Returns a data-URL containing a representation of the image in the format specified by the `type` parameter (defaults to  png). 
 - `compressionRate` (v0.2.0+) defaults to `1`, you can pass a number between 0 and 1 to get a compressed output image.
 
-#### myCroppa.generateBlob( callback: function, mimeType: string, compressionRate: number )
+#### generateBlob( callback: function, mimeType: string, compressionRate: number )
 - Creates a Blob object representing the image contained in the canvas. Look up  argument definition [here](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob).
 
-#### myCroppa.promisedBlob( mimeType: string, compressionRate: number )
+#### promisedBlob( mimeType: string, compressionRate: number )
 - This method returns a `Promise` wrapping around `generateBlob()`, so that you can use `async/await` syntax instead of a callback to get blob data, it's simpler.
 ```js
 const blob = await this.myCroppa.promisedBlob()
 ```
 
-#### myCroppa.supportDetection()
+#### getMetadata()
+- Get metadata that describes current user manipulations (moving, zooming, rotating).
+```js
+var metadata = this.myCroppa.getMetadata()
+console.log(metadata)
+
+/* in console
+{
+  startX:-535.5180530546083,
+  startY:-358.0699623303261,
+  scale:2.2502626424905396,
+  orientation:6
+} 
+*/
+```
+
+#### applyMetadata(metadata)
+- Apply metadata to get to a certain manipulation state (moving, zooming, rotating).
+- `metadata` can have one or more of these 4 properties: `startX`, `startY`, `scale`, `orientation`. Usually you will use the object returned by `getMetadata()`.
+```js
+var metadata = {
+  startX:-535.5180530546083,
+  startY:-358.0699623303261,
+  scale:2.2502626424905396,
+  orientation:6
+}
+
+this.myCroppa.applyMetadata(metadata)
+```
+
+#### supportDetection()
 - Return an object indicating browser supports. Like this:
 ```js
 {
@@ -422,6 +465,11 @@ const blob = await this.myCroppa.promisedBlob()
 
 #### zoom
 
+#### draw
+- emitted on every view update (including init, move, zoom, rotate) when it is not empty. It is useful when you want to add attachment on image.
+- handler(ctx)
+  - `ctx` is the `CanvasRenderingContext2D` object for you to draw anything you want on the current image. You can also get it with the method `getContext()`.
+
 #### <s>initial-image-load</s>
 - **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@load` event on img tag.
 - emitted when initial image is [provided](#initial) and successully loaded.
@@ -460,5 +508,5 @@ const blob = await this.myCroppa.promisedBlob()
 - [x] Doc about file compression.
 - [x] Add examples to doc.
 - [x] Download example.
-- [ ] Image placeholder.
-- [ ] ondraw event.
+- [x] Image placeholder.
+- [x] ondraw event.

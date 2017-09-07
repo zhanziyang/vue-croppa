@@ -11,9 +11,10 @@
            ref="fileInput"
            hidden
            @change="handleInputChange" />
-    <div class="initial"
+    <div class="slots"
          style="width: 0; height: 0; visibility: hidden;">
       <slot name="initial"></slot>
+      <slot name="placeholder"></slot>
     </div>
     <canvas ref="canvas"
             @click.stop.prevent="handleClick"
@@ -52,8 +53,6 @@
   import props from './props'
   import events from './events'
 
-  import CanvasExifOrientation from 'canvas-exif-orientation'
-
   const PCT_PER_ZOOM = 1 / 100000 // The amount of zooming everytime it happens, in percentage of image width.
   const MIN_MS_PER_CLICK = 500 // If touch duration is shorter than the value, then it is considered as a click.
   const CLICK_MOVE_THRESHOLD = 100 // If touch move distance is greater than this value, then it will by no mean be considered as a click.
@@ -90,7 +89,9 @@
         pointerStartCoord: null,
         naturalWidth: 0,
         naturalHeight: 0,
-        scaleRatio: 1
+        scaleRatio: 1,
+        orientation: 1,
+        userMetadata: null
       }
     },
 
@@ -229,7 +230,13 @@
           generateDataUrl: this.generateDataUrl,
           generateBlob: this.generateBlob,
           promisedBlob: this.promisedBlob,
-          supportDetection: this.supportDetection
+          supportDetection: this.supportDetection,
+          getMetadata: this.getMetadata,
+          applyMetadata: (metadata) => {
+            if (!metadata || !this.img) return
+            this.userMetadata = metadata
+            this.rotate(metadata.orientation || this.orientation, true)
+          }
         })
       },
 
@@ -238,8 +245,6 @@
         this.canvas.height = this.realHeight
         this.canvas.style.width = this.width + 'px'
         this.canvas.style.height = this.height + 'px'
-        // this.$refs.wrapper.style.width = this.width + 'px'
-        // this.$refs.wrapper.style.height = this.height + 'px'
       },
 
       rotateByStep (step) {
@@ -264,7 +269,6 @@
             orientation = 6
             break
         }
-        console.log(orientation)
         this.rotate(orientation)
       },
 
@@ -279,6 +283,8 @@
       remove () {
         let ctx = this.ctx
         this.paintBackground()
+
+        this.setImagePlaceholder()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
         let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
@@ -292,9 +298,34 @@
         this.img = null
         this.$refs.fileInput.value = ''
         this.imgData = {}
+        this.orientation = 1
+        this.userMetadata = null
 
         if (hadImage) {
           this.$emit(events.IMAGE_REMOVE_EVENT)
+        }
+      },
+
+      setImagePlaceholder () {
+        let img
+        if (this.$slots.placeholder && this.$slots.placeholder[0]) {
+          let vNode = this.$slots.placeholder[0]
+          let { tag, elm } = vNode
+          if (tag == 'img' && elm) {
+            img = elm
+          }
+        }
+
+        if (!img) return
+
+        var onLoad = () => {
+          this.ctx.drawImage(img, 0, 0, this.realWidth, this.realHeight)
+        }
+
+        if (u.imageLoaded(img)) {
+          onLoad()
+        } else {
+          img.onload = onLoad
         }
       },
 
@@ -307,7 +338,7 @@
             img = elm
           }
         }
-        if (!src && this.initialImage && typeof this.initialImage === 'string') {
+        if (this.initialImage && typeof this.initialImage === 'string') {
           src = this.initialImage
           img = new Image()
           if (!/^data:/.test(src) && !/^blob:/.test(src)) {
@@ -455,8 +486,9 @@
           var y = +result[2] / 100
           this.imgData.startX = x * (this.realWidth - this.imgData.width)
           this.imgData.startY = y * (this.realHeight - this.imgData.height)
-          console.log(this.imgData.startX, this.imgData.startY)
         }
+
+        this.applyMetadata()
 
         if (this.preventWhiteSpace) {
           this.preventMovingToWhiteSpace()
@@ -733,18 +765,35 @@
         }
       },
 
-      rotate (orientation = 6) {
+      rotate (orientation = 6, useOriginal) {
         if (!this.img) return
         if (orientation > 1) {
-          var _canvas = CanvasExifOrientation.drawImage(this.img, orientation)
-          var _img = new Image()
-          _img.src = _canvas.toDataURL()
+          var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
             this.imgContentInit()
           }
         } else {
           this.imgContentInit()
+        }
+
+        if (orientation == 2) {
+          // flip x
+          this.orientation = u.flipX(this.orientation)
+        } else if (orientation == 4) {
+          // flip y
+          this.orientation = u.flipY(this.orientation)
+        } else if (orientation == 6) {
+          // 90 deg
+          this.orientation = u.rotate90(this.orientation)
+        } else if (orientation == 3) {
+          // 180 deg
+          this.orientation = u.rotate90(u.rotate90(this.orientation))
+        } else if (orientation == 8) {
+          // 270 deg
+          this.orientation = u.rotate90(u.rotate90(u.rotate90(this.orientation)))
+        } else {
+          this.orientation = orientation
         }
       },
 
@@ -797,6 +846,40 @@
             reject(err)
           }
         })
+      },
+
+      getMetadata () {
+        if (!this.img) return {}
+        let { startX, startY } = this.imgData
+
+        return {
+          startX,
+          startY,
+          scale: this.scaleRatio,
+          orientation: this.orientation
+        }
+      },
+
+      applyMetadata () {
+        if (!this.userMetadata) return
+        var { startX, startY, scale } = this.userMetadata
+        startX = +startX
+        startY = +startY
+        scale = +scale
+
+        if (!isNaN(startX)) {
+          this.imgData.startX = startX
+        }
+
+        if (!isNaN(startY)) {
+          this.imgData.startY = startY
+        }
+
+        if (!isNaN(scale)) {
+          this.imgData.width = this.naturalWidth * scale
+          this.imgData.height = this.naturalHeight * scale
+          this.scaleRatio = scale
+        }
       }
     }
   }
