@@ -233,7 +233,7 @@
           supportDetection: this.supportDetection,
           getMetadata: this.getMetadata,
           applyMetadata: (metadata) => {
-            if (!metadata) return
+            if (!metadata || !this.img) return
             this.userMetadata = metadata
             this.rotate(metadata.orientation || this.orientation, true)
           }
@@ -849,6 +849,7 @@
       },
 
       getMetadata () {
+        if (!this.img) return {}
         let { startX, startY } = this.imgData
 
         return {
