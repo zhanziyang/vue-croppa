@@ -37,7 +37,7 @@
         <v-icon right>star</v-icon>
       </v-chip>
       <v-chip class="orange white--text">
-        24kb In Total
+        28kb In Total
         <v-icon right>star</v-icon>
       </v-chip>
       <v-chip class="orange white--text">
