@@ -517,6 +517,3 @@ Edit file `./docs/simple-test.html` and open http://localhost:3000/simple-test.h
 # under vue-croppa/
 $ npm run build
 ```
-
-## To Do
-- [ ] Keep image scale state after rotation (when `prevent-white-space` is `false`)
