@@ -7,5 +7,6 @@ export default {
   IMAGE_REMOVE_EVENT: 'image-remove',
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom',
-  DRAW: 'draw'
+  DRAW: 'draw',
+  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded'
 }
