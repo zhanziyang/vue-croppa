@@ -455,7 +455,7 @@
         return false
       },
 
-      imgContentInit () {
+      imgContentInit (applyMetadata) {
         this.naturalWidth = this.img.naturalWidth
         this.naturalHeight = this.img.naturalHeight
 
@@ -490,7 +490,7 @@
           this.imgData.startY = y * (this.realHeight - this.imgData.height)
         }
 
-        this.applyMetadata()
+        applyMetadata && this.applyMetadata()
 
         if (this.preventWhiteSpace) {
           this.preventMovingToWhiteSpace()
@@ -773,10 +773,10 @@
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
-            this.imgContentInit()
+            this.imgContentInit(useOriginal)
           }
         } else {
-          this.imgContentInit()
+          this.imgContentInit(useOriginal)
         }
 
         if (orientation == 2) {
@@ -868,6 +868,7 @@
 
       applyMetadata () {
         if (!this.userMetadata) return
+        console.log('hi')
         var { startX, startY, scale } = this.userMetadata
         startX = +startX
         startY = +startY

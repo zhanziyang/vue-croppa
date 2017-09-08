@@ -55,6 +55,7 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
+    open: false,
     setup(app) {
       app.use('/vue-croppa/static/', express.static(path.resolve(__dirname, './static')))
     }

@@ -36,10 +36,10 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw">
+    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
-      <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
-        ref="foo" class="external" data-exif-orientation="6"> -->
+      <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
+        ref="foo" class="external" data-exif-orientation="6">
     </croppa>
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
@@ -102,6 +102,11 @@
           ctx.globalAlpha = 0.5
           ctx.drawImage(document.querySelector('.addon'), 700, 700, 100, 100)
           ctx.restore()
+        },
+
+        onInitialLoaded: function () {
+          console.log('loadedd')
+          this.applyMetadata.call(this)
         }
       }
     })
