@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.3.1
+ * vue-croppa v0.3.2
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -22,7 +22,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var canvasExifOrientation = createCommonjsModule(function (module, exports) {
+var index = createCommonjsModule(function (module, exports) {
 (function (root, factory) {
     if (typeof undefined === 'function' && undefined.amd) {
         undefined([], factory);
@@ -259,7 +259,7 @@ var u = {
     return bytes.buffer;
   },
   getRotatedImage: function getRotatedImage(img, orientation) {
-    var _canvas = canvasExifOrientation.drawImage(img, orientation);
+    var _canvas = index.drawImage(img, orientation);
     var _img = new Image();
     _img.src = _canvas.toDataURL();
     return _img;
@@ -426,7 +426,7 @@ var CLICK_MOVE_THRESHOLD = 100; // If touch move distance is greater than this v
 var MIN_WIDTH = 10; // The minimal width the user can zoom to.
 var DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3; // Placeholder text by default takes up this amount of times of canvas width.
 var PINCH_ACCELERATION = 2; // The amount of times by which the pinching is more sensitive than the scolling
-var DEBUG = false;
+// const DEBUG = false
 
 var component = { render: function render() {
     var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { ref: "wrapper", class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
@@ -800,14 +800,8 @@ var component = { render: function render() {
       this.$refs.fileInput.click();
     },
     handleClick: function handleClick() {
-      if (DEBUG) {
-        console.log('click');
-      }
       if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
         this.chooseFile();
-        if (DEBUG) {
-          console.log('trigger by click');
-        }
       }
     },
     handleInputChange: function handleInputChange() {
@@ -873,7 +867,7 @@ var component = { render: function render() {
 
       return false;
     },
-    imgContentInit: function imgContentInit() {
+    imgContentInit: function imgContentInit(applyMetadata) {
       this.naturalWidth = this.img.naturalWidth;
       this.naturalHeight = this.img.naturalHeight;
 
@@ -908,7 +902,7 @@ var component = { render: function render() {
         this.imgData.startY = y * (this.realHeight - this.imgData.height);
       }
 
-      this.applyMetadata();
+      applyMetadata && this.applyMetadata();
 
       if (this.preventWhiteSpace) {
         this.preventMovingToWhiteSpace();
@@ -961,9 +955,6 @@ var component = { render: function render() {
       this.imgData.startY = -(this.imgData.height - this.realHeight) / 2;
     },
     handlePointerStart: function handlePointerStart(evt) {
-      if (DEBUG) {
-        console.log('touch start');
-      }
       this.supportTouch = true;
       this.pointerMoved = false;
       var pointerCoord = u.getPointerCoords(evt, this);
@@ -998,9 +989,6 @@ var component = { render: function render() {
       }
     },
     handlePointerEnd: function handlePointerEnd(evt) {
-      if (DEBUG) {
-        console.log('touch end');
-      }
       var pointerMoveDistance = 0;
       if (this.pointerStartCoord) {
         var pointerCoord = u.getPointerCoords(evt, this);
@@ -1011,9 +999,6 @@ var component = { render: function render() {
         var tabEnd = new Date().valueOf();
         if (pointerMoveDistance < CLICK_MOVE_THRESHOLD && tabEnd - this.tabStart < MIN_MS_PER_CLICK && this.supportTouch) {
           this.chooseFile();
-          if (DEBUG) {
-            console.log('trigger by touch');
-          }
         }
         this.tabStart = 0;
         return;
@@ -1182,10 +1167,10 @@ var component = { render: function render() {
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
           _this5.img = _img;
-          _this5.imgContentInit();
+          _this5.imgContentInit(useOriginal);
         };
       } else {
-        this.imgContentInit();
+        this.imgContentInit(useOriginal);
       }
 
       if (orientation == 2) {
@@ -1372,7 +1357,7 @@ function shouldUseNative() {
 	}
 }
 
-var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+var index$1 = shouldUseNative() ? Object.assign : function (target, source) {
 	var from;
 	var to = toObject(target);
 	var symbols;
@@ -1405,7 +1390,7 @@ var defaultOptions = {
 
 var VueCroppa = {
   install: function install(Vue, options) {
-    options = objectAssign({}, defaultOptions, options);
+    options = index$1({}, defaultOptions, options);
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');
