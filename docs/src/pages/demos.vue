@@ -4,25 +4,25 @@
               wrap>
       <v-flex>
         <!-- <v-expansion-panel expand>
-                <v-expansion-panel-content :value="false">
-                  <div slot="header"
-                       class="title">Zoom Slider</div>
-                  <div class="pt-2 pl-2">
-                    <p data-height="416"
-                       data-theme-id="19967"
-                       data-slug-hash="EvXjXx"
-                       data-default-tab="js,result"
-                       data-user="zhanziyang"
-                       data-embed-version="2"
-                       data-pen-title="Vue Croppa exif orientation"
-                       class="codepen">See the Pen
-                      <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
-                      <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
-                      <a href="https://codepen.io">CodePen</a>.</p>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-              <br> -->
+                          <v-expansion-panel-content :value="false">
+                            <div slot="header"
+                                 class="title">Zoom Slider</div>
+                            <div class="pt-2 pl-2">
+                              <p data-height="416"
+                                 data-theme-id="19967"
+                                 data-slug-hash="EvXjXx"
+                                 data-default-tab="js,result"
+                                 data-user="zhanziyang"
+                                 data-embed-version="2"
+                                 data-pen-title="Vue Croppa exif orientation"
+                                 class="codepen">See the Pen
+                                <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
+                                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                                <a href="https://codepen.io">CodePen</a>.</p>
+                            </div>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                        <br> -->
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="false">
             <div slot="header"
@@ -70,13 +70,10 @@
             <div class="pt-2 pl-2">
               <div class="wrapper">
                 <croppa :height="resizableH"
-                        :width="resizableW"></croppa>
+                        :width="resizableW"
+                        class="resizable-croppa"></croppa>
                 <img src="static/resize-bottom-right.svg"
                      class="icon-resize"
-                     @dragenter.stop.prevent
-                     @dragleave.stop.prevent
-                     @dragover.stop.prevent
-                     @drop.stop.prevent
                      @mousedown.stop.prevent="onResizeTouchStart">
               </div>
               <br>
@@ -175,7 +172,7 @@
   export default {
     data () {
       return {
-        lastCoord: null,
+        resizing: false,
         resizableW: 200,
         resizableH: 200,
         croppa1: {},
@@ -188,14 +185,11 @@
         return `\
  <div class="wrapper">
     <croppa :height="resizableH"
-            width="resizableW"></croppa>
+            :width="resizableW"
+            class="resizable-croppa"></croppa>
     <img src="static/resize-bottom-right.svg"
-        class="icon-resize"
-        @dragenter.stop.prevent
-        @dragleave.stop.prevent
-        @dragover.stop.prevent
-        @drop.stop.prevent
-        @mousedown.stop.prevent="onResizeTouchStart">
+          class="icon-resize"
+          @mousedown.stop.prevent="onResizeTouchStart">
  </div>`
       },
 
@@ -204,7 +198,7 @@
  export default {
     data () {
       return {
-        lastCoord: null,
+        resizing: false,
         resizableW: 200,
         resizableH: 200
       }
@@ -223,29 +217,21 @@
 
     methods: {
       onResizeTouchStart (evt) {
-        this.lastCoord = {
-          x: evt.clientX,
-          y: evt.clientY
-        }
+        this.resizing = true
       },
 
       onResizeTouchMove (evt) {
-        if (!this.lastCoord) return
+        if (!this.resizing) return
         document.documentElement.style.cursor = 'nwse-resize'
-        var deltaX = evt.clientX - this.lastCoord.x
-        var deltaY = evt.clientY - this.lastCoord.y
 
-        this.lastCoord = {
-          x: evt.clientX,
-          y: evt.clientY
-        }
+        var croppa = document.querySelector('.resizable-croppa')
 
-        this.resizableW += deltaX
-        this.resizableH += deltaY
+        this.resizableW = evt.clientX - croppa.getBoundingClientRect().left
+        this.resizableH = evt.clientY - croppa.getBoundingClientRect().top
       },
 
       onResizeTouchEnd (evt) {
-        this.lastCoord = null
+        this.resizing = false
         document.documentElement.style.cursor = 'default'
       }
     }
@@ -391,29 +377,21 @@
 
     methods: {
       onResizeTouchStart (evt) {
-        this.lastCoord = {
-          x: evt.clientX,
-          y: evt.clientY
-        }
+        this.resizing = true
       },
 
       onResizeTouchMove (evt) {
-        if (!this.lastCoord) return
+        if (!this.resizing) return
         document.documentElement.style.cursor = 'nwse-resize'
-        var deltaX = evt.clientX - this.lastCoord.x
-        var deltaY = evt.clientY - this.lastCoord.y
 
-        this.lastCoord = {
-          x: evt.clientX,
-          y: evt.clientY
-        }
+        var croppa = document.querySelector('.resizable-croppa')
 
-        this.resizableW += deltaX
-        this.resizableH += deltaY
+        this.resizableW = evt.clientX - croppa.getBoundingClientRect().left
+        this.resizableH = evt.clientY - croppa.getBoundingClientRect().top
       },
 
       onResizeTouchEnd (evt) {
-        this.lastCoord = null
+        this.resizing = false
         document.documentElement.style.cursor = 'default'
       },
 
