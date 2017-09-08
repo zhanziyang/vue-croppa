@@ -59,7 +59,7 @@
   const MIN_WIDTH = 10 // The minimal width the user can zoom to.
   const DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3 // Placeholder text by default takes up this amount of times of canvas width.
   const PINCH_ACCELERATION = 2 // The amount of times by which the pinching is more sensitive than the scolling
-  const DEBUG = false
+  // const DEBUG = false
 
   export default {
     model: {
@@ -379,14 +379,8 @@
       },
 
       handleClick () {
-        if (DEBUG) {
-          console.log('click')
-        }
         if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
           this.chooseFile()
-          if (DEBUG) {
-            console.log('trigger by click')
-          }
         }
       },
 
@@ -547,9 +541,6 @@
       },
 
       handlePointerStart (evt) {
-        if (DEBUG) {
-          console.log('touch start')
-        }
         this.supportTouch = true
         this.pointerMoved = false
         let pointerCoord = u.getPointerCoords(evt, this)
@@ -585,9 +576,6 @@
       },
 
       handlePointerEnd (evt) {
-        if (DEBUG) {
-          console.log('touch end')
-        }
         let pointerMoveDistance = 0
         if (this.pointerStartCoord) {
           let pointerCoord = u.getPointerCoords(evt, this)
@@ -598,9 +586,6 @@
           let tabEnd = new Date().valueOf()
           if ((pointerMoveDistance < CLICK_MOVE_THRESHOLD) && tabEnd - this.tabStart < MIN_MS_PER_CLICK && this.supportTouch) {
             this.chooseFile()
-            if (DEBUG) {
-              console.log('trigger by touch')
-            }
           }
           this.tabStart = 0
           return
@@ -868,7 +853,6 @@
 
       applyMetadata () {
         if (!this.userMetadata) return
-        console.log('hi')
         var { startX, startY, scale } = this.userMetadata
         startX = +startX
         startY = +startY

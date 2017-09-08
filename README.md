@@ -478,14 +478,8 @@ this.myCroppa.applyMetadata(metadata)
   - `ctx` is the `CanvasRenderingContext2D` object for you to draw anything you want on the current image. You can also get it with the method `getContext()`.
 - Find demo "Attachments" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
 
-#### <s>initial-image-load</s>
-- **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@load` event on img tag.
-- emitted when initial image is [provided](#initial) and successully loaded.
-
-#### <s>initial-image-error</s>
-- **Deprecated** Don't use this. It will be removed soon since you can directly listen to native `@error` event on img tag.
-- emitted when initial image is [provided](#initial) and failed loading.
-
+#### initial-image-loaded
+- emitted when initial image loaded. It can be useful when you provide initial image with the `initial-image` prop.
 ---
 
 ### 🌱 Customize styles
@@ -493,28 +487,33 @@ this.myCroppa.applyMetadata(metadata)
 - Check out [default css styles](https://github.com/zhanziyang/vue-croppa/blob/master/dist/vue-croppa.css). You can add more css styles to those selectors to get a different look. Be careful if you try to overwrite existing styles.
 - Note that CSS styles will not have any effect on the output image.
 
-## To Do List
+## Development
 
-- [x] File type filter on drag and drop. Add a `file-type-mismatch` event.
-- [x] Keep default scrolling behavior when there is no image.
-- [x] Browser support detection.
-- [x] Sopport dataTransferItemList interface on drop for better compatibility.
-- [x] Optimize doc page bundle size.
-- [x] Fix remove button shadow.
-- [x] Deprecation warning of unnecessary `initial-image-load` and `initial-image-error` events.
-- [x] Add a method `hasImage()` to represent whether currently there is a image.
-- [x] SSR compatibility.
-- [x] Deprecation warning of `reset()` method.
-- [x] Ignore non-file dragging.
-- [x] Change `accept` default value.
-- [x] Replace `for of` with tranditional `for` loop for better compatibility. 
-- [x] Expose component itself.
-- [ ] <s>Make container optionally resizable.</s>
-- [x] Make default position customizable.
-- [x] Rotation support.
-- [x] `toDataUrl()`s second argument to specify compression rate.
-- [x] Doc about file compression.
-- [x] Add examples to doc.
-- [x] Download example.
-- [x] Image placeholder.
-- [x] ondraw event.
+#### 1. Fork and clone the repo.
+#### 2. Install dependencies.
+```bash
+$ cd vue-croppa
+$ npm install
+``` 
+
+```bash
+$ cd docs
+$ npm install
+```
+#### 3. Start developing.
+```bash
+# under vue-croppa/
+$ npm run dev
+```
+
+```bash
+# under vue-croppa/docs/
+$ npm run dev
+```
+Edit file `./docs/simple-test.html` and open http://localhost:3000/simple-test.html to test while developing.
+
+#### 4. Build
+```bash
+# under vue-croppa/
+$ npm run build
+```
