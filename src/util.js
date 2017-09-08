@@ -195,5 +195,9 @@ export default {
     }
 
     return map[ori]
+  },
+
+  numberValid (n) {
+    return typeof n === 'number' && !isNaN(n)
   }
 }

@@ -89,9 +89,10 @@
         pointerStartCoord: null,
         naturalWidth: 0,
         naturalHeight: 0,
-        scaleRatio: 1,
+        scaleRatio: null,
         orientation: 1,
-        userMetadata: null
+        userMetadata: null,
+        imageSet: false
       }
     },
 
@@ -128,16 +129,18 @@
         if (!this.img) {
           this.init()
         } else {
+          this.imageSet = false
           this.setSize()
-          this.imgContentInit()
+          this.placeImage()
         }
       },
       realHeight: function () {
         if (!this.img) {
           this.init()
         } else {
+          this.imageSet = false
           this.setSize()
-          this.imgContentInit()
+          this.placeImage()
         }
       },
       canvasColor: function () {
@@ -163,7 +166,8 @@
         }
       },
       preventWhiteSpace () {
-        this.imgContentInit()
+        this.imageSet = false
+        this.placeImage()
       }
     },
 
@@ -300,7 +304,9 @@
         this.$refs.fileInput.value = ''
         this.imgData = {}
         this.orientation = 1
+        this.scaleRatio = null
         this.userMetadata = null
+        this.imageSet = false
 
         if (hadImage) {
           this.$emit(events.IMAGE_REMOVE_EVENT)
@@ -454,45 +460,61 @@
         return false
       },
 
-      imgContentInit (applyMetadata) {
+      placeImage (applyMetadata) {
+        var imgData = this.imgData
+
         this.naturalWidth = this.img.naturalWidth
         this.naturalHeight = this.img.naturalHeight
 
-        this.imgData.startX = 0
-        this.imgData.startY = 0
-        if (!this.preventWhiteSpace && this.initialSize == 'contain') {
-          this.aspectFit()
-        } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
-          this.naturalSize()
+        imgData.startX = u.numberValid(imgData.startX) ? imgData.startX : 0
+        imgData.startY = u.numberValid(imgData.startY) ? imgData.startY : 0
+
+        if (!this.imageSet) {
+          if (this.initialSize == 'contain') {
+            this.aspectFit()
+          } else if (this.initialSize == 'natural') {
+            this.naturalSize()
+          } else {
+            this.aspectFill()
+          }
+        } else if (u.numberValid(this.scaleRatio)) {
+          imgData.width = this.naturalWidth * this.scaleRatio
+          imgData.height = this.naturalHeight * this.scaleRatio
         } else {
           this.aspectFill()
         }
-        this.scaleRatio = this.imgData.width / this.naturalWidth
+        this.scaleRatio = imgData.width / this.naturalWidth
 
-        if (/top/.test(this.initialPosition)) {
-          this.imgData.startY = 0
-        } else if (/bottom/.test(this.initialPosition)) {
-          this.imgData.startY = this.realHeight - this.imgData.height
-        }
+        if (!this.imageSet) {
+          if (/top/.test(this.initialPosition)) {
+            imgData.startY = 0
+          } else if (/bottom/.test(this.initialPosition)) {
+            imgData.startY = this.realHeight - imgData.height
+          }
 
-        if (/left/.test(this.initialPosition)) {
-          this.imgData.startX = 0
-        } else if (/right/.test(this.initialPosition)) {
-          this.imgData.startX = this.realWidth - this.imgData.width
-        }
+          if (/left/.test(this.initialPosition)) {
+            imgData.startX = 0
+          } else if (/right/.test(this.initialPosition)) {
+            imgData.startX = this.realWidth - imgData.width
+          }
 
-        if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
-          var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
-          var x = +result[1] / 100
-          var y = +result[2] / 100
-          this.imgData.startX = x * (this.realWidth - this.imgData.width)
-          this.imgData.startY = y * (this.realHeight - this.imgData.height)
+          if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
+            var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
+            var x = +result[1] / 100
+            var y = +result[2] / 100
+            imgData.startX = x * (this.realWidth - imgData.width)
+            imgData.startY = y * (this.realHeight - imgData.height)
+          }
         }
 
         applyMetadata && this.applyMetadata()
 
         if (this.preventWhiteSpace) {
           this.preventMovingToWhiteSpace()
+        }
+
+        if (!this.imageSet) {
+          this.imageSet = true
         }
 
         this.draw()
@@ -509,11 +531,13 @@
           this.imgData.width = imgWidth / scaleRatio
           this.imgData.height = this.realHeight
           this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+          this.imgData.startY = 0
         } else {
           scaleRatio = imgWidth / this.realWidth
           this.imgData.height = imgHeight / scaleRatio
           this.imgData.width = this.realWidth
           this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+          this.imgData.startX = 0
         }
       },
 
@@ -763,10 +787,10 @@
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
-            this.imgContentInit(useOriginal)
+            this.placeImage(useOriginal)
           }
         } else {
-          this.imgContentInit()
+          this.placeImage()
         }
 
         if (orientation == 2) {
@@ -859,19 +883,16 @@
       applyMetadata () {
         if (!this.userMetadata) return
         var { startX, startY, scale } = this.userMetadata
-        startX = +startX
-        startY = +startY
-        scale = +scale
 
-        if (!isNaN(startX)) {
+        if (u.numberValid(startX)) {
           this.imgData.startX = startX
         }
 
-        if (!isNaN(startY)) {
+        if (u.numberValid(startY)) {
           this.imgData.startY = startY
         }
 
-        if (!isNaN(scale)) {
+        if (u.numberValid(scale)) {
           this.imgData.width = this.naturalWidth * scale
           this.imgData.height = this.naturalHeight * scale
           this.scaleRatio = scale

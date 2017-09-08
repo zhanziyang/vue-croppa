@@ -36,7 +36,8 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-image="/vue-croppa/static/500.jpeg">
+    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top"
+      initial-image="/vue-croppa/static/500.jpeg" prevent-white-space>
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
