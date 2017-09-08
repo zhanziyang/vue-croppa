@@ -36,10 +36,10 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded">
+    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-image="/vue-croppa/static/500.jpeg">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
-      <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
-        ref="foo" class="external" data-exif-orientation="6">
+      <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
+        ref="foo" class="external" data-exif-orientation="6"> -->
     </croppa>
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
@@ -106,7 +106,7 @@
 
         onInitialLoaded: function () {
           console.log('loadedd')
-          this.applyMetadata.call(this)
+          // this.applyMetadata.call(this)
         }
       }
     })

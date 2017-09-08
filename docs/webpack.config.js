@@ -56,7 +56,7 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     open: false,
-    setup(app) {
+    setup (app) {
       app.use('/vue-croppa/static/', express.static(path.resolve(__dirname, './static')))
     }
   },
@@ -67,6 +67,7 @@ module.exports = {
   plugins: [
     new BrowserSync({
       host: 'localhost',
+      files: ['./simple-test.html', './src/croppa/*'],
       port: 3000,
       proxy: 'http://localhost:8080/',
       serveStatic: [{

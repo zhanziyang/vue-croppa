@@ -235,7 +235,8 @@
           applyMetadata: (metadata) => {
             if (!metadata || !this.img) return
             this.userMetadata = metadata
-            this.rotate(metadata.orientation || this.orientation, true)
+            var ori = metadata.orientation || this.orientation || 1
+            this.rotate(ori, true)
           }
         })
       },
@@ -370,6 +371,10 @@
       _onload (img, orientation = 1) {
         this.originalImage = img
         this.img = img
+
+        if (isNaN(orientation)) {
+          orientation = 1
+        }
 
         this.rotate(orientation)
       },
@@ -754,14 +759,14 @@
 
       rotate (orientation = 6, useOriginal) {
         if (!this.img) return
-        if (orientation > 1) {
+        if (orientation > 1 || useOriginal) {
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
             this.imgContentInit(useOriginal)
           }
         } else {
-          this.imgContentInit(useOriginal)
+          this.imgContentInit()
         }
 
         if (orientation == 2) {
