@@ -129,7 +129,9 @@
         if (!this.img) {
           this.init()
         } else {
-          this.imageSet = false
+          if (this.preventWhiteSpace) {
+            this.imageSet = false
+          }
           this.setSize()
           this.placeImage()
         }
@@ -138,7 +140,9 @@
         if (!this.img) {
           this.init()
         } else {
-          this.imageSet = false
+          if (this.preventWhiteSpace) {
+            this.imageSet = false
+          }
           this.setSize()
           this.placeImage()
         }
@@ -166,7 +170,9 @@
         }
       },
       preventWhiteSpace () {
-        this.imageSet = false
+        if (this.preventWhiteSpace) {
+          this.imageSet = false
+        }
         this.placeImage()
       }
     },
