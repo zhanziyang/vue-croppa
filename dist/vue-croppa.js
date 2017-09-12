@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.3.3
+ * vue-croppa v0.3.4
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -539,7 +539,9 @@ var component = { render: function render() {
       if (!this.img) {
         this.init();
       } else {
-        this.imageSet = false;
+        if (this.preventWhiteSpace) {
+          this.imageSet = false;
+        }
         this.setSize();
         this.placeImage();
       }
@@ -548,7 +550,9 @@ var component = { render: function render() {
       if (!this.img) {
         this.init();
       } else {
-        this.imageSet = false;
+        if (this.preventWhiteSpace) {
+          this.imageSet = false;
+        }
         this.setSize();
         this.placeImage();
       }
@@ -576,7 +580,9 @@ var component = { render: function render() {
       }
     },
     preventWhiteSpace: function preventWhiteSpace() {
-      this.imageSet = false;
+      if (this.preventWhiteSpace) {
+        this.imageSet = false;
+      }
       this.placeImage();
     }
   },
