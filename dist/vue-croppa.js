@@ -1,5 +1,5 @@
 /*
- * vue-croppa v0.3.4
+ * vue-croppa v0.3.5
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -440,7 +440,7 @@ var component = { render: function render() {
           $event.stopPropagation();$event.preventDefault();_vm.handleDragOver($event);
         }, "drop": function drop($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleDrop($event);
-        } } }, [_c('input', { ref: "fileInput", attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled, "hidden": "" }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._t("placeholder")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+        } } }, [_c('input', { ref: "fileInput", staticStyle: { "height": "1px", "width": "1px", "overflow": "hidden", "margin-left": "-99999px", "position": "absolute" }, attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled }, on: { "change": _vm.handleInputChange } }), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._t("placeholder")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           $event.stopPropagation();$event.preventDefault();_vm.handleClick($event);
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();_vm.handlePointerStart($event);
