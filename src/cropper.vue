@@ -9,8 +9,8 @@
            :accept="accept"
            :disabled="disabled"
            ref="fileInput"
-           hidden
-           @change="handleInputChange" />
+           @change="handleInputChange"
+           style="height:1px;width:1px;overflow:hidden;margin-left:-99999px;position:absolute;" />
     <div class="slots"
          style="width: 0; height: 0; visibility: hidden;">
       <slot name="initial"></slot>
