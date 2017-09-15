@@ -519,5 +519,6 @@ $ npm run build
 ```
 
 ## To Do
+- [ ] Add unit test.
 - [ ] Use `ref` to call methods instead of `v-model`.
 - [ ] Convert strings to numbers for Number type props.
