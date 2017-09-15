@@ -520,3 +520,4 @@ $ npm run build
 
 ## To Do
 - [ ] Use `ref` to call methods instead of `v-model`.
+- [ ] Convert strings to numbers for Number type props.
