@@ -523,3 +523,4 @@ $ npm run build
 - [ ] Use `ref` to call methods instead of `v-model`.
 - [ ] Convert strings to numbers for Number type props.
 - [ ] `prevent-white-space` bug when apply scale metadata.
+- [ ] Add a flag to distinguish gestural and non-gestural manipulation in `zoom`, `move` events.
