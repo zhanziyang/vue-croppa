@@ -524,3 +524,4 @@ $ npm run build
 - [ ] Convert strings to numbers for Number type props.
 - [ ] `prevent-white-space` bug when apply scale metadata.
 - [ ] Add a flag to distinguish gestural and non-gestural manipulation in `zoom`, `move` events.
+- [ ] Fix doc about "new-image" event. It is fired after image read but before image drawn.
