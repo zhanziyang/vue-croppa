@@ -208,8 +208,8 @@
         }
         if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
           this.$emit(events.MOVE_EVENT)
-          this._draw()
         }
+        this._draw()
       },
 
       moveUpwards (amount) {
@@ -249,17 +249,7 @@
         this.imgData.height = this.imgData.height * x
 
         if (this.preventWhiteSpace) {
-          if (this.imgData.width < this.realWidth) {
-            let _x = this.realWidth / this.imgData.width
-            this.imgData.width = this.realWidth
-            this.imgData.height = this.imgData.height * _x
-          }
-
-          if (this.imgData.height < this.realHeight) {
-            let _x = this.realHeight / this.imgData.height
-            this.imgData.height = this.realHeight
-            this.imgData.width = this.imgData.width * _x
-          }
+          this._preventZoomingToWhiteSpace()
         }
         if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
           let offsetX = (x - 1) * (pos.x - this.imgData.startX)
@@ -271,9 +261,9 @@
             this._preventMovingToWhiteSpace()
           }
           this.$emit(events.ZOOM_EVENT)
-          this._draw()
           this.scaleRatio = this.imgData.width / this.naturalWidth
         }
+        this._draw()
       },
 
       zoomIn () {
@@ -639,7 +629,12 @@
           this.imageSet = true
         }
 
-        this._draw()
+        // this._draw(applyMetadata && this.preventWhiteSpace)
+        if (applyMetadata && this.preventWhiteSpace) {
+          this.zoom(false, null, 0)
+        } else {
+          this._draw()
+        }
       },
 
       _aspectFill () {
@@ -840,6 +835,20 @@
         }
       },
 
+      _preventZoomingToWhiteSpace () {
+        if (this.imgData.width < this.realWidth) {
+          let _x = this.realWidth / this.imgData.width
+          this.imgData.width = this.realWidth
+          this.imgData.height = this.imgData.height * _x
+        }
+
+        if (this.imgData.height < this.realHeight) {
+          let _x = this.realHeight / this.imgData.height
+          this.imgData.height = this.realHeight
+          this.imgData.width = this.imgData.width * _x
+        }
+      },
+
       _set (orientation = 6, useOriginal) {
         if (!this.img) return
         if (orientation > 1 || useOriginal) {
@@ -885,6 +894,10 @@
 
       _draw () {
         if (!this.img) return
+        // if (noWS) {
+        //   this._preventZoomingToWhiteSpace()
+        //   this._preventMovingToWhiteSpace()
+        // }
         if (window.requestAnimationFrame) {
           requestAnimationFrame(this._drawFrame)
         } else {

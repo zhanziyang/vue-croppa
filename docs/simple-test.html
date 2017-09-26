@@ -36,7 +36,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa v-model="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top"
+    <croppa ref="myCroppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top"
       initial-image="/vue-croppa/static/500.jpeg" prevent-white-space>
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
@@ -60,7 +60,7 @@
     new Vue({
       el: '#app',
       data: {
-        myCroppa: {},
+        // $refs.myCroppa: {},
         initialImage: null
       },
 
@@ -69,33 +69,33 @@
         image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
         image.setAttribute('crossorigin', 'anonymous')
         this.initialImage = image
-        // this.myCroppa.refresh()
+        // this.$refs.myCroppa.refresh()
       },
 
       methods: {
         rotate: function () {
-          this.myCroppa.rotate()
+          this.$refs.myCroppa.rotate()
         },
 
         flipX: function () {
-          this.myCroppa.flipX()
+          this.$refs.myCroppa.flipX()
         },
 
         flipY: function () {
-          this.myCroppa.flipY()
+          this.$refs.myCroppa.flipY()
         },
 
         getUrl: function () {
-          alert(this.myCroppa.generateDataUrl())
+          alert(this.$refs.myCroppa.generateDataUrl())
         },
 
         saveMetadata: function () {
-          localStorage.setItem('metadata', JSON.stringify(this.myCroppa.getMetadata()))
+          localStorage.setItem('metadata', JSON.stringify(this.$refs.myCroppa.getMetadata()))
         },
 
         applyMetadata: function () {
           var metadata = JSON.parse(localStorage.getItem('metadata'))
-          this.myCroppa.applyMetadata(metadata)
+          this.$refs.myCroppa.applyMetadata(metadata)
         },
 
         onDraw: function (ctx) {
