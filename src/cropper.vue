@@ -78,9 +78,9 @@
         dragging: false,
         lastMovingCoord: null,
         imgData: {},
-        dataUrl: '',
         fileDraggedOver: false,
         tabStart: 0,
+        scrolling: false,
         pinching: false,
         pinchDistance: 0,
         supportTouch: false,
@@ -96,15 +96,15 @@
     },
 
     computed: {
-      realWidth () {
+      outputWidth () {
         return this.width * this.quality
       },
 
-      realHeight () {
+      outputHeight () {
         return this.height * this.quality
       },
 
-      realPlaceholderFontSize () {
+      computedPlaceholderFontSize () {
         return this.placeholderFontSize * this.quality
       }
     },
@@ -121,7 +121,7 @@
     },
 
     watch: {
-      realWidth: function () {
+      outputWidth: function () {
         if (!this.img) {
           this._init()
         } else {
@@ -132,7 +132,7 @@
           this._placeImage()
         }
       },
-      realHeight: function () {
+      outputHeight: function () {
         if (!this.img) {
           this._init()
         } else {
@@ -160,7 +160,7 @@
           this._init()
         }
       },
-      realPlaceholderFontSize: function () {
+      computedPlaceholderFontSize: function () {
         if (!this.img) {
           this._init()
         }
@@ -188,8 +188,8 @@
 
       getActualImageSize () {
         return {
-          width: this.realWidth,
-          height: this.realHeight
+          width: this.outputWidth,
+          height: this.outputHeight
         }
       },
 
@@ -208,19 +208,19 @@
         this._draw()
       },
 
-      moveUpwards (amount) {
+      moveUpwards (amount = 1) {
         this.move({ x: 0, y: -amount })
       },
 
-      moveDownwards (amount) {
+      moveDownwards (amount = 1) {
         this.move({ x: 0, y: amount })
       },
 
-      moveLeftwards (amount) {
+      moveLeftwards (amount = 1) {
         this.move({ x: -amount, y: 0 })
       },
 
-      moveRightwards (amount) {
+      moveRightwards (amount = 1) {
         this.move({ x: amount, y: 0 })
       },
 
@@ -230,7 +230,7 @@
           y: this.imgData.startY + this.imgData.height / 2
         }
         let realSpeed = this.zoomSpeed * innerAcceleration
-        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
+        let speed = (this.outputWidth * PCT_PER_ZOOM) * realSpeed
         let x = 1
         if (zoomIn) {
           x = 1 + speed
@@ -282,12 +282,12 @@
 
       flipX () {
         if (this.disableRotation || this.disabled) return
-        this._set(2)
+        this._setOrientation(2)
       },
 
       flipY () {
         if (this.disableRotation || this.disabled) return
-        this._set(4)
+        this._setOrientation(4)
       },
 
       refresh () {
@@ -302,7 +302,7 @@
         if (!metadata || !this.img) return
         this.userMetadata = metadata
         var ori = metadata.orientation || this.orientation || 1
-        this._set(ori, true)
+        this._setOrientation(ori, true)
       },
       generateDataUrl (type, compressionRate) {
         if (!this.img) return ''
@@ -361,11 +361,11 @@
         this._setImagePlaceholder()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
-        let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
-        let fontSize = (!this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0) ? defaultFontSize : this.realPlaceholderFontSize
+        let defaultFontSize = this.outputWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
+        let fontSize = (!this.computedPlaceholderFontSize || this.computedPlaceholderFontSize == 0) ? defaultFontSize : this.computedPlaceholderFontSize
         ctx.font = fontSize + 'px sans-serif'
         ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
-        ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
+        ctx.fillText(this.placeholder, this.outputWidth / 2, this.outputHeight / 2)
 
         let hadImage = this.img != null
         this.originalImage = null
@@ -394,8 +394,8 @@
       },
 
       _setSize () {
-        this.canvas.width = this.realWidth
-        this.canvas.height = this.realHeight
+        this.canvas.width = this.outputWidth
+        this.canvas.height = this.outputHeight
         this.canvas.style.width = this.width + 'px'
         this.canvas.style.height = this.height + 'px'
       },
@@ -422,7 +422,7 @@
             orientation = 6
             break
         }
-        this._set(orientation)
+        this._setOrientation(orientation)
       },
 
       _setImagePlaceholder () {
@@ -438,7 +438,7 @@
         if (!img) return
 
         var onLoad = () => {
-          this.ctx.drawImage(img, 0, 0, this.realWidth, this.realHeight)
+          this.ctx.drawImage(img, 0, 0, this.outputWidth, this.outputHeight)
         }
 
         if (u.imageLoaded(img)) {
@@ -494,7 +494,7 @@
           orientation = 1
         }
 
-        this._set(orientation)
+        this._setOrientation(orientation)
       },
 
       _handleClick () {
@@ -597,25 +597,25 @@
           if (/top/.test(this.initialPosition)) {
             imgData.startY = 0
           } else if (/bottom/.test(this.initialPosition)) {
-            imgData.startY = this.realHeight - imgData.height
+            imgData.startY = this.outputHeight - imgData.height
           }
 
           if (/left/.test(this.initialPosition)) {
             imgData.startX = 0
           } else if (/right/.test(this.initialPosition)) {
-            imgData.startX = this.realWidth - imgData.width
+            imgData.startX = this.outputWidth - imgData.width
           }
 
           if (/^-?\d+% -?\d+%$/.test(this.initialPosition)) {
             var result = /^(-?\d+)% (-?\d+)%$/.exec(this.initialPosition)
             var x = +result[1] / 100
             var y = +result[2] / 100
-            imgData.startX = x * (this.realWidth - imgData.width)
-            imgData.startY = y * (this.realHeight - imgData.height)
+            imgData.startX = x * (this.outputWidth - imgData.width)
+            imgData.startY = y * (this.outputHeight - imgData.height)
           }
         }
 
-        applyMetadata && this._setMetadata()
+        applyMetadata && this._applyMetadata()
 
         if (this.preventWhiteSpace) {
           this._preventMovingToWhiteSpace()
@@ -625,7 +625,6 @@
           this.imageSet = true
         }
 
-        // this._draw(applyMetadata && this.preventWhiteSpace)
         if (applyMetadata && this.preventWhiteSpace) {
           this.zoom(false, null, 0)
         } else {
@@ -637,19 +636,19 @@
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
         let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.realHeight / this.realWidth
+        let canvasRatio = this.outputHeight / this.outputWidth
         let scaleRatio
         if (imgRatio < canvasRatio) {
-          scaleRatio = imgHeight / this.realHeight
+          scaleRatio = imgHeight / this.outputHeight
           this.imgData.width = imgWidth / scaleRatio
-          this.imgData.height = this.realHeight
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+          this.imgData.height = this.outputHeight
+          this.imgData.startX = -(this.imgData.width - this.outputWidth) / 2
           this.imgData.startY = 0
         } else {
-          scaleRatio = imgWidth / this.realWidth
+          scaleRatio = imgWidth / this.outputWidth
           this.imgData.height = imgHeight / scaleRatio
-          this.imgData.width = this.realWidth
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+          this.imgData.width = this.outputWidth
+          this.imgData.startY = -(this.imgData.height - this.outputHeight) / 2
           this.imgData.startX = 0
         }
       },
@@ -658,18 +657,18 @@
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
         let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.realHeight / this.realWidth
+        let canvasRatio = this.outputHeight / this.outputWidth
         let scaleRatio
         if (imgRatio < canvasRatio) {
-          scaleRatio = imgWidth / this.realWidth
+          scaleRatio = imgWidth / this.outputWidth
           this.imgData.height = imgHeight / scaleRatio
-          this.imgData.width = this.realWidth
-          this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+          this.imgData.width = this.outputWidth
+          this.imgData.startY = -(this.imgData.height - this.outputHeight) / 2
         } else {
-          scaleRatio = imgHeight / this.realHeight
+          scaleRatio = imgHeight / this.outputHeight
           this.imgData.width = imgWidth / scaleRatio
-          this.imgData.height = this.realHeight
-          this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
+          this.imgData.height = this.outputHeight
+          this.imgData.startX = -(this.imgData.width - this.outputWidth) / 2
         }
       },
 
@@ -678,8 +677,8 @@
         let imgHeight = this.naturalHeight
         this.imgData.width = imgWidth
         this.imgData.height = imgHeight
-        this.imgData.startX = -(this.imgData.width - this.realWidth) / 2
-        this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
+        this.imgData.startX = -(this.imgData.width - this.outputWidth) / 2
+        this.imgData.startY = -(this.imgData.height - this.outputHeight) / 2
       },
 
       _handlePointerStart (evt) {
@@ -772,11 +771,13 @@
         if (this.disabled || this.disableScrollToZoom || !this.img) return
         evt.preventDefault()
         let coord = u.getPointerCoords(evt, this)
+        this.scrolling = true
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
           this.zoom(this.reverseScrollToZoom, coord)
         } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
           this.zoom(!this.reverseScrollToZoom, coord)
         }
+        this.scrolling = false
       },
 
       _handleDragEnter (evt) {
@@ -823,38 +824,39 @@
         if (this.imgData.startY > 0) {
           this.imgData.startY = 0
         }
-        if (this.realWidth - this.imgData.startX > this.imgData.width) {
-          this.imgData.startX = -(this.imgData.width - this.realWidth)
+        if (this.outputWidth - this.imgData.startX > this.imgData.width) {
+          this.imgData.startX = -(this.imgData.width - this.outputWidth)
         }
-        if (this.realHeight - this.imgData.startY > this.imgData.height) {
-          this.imgData.startY = -(this.imgData.height - this.realHeight)
+        if (this.outputHeight - this.imgData.startY > this.imgData.height) {
+          this.imgData.startY = -(this.imgData.height - this.outputHeight)
         }
       },
 
       _preventZoomingToWhiteSpace () {
-        if (this.imgData.width < this.realWidth) {
-          let _x = this.realWidth / this.imgData.width
-          this.imgData.width = this.realWidth
+        if (this.imgData.width < this.outputWidth) {
+          let _x = this.outputWidth / this.imgData.width
+          this.imgData.width = this.outputWidth
           this.imgData.height = this.imgData.height * _x
         }
 
-        if (this.imgData.height < this.realHeight) {
-          let _x = this.realHeight / this.imgData.height
-          this.imgData.height = this.realHeight
+        if (this.imgData.height < this.outputHeight) {
+          let _x = this.outputHeight / this.imgData.height
+          this.imgData.height = this.outputHeight
           this.imgData.width = this.imgData.width * _x
         }
       },
 
-      _set (orientation = 6, useOriginal) {
+      _setOrientation (orientation = 6, applyMetadata) {
         if (!this.img) return
+        var useOriginal = applyMetadata && this.userMetadata.orientation !== this.orientation
         if (orientation > 1 || useOriginal) {
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
-            this._placeImage(useOriginal)
+            this._placeImage(applyMetadata)
           }
         } else {
-          this._placeImage()
+          this._placeImage(applyMetadata)
         }
 
         if (orientation == 2) {
@@ -884,8 +886,8 @@
       _paintBackground () {
         let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : this.canvasColor
         this.ctx.fillStyle = backgroundColor
-        this.ctx.clearRect(0, 0, this.realWidth, this.realHeight)
-        this.ctx.fillRect(0, 0, this.realWidth, this.realHeight)
+        this.ctx.clearRect(0, 0, this.outputWidth, this.outputHeight)
+        this.ctx.fillRect(0, 0, this.outputWidth, this.outputHeight)
       },
 
       _draw () {
@@ -910,7 +912,7 @@
         this.$emit(events.DRAW, ctx)
       },
 
-      _setMetadata () {
+      _applyMetadata () {
         if (!this.userMetadata) return
         var { startX, startY, scale } = this.userMetadata
 

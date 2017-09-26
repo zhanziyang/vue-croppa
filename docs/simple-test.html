@@ -36,7 +36,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top"
+    <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top" @move="onMove"
       initial-image="/vue-croppa/static/500.jpeg" prevent-white-space>
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
@@ -48,6 +48,8 @@
     <button @click="rotate">ROTATE</button>
     <button @click="flipX">FLIP-X</button>
     <button @click="flipY">FLIP-Y</button>
+    <br>
+    <button @mousedown="moveUp">MOVE UP</button>
     <br>
     <button @click="saveMetadata">SAVE METADATA</button>
     <button @click="applyMetadata">APPLY METADATA</button>
@@ -109,6 +111,14 @@
         onInitialLoaded: function () {
           console.log('loadedd')
           // this.applyMetadata.call(this)
+        },
+
+        onMove() {
+          console.log(this.croppa.dragging)
+        },
+
+        moveUp() {
+          this.croppa.moveUpwards(5)
         }
       }
     })
