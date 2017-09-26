@@ -1,15 +1,15 @@
 <template>
   <div ref="wrapper"
        :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
-       @dragenter.stop.prevent="handleDragEnter"
-       @dragleave.stop.prevent="handleDragLeave"
-       @dragover.stop.prevent="handleDragOver"
-       @drop.stop.prevent="handleDrop">
+       @dragenter.stop.prevent="_handleDragEnter"
+       @dragleave.stop.prevent="_handleDragLeave"
+       @dragover.stop.prevent="_handleDragOver"
+       @drop.stop.prevent="_handleDrop">
     <input type="file"
            :accept="accept"
            :disabled="disabled"
            ref="fileInput"
-           @change="handleInputChange"
+           @change="_handleInputChange"
            style="height:1px;width:1px;overflow:hidden;margin-left:-99999px;position:absolute;" />
     <div class="slots"
          style="width: 0; height: 0; visibility: hidden;">
@@ -17,21 +17,21 @@
       <slot name="placeholder"></slot>
     </div>
     <canvas ref="canvas"
-            @click.stop.prevent="handleClick"
-            @touchstart.stop="handlePointerStart"
-            @mousedown.stop.prevent="handlePointerStart"
-            @pointerstart.stop.prevent="handlePointerStart"
-            @touchend.stop.prevent="handlePointerEnd"
-            @touchcancel.stop.prevent="handlePointerEnd"
-            @mouseup.stop.prevent="handlePointerEnd"
-            @pointerend.stop.prevent="handlePointerEnd"
-            @pointercancel.stop.prevent="handlePointerEnd"
-            @touchmove.stop="handlePointerMove"
-            @mousemove.stop.prevent="handlePointerMove"
-            @pointermove.stop.prevent="handlePointerMove"
-            @DOMMouseScroll.stop="handleWheel"
-            @wheel.stop="handleWheel"
-            @mousewheel.stop="handleWheel"></canvas>
+            @click.stop.prevent="_handleClick"
+            @touchstart.stop="_handlePointerStart"
+            @mousedown.stop.prevent="_handlePointerStart"
+            @pointerstart.stop.prevent="_handlePointerStart"
+            @touchend.stop.prevent="_handlePointerEnd"
+            @touchcancel.stop.prevent="_handlePointerEnd"
+            @mouseup.stop.prevent="_handlePointerEnd"
+            @pointerend.stop.prevent="_handlePointerEnd"
+            @pointercancel.stop.prevent="_handlePointerEnd"
+            @touchmove.stop="_handlePointerMove"
+            @mousemove.stop.prevent="_handlePointerMove"
+            @pointermove.stop.prevent="_handlePointerMove"
+            @DOMMouseScroll.stop="_handleWheel"
+            @wheel.stop="_handleWheel"
+            @mousewheel.stop="_handleWheel"></canvas>
     <svg class="icon icon-remove"
          v-if="showRemoveButton && img"
          @click="remove"
@@ -64,7 +64,7 @@
   export default {
     model: {
       prop: 'value',
-      event: 'init'
+      event: '_init'
     },
 
     props: props,
@@ -111,7 +111,7 @@
     },
 
     mounted () {
-      this.init()
+      this._init()
       u.rAFPolyfill()
       u.toBlobPolyfill()
 
@@ -127,65 +127,65 @@
       },
       realWidth: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         } else {
           if (this.preventWhiteSpace) {
             this.imageSet = false
           }
-          this.setSize()
-          this.placeImage()
+          this._setSize()
+          this._placeImage()
         }
       },
       realHeight: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         } else {
           if (this.preventWhiteSpace) {
             this.imageSet = false
           }
-          this.setSize()
-          this.placeImage()
+          this._setSize()
+          this._placeImage()
         }
       },
       canvasColor: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         } else {
-          this.draw()
+          this._draw()
         }
       },
       placeholder: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         }
       },
       placeholderColor: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         }
       },
       realPlaceholderFontSize: function () {
         if (!this.img) {
-          this.init()
+          this._init()
         }
       },
       preventWhiteSpace () {
         if (this.preventWhiteSpace) {
           this.imageSet = false
         }
-        this.placeImage()
+        this._placeImage()
       }
     },
 
     methods: {
-      init () {
+      _init () {
         this.canvas = this.$refs.canvas
-        this.setSize()
+        this._setSize()
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
         this.ctx = this.canvas.getContext('2d')
         this.originalImage = null
         this.img = null
-        this.setInitial()
+        this._setInitial()
         this.$emit(events.INIT_EVENT, {
           getCanvas: () => this.canvas,
           getContext: () => this.ctx,
@@ -219,18 +219,18 @@
               console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
               step = 1
             }
-            this.rotateByStep(step)
+            this._rotateByStep(step)
           },
           flipX: () => {
             if (this.disableRotation || this.disabled) return
-            this.rotate(2)
+            this._set(2)
           },
           flipY: () => {
             if (this.disableRotation || this.disabled) return
-            this.rotate(4)
+            this._set(4)
           },
           refresh: () => {
-            this.$nextTick(this.init)
+            this.$nextTick(this._init)
           },
           hasImage: () => {
             return !!this.img
@@ -246,19 +246,19 @@
             if (!metadata || !this.img) return
             this.userMetadata = metadata
             var ori = metadata.orientation || this.orientation || 1
-            this.rotate(ori, true)
+            this._set(ori, true)
           }
         })
       },
 
-      setSize () {
+      _setSize () {
         this.canvas.width = this.realWidth
         this.canvas.height = this.realHeight
         this.canvas.style.width = this.width + 'px'
         this.canvas.style.height = this.height + 'px'
       },
 
-      rotateByStep (step) {
+      _rotateByStep (step) {
         let orientation = 1
         switch (step) {
           case 1:
@@ -280,7 +280,7 @@
             orientation = 6
             break
         }
-        this.rotate(orientation)
+        this._set(orientation)
       },
 
       supportDetection () {
@@ -293,9 +293,9 @@
 
       remove () {
         let ctx = this.ctx
-        this.paintBackground()
+        this._paintBackground()
 
-        this.setImagePlaceholder()
+        this._setImagePlaceholder()
         ctx.textBaseline = 'middle'
         ctx.textAlign = 'center'
         let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
@@ -319,7 +319,7 @@
         }
       },
 
-      setImagePlaceholder () {
+      _setImagePlaceholder () {
         let img
         if (this.$slots.placeholder && this.$slots.placeholder[0]) {
           let vNode = this.$slots.placeholder[0]
@@ -342,7 +342,7 @@
         }
       },
 
-      setInitial () {
+      _setInitial () {
         let src, img
         if (this.$slots.initial && this.$slots.initial[0]) {
           let vNode = this.$slots.initial[0]
@@ -388,34 +388,34 @@
           orientation = 1
         }
 
-        this.rotate(orientation)
+        this._set(orientation)
       },
 
       chooseFile () {
         this.$refs.fileInput.click()
       },
 
-      handleClick () {
+      _handleClick () {
         if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
           this.chooseFile()
         }
       },
 
-      handleInputChange () {
+      _handleInputChange () {
         let input = this.$refs.fileInput
         if (!input.files.length) return
 
         let file = input.files[0]
-        this.onNewFileIn(file)
+        this._onNewFileIn(file)
       },
 
-      onNewFileIn (file) {
+      _onNewFileIn (file) {
         this.$emit(events.FILE_CHOOSE_EVENT, file)
-        if (!this.fileSizeIsValid(file)) {
+        if (!this._fileSizeIsValid(file)) {
           this.$emit(events.FILE_SIZE_EXCEED_EVENT, file)
           throw new Error('File size exceeds limit which is ' + this.fileSizeLimit + ' bytes.')
         }
-        if (!this.fileTypeIsValid(file)) {
+        if (!this._fileTypeIsValid(file)) {
           this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
           let type = file.type || file.name.toLowerCase().split('.').pop()
           throw new Error(`File type (${type}) does not match what you specified (${this.accept}).`)
@@ -437,14 +437,14 @@
         }
       },
 
-      fileSizeIsValid (file) {
+      _fileSizeIsValid (file) {
         if (!file) return false
         if (!this.fileSizeLimit || this.fileSizeLimit == 0) return true
 
         return file.size < this.fileSizeLimit
       },
 
-      fileTypeIsValid (file) {
+      _fileTypeIsValid (file) {
         let accept = this.accept || 'image/*'
         let baseMimetype = accept.replace(/\/.*$/, '')
         let types = accept.split(',')
@@ -466,7 +466,7 @@
         return false
       },
 
-      placeImage (applyMetadata) {
+      _placeImage (applyMetadata) {
         var imgData = this.imgData
 
         this.naturalWidth = this.img.naturalWidth
@@ -477,17 +477,17 @@
 
         if (!this.imageSet) {
           if (this.initialSize == 'contain') {
-            this.aspectFit()
+            this._aspectFit()
           } else if (this.initialSize == 'natural') {
-            this.naturalSize()
+            this._naturalSize()
           } else {
-            this.aspectFill()
+            this._aspectFill()
           }
         } else if (u.numberValid(this.scaleRatio)) {
           imgData.width = this.naturalWidth * this.scaleRatio
           imgData.height = this.naturalHeight * this.scaleRatio
         } else {
-          this.aspectFill()
+          this._aspectFill()
         }
         this.scaleRatio = imgData.width / this.naturalWidth
 
@@ -513,20 +513,20 @@
           }
         }
 
-        applyMetadata && this.applyMetadata()
+        applyMetadata && this._setMetadata()
 
         if (this.preventWhiteSpace) {
-          this.preventMovingToWhiteSpace()
+          this._preventMovingToWhiteSpace()
         }
 
         if (!this.imageSet) {
           this.imageSet = true
         }
 
-        this.draw()
+        this._draw()
       },
 
-      aspectFill () {
+      _aspectFill () {
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
         let imgRatio = imgHeight / imgWidth
@@ -547,7 +547,7 @@
         }
       },
 
-      aspectFit () {
+      _aspectFit () {
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
         let imgRatio = imgHeight / imgWidth
@@ -566,7 +566,7 @@
         }
       },
 
-      naturalSize () {
+      _naturalSize () {
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
         this.imgData.width = imgWidth
@@ -575,7 +575,7 @@
         this.imgData.startY = -(this.imgData.height - this.realHeight) / 2
       },
 
-      handlePointerStart (evt) {
+      _handlePointerStart (evt) {
         this.supportTouch = true
         this.pointerMoved = false
         let pointerCoord = u.getPointerCoords(evt, this)
@@ -606,11 +606,11 @@
         let cancelEvents = ['mouseup', 'touchend', 'touchcancel', 'pointerend', 'pointercancel']
         for (let i = 0, len = cancelEvents.length; i < len; i++) {
           let e = cancelEvents[i]
-          document.addEventListener(e, this.handlePointerEnd)
+          document.addEventListener(e, this._handlePointerEnd)
         }
       },
 
-      handlePointerEnd (evt) {
+      _handlePointerEnd (evt) {
         let pointerMoveDistance = 0
         if (this.pointerStartCoord) {
           let pointerCoord = u.getPointerCoords(evt, this)
@@ -634,7 +634,7 @@
         this.pointerStartCoord = null
       },
 
-      handlePointerMove (evt) {
+      _handlePointerMove (evt) {
         this.pointerMoved = true
 
         if (this.disabled || this.disableDragToMove || !this.img) return
@@ -661,7 +661,7 @@
         }
       },
 
-      handleWheel (evt) {
+      _handleWheel (evt) {
         if (this.disabled || this.disableScrollToZoom || !this.img) return
         evt.preventDefault()
         let coord = u.getPointerCoords(evt, this)
@@ -672,20 +672,20 @@
         }
       },
 
-      handleDragEnter (evt) {
+      _handleDragEnter (evt) {
         if (this.disabled || this.disableDragAndDrop || this.img || !u.eventHasFile(evt)) return
         this.fileDraggedOver = true
       },
 
-      handleDragLeave (evt) {
+      _handleDragLeave (evt) {
         if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         this.fileDraggedOver = false
       },
 
-      handleDragOver (evt) {
+      _handleDragOver (evt) {
       },
 
-      handleDrop (evt) {
+      _handleDrop (evt) {
         if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         this.fileDraggedOver = false
 
@@ -705,7 +705,7 @@
         }
 
         if (file) {
-          this.onNewFileIn(file)
+          this._onNewFileIn(file)
         }
       },
 
@@ -716,15 +716,15 @@
         this.imgData.startX += offset.x
         this.imgData.startY += offset.y
         if (this.preventWhiteSpace) {
-          this.preventMovingToWhiteSpace()
+          this._preventMovingToWhiteSpace()
         }
         if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
           this.$emit(events.MOVE_EVENT)
-          this.draw()
+          this._draw()
         }
       },
 
-      preventMovingToWhiteSpace () {
+      _preventMovingToWhiteSpace () {
         if (this.imgData.startX > 0) {
           this.imgData.startX = 0
         }
@@ -779,24 +779,24 @@
           this.imgData.startY = this.imgData.startY - offsetY
 
           if (this.preventWhiteSpace) {
-            this.preventMovingToWhiteSpace()
+            this._preventMovingToWhiteSpace()
           }
           this.$emit(events.ZOOM_EVENT)
-          this.draw()
+          this._draw()
           this.scaleRatio = this.imgData.width / this.naturalWidth
         }
       },
 
-      rotate (orientation = 6, useOriginal) {
+      _set (orientation = 6, useOriginal) {
         if (!this.img) return
         if (orientation > 1 || useOriginal) {
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
-            this.placeImage(useOriginal)
+            this._placeImage(useOriginal)
           }
         } else {
-          this.placeImage()
+          this._placeImage()
         }
 
         if (orientation == 2) {
@@ -823,14 +823,14 @@
         }
       },
 
-      paintBackground () {
+      _paintBackground () {
         let backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : this.canvasColor
         this.ctx.fillStyle = backgroundColor
         this.ctx.clearRect(0, 0, this.realWidth, this.realHeight)
         this.ctx.fillRect(0, 0, this.realWidth, this.realHeight)
       },
 
-      draw () {
+      _draw () {
         if (!this.img) return
         if (window.requestAnimationFrame) {
           requestAnimationFrame(this._drawFrame)
@@ -843,7 +843,7 @@
         let ctx = this.ctx
         let { startX, startY, width, height } = this.imgData
 
-        this.paintBackground()
+        this._paintBackground()
         ctx.drawImage(this.img, startX, startY, width, height)
         this.$emit(events.DRAW, ctx)
       },
@@ -886,7 +886,7 @@
         }
       },
 
-      applyMetadata () {
+      _setMetadata () {
         if (!this.userMetadata) return
         var { startX, startY, scale } = this.userMetadata
 
