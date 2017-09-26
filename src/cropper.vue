@@ -71,7 +71,6 @@
 
     data () {
       return {
-        instance: null,
         canvas: null,
         ctx: null,
         originalImage: null,
@@ -122,9 +121,6 @@
     },
 
     watch: {
-      value: function (val) {
-        this.instance = val
-      },
       realWidth: function () {
         if (!this.img) {
           this._init()
