@@ -64,7 +64,7 @@
   export default {
     model: {
       prop: 'value',
-      event: '_init'
+      event: events.INIT_EVENT
     },
 
     props: props,
