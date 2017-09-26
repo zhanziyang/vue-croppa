@@ -2,6 +2,11 @@ Number.isInteger = Number.isInteger || function (value) {
   return typeof value === 'number' && isFinite(value) && Math.floor(value) === value
 }
 
+var initialImageType = String
+if (window && window.HTMLImageElement) {
+  initialImageType = [String, HTMLImageElement]
+}
+
 export default {
   value: Object,
   width: {
@@ -80,7 +85,7 @@ export default {
   removeButtonSize: {
     type: Number
   },
-  initialImage: [String, HTMLImageElement],
+  initialImage: initialImageType,
   initialSize: {
     type: String,
     default: 'cover',
