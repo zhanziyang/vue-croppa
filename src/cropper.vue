@@ -178,6 +178,224 @@
     },
 
     methods: {
+      getCanvas () {
+        return this.canvas
+      },
+
+      getContext () {
+        return this.ctx
+      },
+
+      getChosenFile () {
+        return this.$refs.fileInput.files[0]
+      },
+
+      getActualImageSize () {
+        return {
+          width: this.realWidth,
+          height: this.realHeight
+        }
+      },
+
+      move (offset) {
+        if (!offset) return
+        let oldX = this.imgData.startX
+        let oldY = this.imgData.startY
+        this.imgData.startX += offset.x
+        this.imgData.startY += offset.y
+        if (this.preventWhiteSpace) {
+          this._preventMovingToWhiteSpace()
+        }
+        if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
+          this.$emit(events.MOVE_EVENT)
+          this._draw()
+        }
+      },
+
+      moveUpwards (amount) {
+        this.move({ x: 0, y: -amount })
+      },
+
+      moveDownwards (amount) {
+        this.move({ x: 0, y: amount })
+      },
+
+      moveLeftwards (amount) {
+        this.move({ x: -amount, y: 0 })
+      },
+
+      moveRightwards (amount) {
+        this.move({ x: amount, y: 0 })
+      },
+
+      zoom (zoomIn, pos, innerAcceleration = 1) {
+        pos = pos || {
+          x: this.imgData.startX + this.imgData.width / 2,
+          y: this.imgData.startY + this.imgData.height / 2
+        }
+        let realSpeed = this.zoomSpeed * innerAcceleration
+        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
+        let x = 1
+        if (zoomIn) {
+          x = 1 + speed
+        } else if (this.imgData.width > MIN_WIDTH) {
+          x = 1 - speed
+        }
+
+        let oldWidth = this.imgData.width
+        let oldHeight = this.imgData.height
+
+        this.imgData.width = this.imgData.width * x
+        this.imgData.height = this.imgData.height * x
+
+        if (this.preventWhiteSpace) {
+          if (this.imgData.width < this.realWidth) {
+            let _x = this.realWidth / this.imgData.width
+            this.imgData.width = this.realWidth
+            this.imgData.height = this.imgData.height * _x
+          }
+
+          if (this.imgData.height < this.realHeight) {
+            let _x = this.realHeight / this.imgData.height
+            this.imgData.height = this.realHeight
+            this.imgData.width = this.imgData.width * _x
+          }
+        }
+        if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
+          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+          this.imgData.startX = this.imgData.startX - offsetX
+          this.imgData.startY = this.imgData.startY - offsetY
+
+          if (this.preventWhiteSpace) {
+            this._preventMovingToWhiteSpace()
+          }
+          this.$emit(events.ZOOM_EVENT)
+          this._draw()
+          this.scaleRatio = this.imgData.width / this.naturalWidth
+        }
+      },
+
+      zoomIn () {
+        this.zoom(true)
+      },
+
+      zoomOut () {
+        this.zoom(false)
+      },
+
+      rotate (step = 1) {
+        if (this.disableRotation || this.disabled) return
+        step = parseInt(step)
+        if (isNaN(step) || step > 3 || step < -3) {
+          console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
+          step = 1
+        }
+        this._rotateByStep(step)
+      },
+
+      flipX () {
+        if (this.disableRotation || this.disabled) return
+        this._set(2)
+      },
+
+      flipY () {
+        if (this.disableRotation || this.disabled) return
+        this._set(4)
+      },
+
+      refresh () {
+        this.$nextTick(this._init)
+      },
+
+      hasImage () {
+        return !!this.img
+      },
+
+      applyMetadata (metadata) {
+        if (!metadata || !this.img) return
+        this.userMetadata = metadata
+        var ori = metadata.orientation || this.orientation || 1
+        this._set(ori, true)
+      },
+      generateDataUrl (type, compressionRate) {
+        if (!this.img) return ''
+        return this.canvas.toDataURL(type, compressionRate)
+      },
+
+      generateBlob (callback, mimeType, qualityArgument) {
+        if (!this.img) return null
+        this.canvas.toBlob(callback, mimeType, qualityArgument)
+      },
+
+      promisedBlob (...args) {
+        if (typeof Promise == 'undefined') {
+          console.warn('No Promise support. Please add Promise polyfill if you want to use this method.')
+          return
+        }
+        return new Promise((resolve, reject) => {
+          try {
+            this.generateBlob((blob) => {
+              resolve(blob)
+            }, args)
+          } catch (err) {
+            reject(err)
+          }
+        })
+      },
+
+      getMetadata () {
+        if (!this.img) return {}
+        let { startX, startY } = this.imgData
+
+        return {
+          startX,
+          startY,
+          scale: this.scaleRatio,
+          orientation: this.orientation
+        }
+      },
+
+      supportDetection () {
+        var div = document.createElement('div')
+        return {
+          'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
+          'dnd': 'ondragstart' in div && 'ondrop' in div
+        }
+      },
+
+      chooseFile () {
+        this.$refs.fileInput.click()
+      },
+
+      remove () {
+        let ctx = this.ctx
+        this._paintBackground()
+
+        this._setImagePlaceholder()
+        ctx.textBaseline = 'middle'
+        ctx.textAlign = 'center'
+        let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
+        let fontSize = (!this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0) ? defaultFontSize : this.realPlaceholderFontSize
+        ctx.font = fontSize + 'px sans-serif'
+        ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
+        ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
+
+        let hadImage = this.img != null
+        this.originalImage = null
+        this.img = null
+        this.$refs.fileInput.value = ''
+        this.imgData = {}
+        this.orientation = 1
+        this.scaleRatio = null
+        this.userMetadata = null
+        this.imageSet = false
+
+        if (hadImage) {
+          this.$emit(events.IMAGE_REMOVE_EVENT)
+        }
+      },
+
       _init () {
         this.canvas = this.$refs.canvas
         this._setSize()
@@ -186,69 +404,7 @@
         this.originalImage = null
         this.img = null
         this._setInitial()
-        this.$emit(events.INIT_EVENT, {
-          getCanvas: () => this.canvas,
-          getContext: () => this.ctx,
-          getChosenFile: () => this.$refs.fileInput.files[0],
-          getActualImageSize: () => ({
-            width: this.realWidth,
-            height: this.realHeight
-          }),
-          moveUpwards: (amount) => {
-            this.move({ x: 0, y: -amount })
-          },
-          moveDownwards: (amount) => {
-            this.move({ x: 0, y: amount })
-          },
-          moveLeftwards: (amount) => {
-            this.move({ x: -amount, y: 0 })
-          },
-          moveRightwards: (amount) => {
-            this.move({ x: amount, y: 0 })
-          },
-          zoomIn: () => {
-            this.zoom(true)
-          },
-          zoomOut: () => {
-            this.zoom(false)
-          },
-          rotate: (step = 1) => {
-            if (this.disableRotation || this.disabled) return
-            step = parseInt(step)
-            if (isNaN(step) || step > 3 || step < -3) {
-              console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
-              step = 1
-            }
-            this._rotateByStep(step)
-          },
-          flipX: () => {
-            if (this.disableRotation || this.disabled) return
-            this._set(2)
-          },
-          flipY: () => {
-            if (this.disableRotation || this.disabled) return
-            this._set(4)
-          },
-          refresh: () => {
-            this.$nextTick(this._init)
-          },
-          hasImage: () => {
-            return !!this.img
-          },
-          remove: this.remove,
-          chooseFile: this.chooseFile,
-          generateDataUrl: this.generateDataUrl,
-          generateBlob: this.generateBlob,
-          promisedBlob: this.promisedBlob,
-          supportDetection: this.supportDetection,
-          getMetadata: this.getMetadata,
-          applyMetadata: (metadata) => {
-            if (!metadata || !this.img) return
-            this.userMetadata = metadata
-            var ori = metadata.orientation || this.orientation || 1
-            this._set(ori, true)
-          }
-        })
+        this.$emit(events.INIT_EVENT, this)
       },
 
       _setSize () {
@@ -281,42 +437,6 @@
             break
         }
         this._set(orientation)
-      },
-
-      supportDetection () {
-        var div = document.createElement('div')
-        return {
-          'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
-          'dnd': 'ondragstart' in div && 'ondrop' in div
-        }
-      },
-
-      remove () {
-        let ctx = this.ctx
-        this._paintBackground()
-
-        this._setImagePlaceholder()
-        ctx.textBaseline = 'middle'
-        ctx.textAlign = 'center'
-        let defaultFontSize = this.realWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length
-        let fontSize = (!this.realPlaceholderFontSize || this.realPlaceholderFontSize == 0) ? defaultFontSize : this.realPlaceholderFontSize
-        ctx.font = fontSize + 'px sans-serif'
-        ctx.fillStyle = (!this.placeholderColor || this.placeholderColor == 'default') ? '#606060' : this.placeholderColor
-        ctx.fillText(this.placeholder, this.realWidth / 2, this.realHeight / 2)
-
-        let hadImage = this.img != null
-        this.originalImage = null
-        this.img = null
-        this.$refs.fileInput.value = ''
-        this.imgData = {}
-        this.orientation = 1
-        this.scaleRatio = null
-        this.userMetadata = null
-        this.imageSet = false
-
-        if (hadImage) {
-          this.$emit(events.IMAGE_REMOVE_EVENT)
-        }
       },
 
       _setImagePlaceholder () {
@@ -389,10 +509,6 @@
         }
 
         this._set(orientation)
-      },
-
-      chooseFile () {
-        this.$refs.fileInput.click()
       },
 
       _handleClick () {
@@ -709,21 +825,6 @@
         }
       },
 
-      move (offset) {
-        if (!offset) return
-        let oldX = this.imgData.startX
-        let oldY = this.imgData.startY
-        this.imgData.startX += offset.x
-        this.imgData.startY += offset.y
-        if (this.preventWhiteSpace) {
-          this._preventMovingToWhiteSpace()
-        }
-        if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
-          this.$emit(events.MOVE_EVENT)
-          this._draw()
-        }
-      },
-
       _preventMovingToWhiteSpace () {
         if (this.imgData.startX > 0) {
           this.imgData.startX = 0
@@ -736,54 +837,6 @@
         }
         if (this.realHeight - this.imgData.startY > this.imgData.height) {
           this.imgData.startY = -(this.imgData.height - this.realHeight)
-        }
-      },
-
-      zoom (zoomIn, pos, innerAcceleration = 1) {
-        pos = pos || {
-          x: this.imgData.startX + this.imgData.width / 2,
-          y: this.imgData.startY + this.imgData.height / 2
-        }
-        let realSpeed = this.zoomSpeed * innerAcceleration
-        let speed = (this.realWidth * PCT_PER_ZOOM) * realSpeed
-        let x = 1
-        if (zoomIn) {
-          x = 1 + speed
-        } else if (this.imgData.width > MIN_WIDTH) {
-          x = 1 - speed
-        }
-
-        let oldWidth = this.imgData.width
-        let oldHeight = this.imgData.height
-
-        this.imgData.width = this.imgData.width * x
-        this.imgData.height = this.imgData.height * x
-
-        if (this.preventWhiteSpace) {
-          if (this.imgData.width < this.realWidth) {
-            let _x = this.realWidth / this.imgData.width
-            this.imgData.width = this.realWidth
-            this.imgData.height = this.imgData.height * _x
-          }
-
-          if (this.imgData.height < this.realHeight) {
-            let _x = this.realHeight / this.imgData.height
-            this.imgData.height = this.realHeight
-            this.imgData.width = this.imgData.width * _x
-          }
-        }
-        if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
-          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-          this.imgData.startX = this.imgData.startX - offsetX
-          this.imgData.startY = this.imgData.startY - offsetY
-
-          if (this.preventWhiteSpace) {
-            this._preventMovingToWhiteSpace()
-          }
-          this.$emit(events.ZOOM_EVENT)
-          this._draw()
-          this.scaleRatio = this.imgData.width / this.naturalWidth
         }
       },
 
@@ -846,44 +899,6 @@
         this._paintBackground()
         ctx.drawImage(this.img, startX, startY, width, height)
         this.$emit(events.DRAW, ctx)
-      },
-
-      generateDataUrl (type, compressionRate) {
-        if (!this.img) return ''
-        return this.canvas.toDataURL(type, compressionRate)
-      },
-
-      generateBlob (callback, mimeType, qualityArgument) {
-        if (!this.img) return null
-        this.canvas.toBlob(callback, mimeType, qualityArgument)
-      },
-
-      promisedBlob (...args) {
-        if (typeof Promise == 'undefined') {
-          console.warn('No Promise support. Please add Promise polyfill if you want to use this method.')
-          return
-        }
-        return new Promise((resolve, reject) => {
-          try {
-            this.generateBlob((blob) => {
-              resolve(blob)
-            }, args)
-          } catch (err) {
-            reject(err)
-          }
-        })
-      },
-
-      getMetadata () {
-        if (!this.img) return {}
-        let { startX, startY } = this.imgData
-
-        return {
-          startX,
-          startY,
-          scale: this.scaleRatio,
-          orientation: this.orientation
-        }
       },
 
       _setMetadata () {
