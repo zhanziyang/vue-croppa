@@ -252,7 +252,7 @@ Disables the default "pinch with two fingers to zoom" user interaction **on mobi
 - default: `false`
 
 #### <s>reverse-zooming-gesture</s>
-**Deprecated** @v0.0.20+ Please use `reverse-scroll-to-zoom` instead. The name isn't proper because you can not reverse pinch to zoom.
+**Deprecated** Please use `reverse-scroll-to-zoom` instead.
 
 Reverses the zoom-in/zoom-out direction when scrolling.
 - type: `boolean`
@@ -390,8 +390,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - Opens the file chooser window to Choose an image. Useful when default click-to-choose interaction is disabled.
 
 #### <s>myCroppa.reset()</s>
-- **To Be Deprecated** This will be deprecated in the future due to misnaming 😅 . Please use `remove()` instead.
-- Removes the current image, can be used to implement your own remove-button.
+- **Deprecated** Please use `remove()` instead.
 
 #### remove()
 - Removes the current image, can be used to implement your own remove-button.
@@ -465,7 +464,7 @@ this.myCroppa.applyMetadata(metadata)
 
 #### init
 - handler(croppa)
-  - `croppa` is a croppa object to invoke methods - same as what `v-model` binds.
+  - `croppa` is the croppa component itself - same as what `v-model` and `ref` bind.
 
 #### file-choose
 - emitted when user choose an image from the poppup window or "drag and drop" a file into the container.
