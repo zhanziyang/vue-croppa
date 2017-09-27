@@ -202,6 +202,9 @@
           this._preventZoomingToWhiteSpace()
         }
 
+        if (this.userMetadata) return
+        console.log('---------!!!----------')
+
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
         this.imgData.startX = this.imgData.startX - offsetX
@@ -616,6 +619,9 @@
           } else {
             this._aspectFill()
           }
+        } else {
+          this.imgData.width = this.naturalWidth * this.scaleRatio
+          this.imgData.height = this.naturalHeight * this.scaleRatio
         }
 
         if (!this.imageSet) {
@@ -949,6 +955,10 @@
         if (u.numberValid(scale)) {
           this.scaleRatio = scale
         }
+
+        this.$nextTick(() => {
+          this.userMetadata = null
+        })
       }
     }
   }

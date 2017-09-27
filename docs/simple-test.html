@@ -41,7 +41,7 @@
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
     <croppa ref="myCroppa" v-model="croppa" :width="300" :height="300" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
-      initial-position="50% 50%" initial-size="natural" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
+      initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
       :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"

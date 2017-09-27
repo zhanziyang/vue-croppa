@@ -13,8 +13,6 @@
           <li>
             <code>'center'</code> (default value)</li>
           <li>
-            <code>'30% 40%'</code> (similar to background-position in css)</li>
-          <li>
             <code>'top'</code>
           </li>
           <li>
@@ -27,21 +25,10 @@
             <code>'right'</code>
           </li>
           <li>
-            <code>'top left'</code> or
-            <code>'left top'</code>
+            composition of the words above ('right top', 'left bottom' etc.)
           </li>
           <li>
-            <code>'top right'</code> or
-            <code>'right top'</code>
-          </li>
-          <li>
-            <code>'bottom left'</code> or
-            <code>'left bottom'</code>
-          </li>
-          <li>
-            <code>'bottom right'</code> or
-            <code>'right bottom'</code>
-          </li>
+            <code>'30% 40%'</code> (similar to background-position in css)</li>
         </ul>
       </div>
       <v-layout row

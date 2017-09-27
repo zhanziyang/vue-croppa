@@ -3,31 +3,34 @@
     <v-layout row
               wrap>
       <v-flex>
-        <!-- <v-expansion-panel expand>
-                          <v-expansion-panel-content :value="false">
-                            <div slot="header"
-                                 class="title">Zoom Slider</div>
-                            <div class="pt-2 pl-2">
-                              <p data-height="416"
-                                 data-theme-id="19967"
-                                 data-slug-hash="EvXjXx"
-                                 data-default-tab="js,result"
-                                 data-user="zhanziyang"
-                                 data-embed-version="2"
-                                 data-pen-title="Vue Croppa exif orientation"
-                                 class="codepen">See the Pen
-                                <a href="https://codepen.io/zhanziyang/pen/EvXjXx/">Vue Croppa exif orientation</a> by Chris (
-                                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
-                                <a href="https://codepen.io">CodePen</a>.</p>
-                            </div>
-                          </v-expansion-panel-content>
-                        </v-expansion-panel>
-                        <br> -->
+        <v-expansion-panel expand>
+          <v-expansion-panel-content :value="false">
+            <div slot="header"
+                 class="title">Zoom Slider</div>
+            <div class="pt-2 pl-2">
+              <p data-height="300"
+                 data-theme-id="19967"
+                 data-slug-hash="eGpWRd"
+                 data-default-tab="js,result"
+                 data-user="zhanziyang"
+                 data-embed-version="2"
+                 data-pen-title="Vue Croppa zoom slider"
+                 class="codepen">See the Pen
+                <a href="https://codepen.io/zhanziyang/pen/eGpWRd/">Vue Croppa zoom slider</a> by Chris (
+                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                <a href="https://codepen.io">CodePen</a>.</p>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <br>
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="false">
             <div slot="header"
                  class="title">Upload</div>
             <div class="pt-2 pl-2">
+              This is an example of uploading binary file. If you want to upload base64 data url string. You need to use
+              <code>generateDataUrl()</code> method and you don't need FormData API. Usually you just send it like any other string field.
+              <br><br>
               <p data-height="637"
                  data-theme-id="19967"
                  data-slug-hash="mMweXa"
@@ -105,8 +108,8 @@
               <pre v-highlightjs="stickerTpl"><code class="html"></code></pre>
               <br>
               <pre v-highlightjs="stickerScript"><code class="javascript"></code></pre>
-              <br>
-              <pre v-highlightjs="stickerStyle"><code class="stylus"></code></pre>
+              <!-- <br>
+                  <pre v-highlightjs="stickerStyle"><code class="stylus"></code></pre> -->
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -150,7 +153,7 @@
                  class="title">Image Placeholder</div>
             <div class="pt-2 pl-2">If you are not satified with the simple text placeholder. Since v0.3.0, you can apply an
               <code>&lt;img&gt;</code> slot named
-              <code>placeholder</code> to get an image placeholder! The image will be draw on croppa under the placeholder text when it is empty.</div>
+              <code>placeholder</code> to get an image placeholder! The image will be draw on croppa under the placeholder text.</div>
             <div class="pt-2 pl-2">
               <croppa v-model="croppa3"
                       :width="400"
