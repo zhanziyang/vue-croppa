@@ -235,13 +235,6 @@
         return this.$refs.fileInput.files[0]
       },
 
-      getActualImageSize () {
-        return {
-          width: this.outputWidth,
-          height: this.outputHeight
-        }
-      },
-
       move (offset) {
         if (!offset) return
         let oldX = this.imgData.startX
@@ -273,8 +266,8 @@
         this.move({ x: amount, y: 0 })
       },
 
-      zoom (zoomIn, innerAcceleration = 1) {
-        let realSpeed = this.zoomSpeed * innerAcceleration
+      zoom (zoomIn = true, acceleration = 1) {
+        let realSpeed = this.zoomSpeed * acceleration
         let speed = (this.outputWidth * PCT_PER_ZOOM) * realSpeed
         let x = 1
         if (zoomIn) {
