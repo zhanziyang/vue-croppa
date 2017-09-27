@@ -29,7 +29,7 @@
     }
 
     input[type=range] {
-      width: 500px;
+      width: 300px;
     }
   </style>
   <meta name="theme-color" content="#ffffff">
@@ -40,7 +40,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
+    <croppa ref="myCroppa" v-model="croppa" :width="300" :height="300" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
       initial-position="50% 50%" initial-size="natural" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
       :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">

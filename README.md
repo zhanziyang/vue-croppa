@@ -6,7 +6,7 @@
 ## Features
 - **Straightforward**: What you see is what you get
 - **Highly customizable**: You can almost customize anything except the core functionalities
-- **Lightweight**: 24kb in total (33kb since v0.3.0)
+- **Lightweight**: 28kb in total
 - **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 - **EXIF orientation**: v0.2.0+ Support correctly show image with EXIF orientation
 
@@ -30,7 +30,7 @@
         :placeholder="'Choose an image'"
         :placeholder-font-size="0"
         :placeholder-color="'default'"
-        :input-accept="'image/*'"
+        :accept="'image/*'"
         :file-size-limit="0"
         :quality="2"
         :zoom-speed="3"
@@ -143,12 +143,22 @@ Vue.component('croppa', Croppa.component)
 Vue.component('croppa', () => import(Croppa.component))
 ```
 
+- Since v1.0.0, the v-modeled value and the `ref` both point to the same thing - the component itself. So you need to set v-model anymore if you have a `ref` on the component.
+```xml
+<croppa ref="myCroppa"></croppa>
+```
+```js
+this.$refs.myCroppa.chooseFile()
+this.$refs.myCroppa.generateDataUrl()
+// ...
+```
+
 ## Documentation
 
 ### 🌱 Props
 
 #### v-model
-A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to invoke useful methods (Check out "[Methods](#-methods)" section).
+A two-way binding prop. It syncs an object from within the croppa component with a data in parent. We can use this object to call useful methods (Check out "[Methods](#-methods)" section). **Since v1.0.0, you don't need this anymore, the `ref` on component can also be used to call methods.**
 - type: `object`
 - live example: https://jsfiddle.net/jdcvpvty/2/
 
@@ -199,7 +209,7 @@ Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.
 #### accept
 Limits the types of files that users can choose.
 - type: same as what `accept` attribute of HTML `input` element takes.
-- default: `'.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.tiff'`
+- default: no default value since v1.0.0. Specify it as you need.
 
 #### file-size-limit
 Limits the byte size of file that users can choose. If set to `0`, then no limit.
@@ -290,15 +300,18 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: `'center'`
 - valid: 
   - `'center'` (default value)
-  - `'30% 40%'` (similar to background-position in css)
   - `'top'`
   - `'bottom'`
   - `'left'`
   - `'right'`
-  - `'top left'` or  `'left top'`
-  - `'top right'` or  `'right top'`
-  - `'bottom left'` or  `'left bottom'`
-  - `'bottom right'` or  `'right bottom'`
+  - composition of the above words (`'top left'`, `'right top'` etc.)
+  - `'30% 40%'` (similar to background-position in css)
+
+#### input-attrs
+(**v1.0.1+**) to pass attributes to the hidden `input[type=file]` element.
+```xml
+<croppa :input-attrs="{capture: true, class: 'file-input'}"></croppa>
+```
 
 ---
 
@@ -340,8 +353,9 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 
 #### getChosenFile()
 
-#### getActualImageSize()
+#### <s>getActualImageSize()</s>
 - Return an object `{ width, height }` describing the real image size (preview size ` * quality`)
+- **Deprecated** Use `this.myCroppa.outputWidth` and `this.myCroppa.outputHeight` instead.
 
 #### moveUpwards( amountInPx: number )
 
@@ -351,9 +365,15 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 
 #### moveRightwards( amountInPx: number )
 
+#### move({x, y})
+- (**v1.0.0+**) for more flexibility.
+
 #### zoomIn()
 
 #### zoomOut()
+
+#### zoom(in, timesQuicken)
+- (**v1.0.0+**) for more flexibility.
 
 #### rotate(step: number)
 - 1 step = 90 deg
@@ -463,7 +483,10 @@ this.myCroppa.applyMetadata(metadata)
   - `file` is a file object - same as what `getChosenFile()` returns.
 
 #### new-image 
-- emitted when new valid image is set onto croppa (v0.2.0).
+- emitted when a new valid image is received and read successfully(v0.2.0).
+
+#### new-image-drawn
+- emitted when a new image is drawn on canvas for the first time.
 
 #### image-remove
 - emitted when image remove from croppa.
@@ -481,6 +504,26 @@ this.myCroppa.applyMetadata(metadata)
 #### initial-image-loaded
 - emitted when initial image loaded. It can be useful when you provide initial image with the `initial-image` prop.
 ---
+
+### 🌱 State data
+
+Since v1.0.0, you can access all state data of croppa via the instance. For example,
+```js
+this.myCroppa.naturalWidth
+this.myCroppa.imgData.startX
+this.myCroppa.scaleRatio
+this.myCroppa.pinching
+//...
+```
+All data available:
+
+<img src="https://zhanziyang.github.io/vue-croppa/static/data.png?v=3" />
+
+Sorry I'm too lazy to doc about each of them. Please open the vue-devtool to figure out what they mean by yourself. 
+
+You can also open an issue to ask me any question about this component.
+
+Note that "computed" and "props" are read-only. Some value on "data" are also not recommended to modify from outside, for example `ctx`, `canvas`, `img`.
 
 ### 🌱 Customize styles
 
@@ -520,8 +563,3 @@ $ npm run build
 
 ## To Do
 - [ ] Add unit test.
-- [ ] Use `ref` to call methods instead of `v-model`.
-- [ ] Convert strings to numbers for Number type props.
-- [ ] `prevent-white-space` bug when apply scale metadata.
-- [ ] Add a flag to distinguish gestural and non-gestural manipulation in `zoom`, `move` events.
-- [ ] Fix doc about "new-image" event. It is fired after image read but before image drawn.
