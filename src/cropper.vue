@@ -195,6 +195,7 @@
           x: this.imgData.startX + this.imgData.width / 2,
           y: this.imgData.startY + this.imgData.height / 2
         }
+        console.log(pos)
         this.imgData.width = this.naturalWidth * val
         this.imgData.height = this.naturalHeight * val
 
@@ -202,20 +203,19 @@
           this._preventZoomingToWhiteSpace()
         }
 
-        if (this.scrolling || this.pinching) {
-          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-          this.imgData.startX = this.imgData.startX - offsetX
-          this.imgData.startY = this.imgData.startY - offsetY
-        }
-
-        this.$emit(events.ZOOM_EVENT)
+        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        this.imgData.startX = this.imgData.startX - offsetX
+        this.imgData.startY = this.imgData.startY - offsetY
       },
-      'imgData.width': function (val) {
+      'imgData.width': function (val, oldVal) {
         if (!u.numberValid(val)) return
         this.scaleRatio = val / this.naturalWidth
         if (this.hasImage()) {
-          this._draw()
+          if (Math.abs(val - oldVal) > (val * (1 / 100000))) {
+            this.$emit(events.ZOOM_EVENT)
+            this._draw()
+          }
         }
       },
       'imgData.height': function (val) {
@@ -248,8 +248,8 @@
         }
         if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
           this.$emit(events.MOVE_EVENT)
+          this._draw()
         }
-        this._draw()
       },
 
       moveUpwards (amount = 1) {
@@ -647,6 +647,7 @@
           this.zoom(false, 0)
         } else {
           this.move({ x: 0, y: 0 })
+          this._draw()
         }
       },
 
