@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.0
+ * vue-croppa v1.0.1
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -617,6 +617,9 @@ var component = { render: function render() {
         this._preventZoomingToWhiteSpace();
       }
 
+      if (this.userMetadata) return;
+      console.log('---------!!!----------');
+
       var offsetX = (x - 1) * (pos.x - this.imgData.startX);
       var offsetY = (x - 1) * (pos.y - this.imgData.startY);
       this.imgData.startX = this.imgData.startX - offsetX;
@@ -1033,6 +1036,9 @@ var component = { render: function render() {
         } else {
           this._aspectFill();
         }
+      } else {
+        this.imgData.width = this.naturalWidth * this.scaleRatio;
+        this.imgData.height = this.naturalHeight * this.scaleRatio;
       }
 
       if (!this.imageSet) {
@@ -1346,6 +1352,8 @@ var component = { render: function render() {
       }
     },
     _applyMetadata: function _applyMetadata() {
+      var _this8 = this;
+
       if (!this.userMetadata) return;
       var _userMetadata = this.userMetadata,
           startX = _userMetadata.startX,
@@ -1364,6 +1372,10 @@ var component = { render: function render() {
       if (u.numberValid(scale)) {
         this.scaleRatio = scale;
       }
+
+      this.$nextTick(function () {
+        _this8.userMetadata = null;
+      });
     }
   }
 };
