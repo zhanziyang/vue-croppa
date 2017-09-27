@@ -54,10 +54,7 @@ export default {
       return val > 0
     }
   },
-  accept: {
-    type: String,
-    default: '.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.tiff'
-  },
+  accept: String,
   fileSizeLimit: {
     type: Number,
     default: 0,
@@ -102,17 +99,12 @@ export default {
         'top',
         'bottom',
         'left',
-        'right',
-        'top left',
-        'top right',
-        'bottom left',
-        'bottom right',
-        'left top',
-        'right top',
-        'left bottom',
-        'right bottom'
+        'right'
       ]
-      return valids.indexOf(val) >= 0 || /^-?\d+% -?\d+%$/.test(val)
+      return val.split(' ').every(word => {
+        return valids.indexOf(word) >= 0
+      }) || /^-?\d+% -?\d+%$/.test(val)
     }
-  }
+  },
+  inputAttrs: Object
 }

@@ -8,6 +8,7 @@
     <input type="file"
            :accept="accept"
            :disabled="disabled"
+           v-bind="inputAttrs"
            ref="fileInput"
            @change="_handleInputChange"
            style="height:1px;width:1px;overflow:hidden;margin-left:-99999px;position:absolute;" />
@@ -176,13 +177,14 @@
           this._init()
         }
       },
-      preventWhiteSpace () {
-        if (this.preventWhiteSpace) {
+      preventWhiteSpace (val) {
+        if (val) {
           this.imageSet = false
         }
         this._placeImage()
       },
       scaleRatio (val, oldVal) {
+        if (!this.hasImage()) return
         if (!u.numberValid(val)) return
 
         var x = 1
@@ -193,21 +195,21 @@
           x: this.imgData.startX + this.imgData.width / 2,
           y: this.imgData.startY + this.imgData.height / 2
         }
-
         this.imgData.width = this.naturalWidth * val
         this.imgData.height = this.naturalHeight * val
-
-        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-        this.imgData.startX = this.imgData.startX - offsetX
-        this.imgData.startY = this.imgData.startY - offsetY
 
         if (this.preventWhiteSpace) {
           this._preventZoomingToWhiteSpace()
         }
-        if (this.hasImage()) {
-          this.$emit(events.ZOOM_EVENT)
+
+        if (this.scrolling || this.pinching) {
+          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+          this.imgData.startX = this.imgData.startX - offsetX
+          this.imgData.startY = this.imgData.startY - offsetY
         }
+
+        this.$emit(events.ZOOM_EVENT)
       },
       'imgData.width': function (val) {
         if (!u.numberValid(val)) return
@@ -495,12 +497,12 @@
           return
         }
         if (u.imageLoaded(img)) {
-          this._onload(img, +img.dataset['exifOrientation'])
           this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+          this._onload(img, +img.dataset['exifOrientation'])
         } else {
           img.onload = () => {
-            this._onload(img, +img.dataset['exifOrientation'])
             this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+            this._onload(img, +img.dataset['exifOrientation'])
           }
 
           img.onerror = () => {
@@ -549,7 +551,10 @@
           let fr = new FileReader()
           fr.onload = (e) => {
             let fileData = e.target.result
-            let orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData))
+            let orientation = 1
+            try {
+              orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData))
+            } catch (err) { }
             if (orientation < 1) orientation = 1
             let img = new Image()
             img.src = fileData
@@ -570,7 +575,8 @@
       },
 
       _fileTypeIsValid (file) {
-        let accept = this.accept || 'image/*'
+        if (!this.accepct) return true
+        let accept = this.accept
         let baseMimetype = accept.replace(/\/.*$/, '')
         let types = accept.split(',')
         for (let i = 0, len = types.length; i < len; i++) {
@@ -592,6 +598,7 @@
       },
 
       _placeImage (applyMetadata) {
+        if (!this.img) return
         var imgData = this.imgData
 
         this.naturalWidth = this.img.naturalWidth
@@ -600,16 +607,16 @@
         imgData.startX = u.numberValid(imgData.startX) ? imgData.startX : 0
         imgData.startY = u.numberValid(imgData.startY) ? imgData.startY : 0
 
-        if (!this.imageSet) {
-          if (!this.preventWhiteSpace && this.initialSize == 'contain') {
+        if (this.preventWhiteSpace) {
+          this._aspectFill()
+        } else if (!this.imageSet) {
+          if (this.initialSize == 'contain') {
             this._aspectFit()
-          } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
+          } else if (this.initialSize == 'natural') {
             this._naturalSize()
           } else {
             this._aspectFill()
           }
-        } else {
-          this._aspectFill()
         }
 
         if (!this.imageSet) {
@@ -646,10 +653,10 @@
       _aspectFill () {
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
-        let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.outputHeight / this.outputWidth
+        let canvasRatio = this.outputWidth / this.outputHeight
         let scaleRatio
-        if (imgRatio < canvasRatio) {
+
+        if (this.aspectRatio > canvasRatio) {
           scaleRatio = imgHeight / this.outputHeight
           this.imgData.width = imgWidth / scaleRatio
           this.imgData.height = this.outputHeight
@@ -667,10 +674,9 @@
       _aspectFit () {
         let imgWidth = this.naturalWidth
         let imgHeight = this.naturalHeight
-        let imgRatio = imgHeight / imgWidth
-        let canvasRatio = this.outputHeight / this.outputWidth
+        let canvasRatio = this.outputWidth / this.outputHeight
         let scaleRatio
-        if (imgRatio < canvasRatio) {
+        if (this.aspectRatio > canvasRatio) {
           scaleRatio = imgWidth / this.outputWidth
           this.imgData.height = imgHeight / scaleRatio
           this.imgData.width = this.outputWidth
@@ -905,12 +911,14 @@
       },
 
       _draw () {
-        if (!this.img) return
-        if (window.requestAnimationFrame) {
-          requestAnimationFrame(this._drawFrame)
-        } else {
-          this._drawFrame()
-        }
+        this.$nextTick(() => {
+          if (!this.img) return
+          if (window.requestAnimationFrame) {
+            requestAnimationFrame(this._drawFrame)
+          } else {
+            this._drawFrame()
+          }
+        })
       },
 
       _drawFrame () {

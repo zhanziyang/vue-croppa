@@ -41,8 +41,8 @@
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
     <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded"
-      initial-position="center" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @new-image-drawn="onNewImageDrawn"
-      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
+      :input-attrs="{ capture: true, class: 'file-input' }" initial-position="50% 50%" initial-size="contain" @init="onInit"
+      @move="onMove" @zoom="onZoom" @new-image-drawn="onNewImageDrawn" :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
@@ -65,7 +65,7 @@
     <button @click="applyMetadata">APPLY METADATA</button>
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
-  <script src="https://unpkg.com/vue@2.3.4/dist/vue.js"></script>
+  <script src="https://unpkg.com/vue@2.4.2/dist/vue.js"></script>
   <script src="src/croppa/vue-croppa.js"></script>
   <script>
     Vue.use(Croppa)
@@ -87,6 +87,8 @@
         image.src = '/vue-croppa/static/500.jpeg'
         this.initialImage = image
         this.croppa.refresh()
+
+        // console.log('eq', this.$refs.myCroppa === this.croppa)
       },
 
       methods: {
