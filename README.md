@@ -143,7 +143,7 @@ Vue.component('croppa', Croppa.component)
 Vue.component('croppa', () => import(Croppa.component))
 ```
 
-- Since v1.0.0, the v-modeled value and the `ref` both point to the same thing - the component itself. So you need to set v-model anymore if you have a `ref` on the component.
+- Since v1.0.0, the v-modeled value and the `ref` both point to the same thing - the component itself. So you don't need to set v-model anymore if you have a `ref` on the component.
 ```xml
 <croppa ref="myCroppa"></croppa>
 ```
@@ -308,8 +308,8 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   - `'30% 40%'` (similar to background-position in css)
 
 #### input-attrs
-(**v1.0.1+**) to pass attributes to the hidden `input[type=file]` element.
-```xml
+(**v1.0.0+**) to pass attributes to the hidden `input[type=file]` element.
+```html
 <croppa :input-attrs="{capture: true, class: 'file-input'}"></croppa>
 ```
 
@@ -330,7 +330,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 ---
 
 #### placeholder
-- If you are not satified with the simple text placeholder. Since v0.3.0, you can apply an `<img>` slot named `placeholder` to get an image placeholder! The image will be draw on croppa under the placeholder text when it is empty.
+- If you are not satified with the simple text placeholder. Since v0.3.0, you can apply an `<img>` slot named `placeholder` to get an image placeholder! The image will be draw on croppa under the placeholder text.
 ```html
 <croppa v-model="myCroppa">
   <img slot="placeholder" src="static/placeholder-image.png" />
@@ -517,9 +517,9 @@ this.myCroppa.pinching
 ```
 All data available:
 
-<img src="https://zhanziyang.github.io/vue-croppa/static/data.png?v=3" />
+<img src="https://i.imgur.com/KkgN87h.png?v=3" />
 
-Sorry I'm too lazy to doc about each of them. Please open the vue-devtool to figure out what they mean by yourself. 
+Sorry I'm too lazy to doc about each of them. Please open the **vue-devtool** to figure out what they mean by yourself. 
 
 You can also open an issue to ask me any question about this component.
 
