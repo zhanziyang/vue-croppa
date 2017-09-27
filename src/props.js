@@ -3,8 +3,8 @@ Number.isInteger = Number.isInteger || function (value) {
 }
 
 var initialImageType = String
-if (window && window.HTMLImageElement) {
-  initialImageType = [String, HTMLImageElement]
+if (window && window.Image) {
+  initialImageType = [String, Image]
 }
 
 export default {

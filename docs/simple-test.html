@@ -27,17 +27,22 @@
       visibility: 0;
       border: 0;
     }
+
+    input[type=range] {
+      width: 500px;
+    }
   </style>
   <meta name="theme-color" content="#ffffff">
-  <title>Vue Croppa - Simple Test.</title>
+  <title>Vue Croppa - Simple Test</title>
   <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-light.min.css">-->
 </head>
 
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded" initial-position="left top" @move="onMove"
-      initial-image="/vue-croppa/static/500.jpeg" prevent-white-space>
+    <croppa ref="myCroppa" v-model="croppa" :width="400" :height="400" @draw="onDraw" @initial-image-loaded="onInitialLoaded"
+      initial-position="center" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @new-image-drawn="onNewImageDrawn"
+      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
@@ -45,11 +50,16 @@
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
     <br>
-    <button @click="rotate">ROTATE</button>
-    <button @click="flipX">FLIP-X</button>
-    <button @click="flipY">FLIP-Y</button>
+    <label for="prevent"><input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
     <br>
-    <button @mousedown="moveUp">MOVE UP</button>
+    <button @click="croppa.rotate()">ROTATE</button>
+    <button @click="croppa.flipX()">FLIP-X</button>
+    <button @click="croppa.flipY()">FLIP-Y</button>
+    <br>
+    <button @mousedown="croppa.moveUpwards(5)">MOVE UP</button>
+    <button @mousedown="croppa.zoomIn()">ZOOM IN</button>
+    <br>
+    <input type="range" @input="onSliderChange" :min="sliderMin" :max="sliderMax" step=".001" v-model="sliderVal">
     <br>
     <button @click="saveMetadata">SAVE METADATA</button>
     <button @click="applyMetadata">APPLY METADATA</button>
@@ -62,32 +72,24 @@
     new Vue({
       el: '#app',
       data: {
-        // $refs.myCroppa: {},
         initialImage: null,
-        croppa: null
+        croppa: null,
+        sliderVal: 0,
+        sliderMin: 0,
+        sliderMax: 0,
+        preventWhiteSpace: false
       },
 
       mounted: function () {
         var image = new Image()
-        image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
         image.setAttribute('crossorigin', 'anonymous')
+        // image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
+        image.src = '/vue-croppa/static/500.jpeg'
         this.initialImage = image
-        // this.croppa.refresh()
+        this.croppa.refresh()
       },
 
       methods: {
-        rotate: function () {
-          this.croppa.rotate()
-        },
-
-        flipX: function () {
-          this.croppa.flipX()
-        },
-
-        flipY: function () {
-          this.croppa.flipY()
-        },
-
         getUrl: function () {
           alert(this.croppa.generateDataUrl())
         },
@@ -99,6 +101,10 @@
         applyMetadata: function () {
           var metadata = JSON.parse(localStorage.getItem('metadata'))
           this.croppa.applyMetadata(metadata)
+        },
+
+        onInit(vm) {
+          window.croppa = vm
         },
 
         onDraw: function (ctx) {
@@ -113,12 +119,30 @@
           // this.applyMetadata.call(this)
         },
 
-        onMove() {
-          console.log(this.croppa.dragging)
+        onNewImageDrawn() {
+          this.sliderVal = this.croppa.scaleRatio
+          this.sliderMin = this.croppa.scaleRatio / 2
+          this.sliderMax = this.croppa.scaleRatio * 2
         },
 
-        moveUp() {
-          this.croppa.moveUpwards(5)
+        onMove() {
+          console.log('move', this.croppa.dragging ? 'dragging' : 'not dragging')
+        },
+
+        onZoom() {
+          console.log('zoom', this.croppa.scrolling ? 'scrolling' : 'not scrolling')
+          if (this.sliderMax && this.croppa.scaleRatio >= this.sliderMax) {
+            this.croppa.scaleRatio = this.sliderMax
+          } else if (this.sliderMin && this.croppa.scaleRatio <= this.sliderMin) {
+            this.croppa.scaleRatio = this.sliderMin
+          }
+
+          this.sliderVal = this.croppa.scaleRatio
+        },
+
+        onSliderChange(evt) {
+          var increment = evt.target.value
+          this.croppa.scaleRatio = +increment
         }
       }
     })

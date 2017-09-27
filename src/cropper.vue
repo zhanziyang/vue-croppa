@@ -29,6 +29,7 @@
             @touchmove.stop="_handlePointerMove"
             @mousemove.stop.prevent="_handlePointerMove"
             @pointermove.stop.prevent="_handlePointerMove"
+            @pointerleave.stop.prevent="_handlePointerLeave"
             @DOMMouseScroll.stop="_handleWheel"
             @wheel.stop="_handleWheel"
             @mousewheel.stop="_handleWheel"></canvas>
@@ -58,7 +59,7 @@
   const CLICK_MOVE_THRESHOLD = 100 // If touch move distance is greater than this value, then it will by no mean be considered as a click.
   const MIN_WIDTH = 10 // The minimal width the user can zoom to.
   const DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3 // Placeholder text by default takes up this amount of times of canvas width.
-  const PINCH_ACCELERATION = 2 // The amount of times by which the pinching is more sensitive than the scolling
+  const PINCH_ACCELERATION = 1 // The amount of times by which the pinching is more sensitive than the scolling
   // const DEBUG = false
 
   export default {
@@ -77,7 +78,12 @@
         img: null,
         dragging: false,
         lastMovingCoord: null,
-        imgData: {},
+        imgData: {
+          width: 0,
+          height: 0,
+          startX: 0,
+          startY: 0
+        },
         fileDraggedOver: false,
         tabStart: 0,
         scrolling: false,
@@ -91,7 +97,8 @@
         scaleRatio: null,
         orientation: 1,
         userMetadata: null,
-        imageSet: false
+        imageSet: false,
+        currentPointerCoord: null
       }
     },
 
@@ -106,6 +113,10 @@
 
       computedPlaceholderFontSize () {
         return this.placeholderFontSize * this.quality
+      },
+
+      aspectRatio () {
+        return this.naturalWidth / this.naturalHeight
       }
     },
 
@@ -122,7 +133,7 @@
 
     watch: {
       outputWidth: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         } else {
           if (this.preventWhiteSpace) {
@@ -133,7 +144,7 @@
         }
       },
       outputHeight: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         } else {
           if (this.preventWhiteSpace) {
@@ -144,24 +155,24 @@
         }
       },
       canvasColor: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         } else {
           this._draw()
         }
       },
       placeholder: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         }
       },
       placeholderColor: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         }
       },
       computedPlaceholderFontSize: function () {
-        if (!this.img) {
+        if (!this.hasImage()) {
           this._init()
         }
       },
@@ -170,6 +181,44 @@
           this.imageSet = false
         }
         this._placeImage()
+      },
+      scaleRatio (val, oldVal) {
+        if (!u.numberValid(val)) return
+
+        var x = 1
+        if (u.numberValid(oldVal) && oldVal !== 0) {
+          x = val / oldVal
+        }
+        var pos = this.currentPointerCoord || {
+          x: this.imgData.startX + this.imgData.width / 2,
+          y: this.imgData.startY + this.imgData.height / 2
+        }
+
+        this.imgData.width = this.naturalWidth * val
+        this.imgData.height = this.naturalHeight * val
+
+        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+        this.imgData.startX = this.imgData.startX - offsetX
+        this.imgData.startY = this.imgData.startY - offsetY
+
+        if (this.preventWhiteSpace) {
+          this._preventZoomingToWhiteSpace()
+        }
+        if (this.hasImage()) {
+          this.$emit(events.ZOOM_EVENT)
+        }
+      },
+      'imgData.width': function (val) {
+        if (!u.numberValid(val)) return
+        this.scaleRatio = val / this.naturalWidth
+        if (this.hasImage()) {
+          this._draw()
+        }
+      },
+      'imgData.height': function (val) {
+        if (!u.numberValid(val)) return
+        this.scaleRatio = val / this.naturalHeight
       }
     },
 
@@ -224,11 +273,7 @@
         this.move({ x: amount, y: 0 })
       },
 
-      zoom (zoomIn, pos, innerAcceleration = 1) {
-        pos = pos || {
-          x: this.imgData.startX + this.imgData.width / 2,
-          y: this.imgData.startY + this.imgData.height / 2
-        }
+      zoom (zoomIn, innerAcceleration = 1) {
         let realSpeed = this.zoomSpeed * innerAcceleration
         let speed = (this.outputWidth * PCT_PER_ZOOM) * realSpeed
         let x = 1
@@ -238,28 +283,7 @@
           x = 1 - speed
         }
 
-        let oldWidth = this.imgData.width
-        let oldHeight = this.imgData.height
-
-        this.imgData.width = this.imgData.width * x
-        this.imgData.height = this.imgData.height * x
-
-        if (this.preventWhiteSpace) {
-          this._preventZoomingToWhiteSpace()
-        }
-        if (oldWidth.toFixed(2) !== this.imgData.width.toFixed(2) || oldHeight.toFixed(2) !== this.imgData.height.toFixed(2)) {
-          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-          this.imgData.startX = this.imgData.startX - offsetX
-          this.imgData.startY = this.imgData.startY - offsetY
-
-          if (this.preventWhiteSpace) {
-            this._preventMovingToWhiteSpace()
-          }
-          this.$emit(events.ZOOM_EVENT)
-          this.scaleRatio = this.imgData.width / this.naturalWidth
-        }
-        this._draw()
+        this.scaleRatio *= x
       },
 
       zoomIn () {
@@ -295,22 +319,22 @@
       },
 
       hasImage () {
-        return !!this.img
+        return !!this.imageSet
       },
 
       applyMetadata (metadata) {
-        if (!metadata || !this.img) return
+        if (!metadata || !this.hasImage()) return
         this.userMetadata = metadata
         var ori = metadata.orientation || this.orientation || 1
         this._setOrientation(ori, true)
       },
       generateDataUrl (type, compressionRate) {
-        if (!this.img) return ''
+        if (!this.hasImage()) return ''
         return this.canvas.toDataURL(type, compressionRate)
       },
 
       generateBlob (callback, mimeType, qualityArgument) {
-        if (!this.img) return null
+        if (!this.hasImage()) return null
         this.canvas.toBlob(callback, mimeType, qualityArgument)
       },
 
@@ -331,7 +355,7 @@
       },
 
       getMetadata () {
-        if (!this.img) return {}
+        if (!this.hasImage()) return {}
         let { startX, startY } = this.imgData
 
         return {
@@ -371,7 +395,12 @@
         this.originalImage = null
         this.img = null
         this.$refs.fileInput.value = ''
-        this.imgData = {}
+        this.imgData = {
+          width: 0,
+          height: 0,
+          startX: 0,
+          startY: 0
+        }
         this.orientation = 1
         this.scaleRatio = null
         this.userMetadata = null
@@ -389,6 +418,7 @@
         this.ctx = this.canvas.getContext('2d')
         this.originalImage = null
         this.img = null
+        this.imageSet = false
         this._setInitial()
         this.$emit(events.INIT_EVENT, this)
       },
@@ -498,7 +528,7 @@
       },
 
       _handleClick () {
-        if (!this.img && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
+        if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
           this.chooseFile()
         }
       },
@@ -578,20 +608,16 @@
         imgData.startY = u.numberValid(imgData.startY) ? imgData.startY : 0
 
         if (!this.imageSet) {
-          if (this.initialSize == 'contain') {
+          if (!this.preventWhiteSpace && this.initialSize == 'contain') {
             this._aspectFit()
-          } else if (this.initialSize == 'natural') {
+          } else if (!this.preventWhiteSpace && this.initialSize == 'natural') {
             this._naturalSize()
           } else {
             this._aspectFill()
           }
-        } else if (u.numberValid(this.scaleRatio)) {
-          imgData.width = this.naturalWidth * this.scaleRatio
-          imgData.height = this.naturalHeight * this.scaleRatio
         } else {
           this._aspectFill()
         }
-        this.scaleRatio = imgData.width / this.naturalWidth
 
         if (!this.imageSet) {
           if (/top/.test(this.initialPosition)) {
@@ -617,18 +643,10 @@
 
         applyMetadata && this._applyMetadata()
 
-        if (this.preventWhiteSpace) {
-          this._preventMovingToWhiteSpace()
-        }
-
-        if (!this.imageSet) {
-          this.imageSet = true
-        }
-
         if (applyMetadata && this.preventWhiteSpace) {
-          this.zoom(false, null, 0)
+          this.zoom(false, 0)
         } else {
-          this._draw()
+          this.move({ x: 0, y: 0 })
         }
       },
 
@@ -689,7 +707,7 @@
 
         if (this.disabled) return
         // simulate click with touch on mobile devices
-        if (!this.img && !this.disableClickToChoose) {
+        if (!this.hasImage() && !this.disableClickToChoose) {
           this.tabStart = new Date().valueOf()
           return
         }
@@ -723,7 +741,7 @@
           pointerMoveDistance = Math.sqrt(Math.pow(pointerCoord.x - this.pointerStartCoord.x, 2) + Math.pow(pointerCoord.y - this.pointerStartCoord.y, 2)) || 0
         }
         if (this.disabled) return
-        if (!this.img && !this.disableClickToChoose) {
+        if (!this.hasImage() && !this.disableClickToChoose) {
           let tabEnd = new Date().valueOf()
           if ((pointerMoveDistance < CLICK_MOVE_THRESHOLD) && tabEnd - this.tabStart < MIN_MS_PER_CLICK && this.supportTouch) {
             this.chooseFile()
@@ -742,13 +760,15 @@
 
       _handlePointerMove (evt) {
         this.pointerMoved = true
+        if (!this.hasImage()) return
+        let coord = u.getPointerCoords(evt, this)
+        this.currentPointerCoord = coord
 
-        if (this.disabled || this.disableDragToMove || !this.img) return
+        if (this.disabled || this.disableDragToMove) return
 
         evt.preventDefault()
         if (!evt.touches || evt.touches.length === 1) {
           if (!this.dragging) return
-          let coord = u.getPointerCoords(evt, this)
           if (this.lastMovingCoord) {
             this.move({
               x: coord.x - this.lastMovingCoord.x,
@@ -762,26 +782,31 @@
           if (!this.pinching) return
           let distance = u.getPinchDistance(evt, this)
           let delta = distance - this.pinchDistance
-          this.zoom(delta > 0, null, PINCH_ACCELERATION)
+          this.zoom(delta > 0, PINCH_ACCELERATION)
           this.pinchDistance = distance
         }
       },
 
+      _handlePointerLeave () {
+        this.currentPointerCoord = null
+      },
+
       _handleWheel (evt) {
-        if (this.disabled || this.disableScrollToZoom || !this.img) return
+        if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return
         evt.preventDefault()
-        let coord = u.getPointerCoords(evt, this)
         this.scrolling = true
         if (evt.wheelDelta < 0 || evt.deltaY > 0 || evt.detail > 0) {
-          this.zoom(this.reverseScrollToZoom, coord)
+          this.zoom(this.reverseScrollToZoom)
         } else if (evt.wheelDelta > 0 || evt.deltaY < 0 || evt.detail < 0) {
-          this.zoom(!this.reverseScrollToZoom, coord)
+          this.zoom(!this.reverseScrollToZoom)
         }
-        this.scrolling = false
+        this.$nextTick(() => {
+          this.scrolling = false
+        })
       },
 
       _handleDragEnter (evt) {
-        if (this.disabled || this.disableDragAndDrop || this.img || !u.eventHasFile(evt)) return
+        if (this.disabled || this.disableDragAndDrop || this.hasImage() || !u.eventHasFile(evt)) return
         this.fileDraggedOver = true
       },
 
@@ -834,15 +859,11 @@
 
       _preventZoomingToWhiteSpace () {
         if (this.imgData.width < this.outputWidth) {
-          let _x = this.outputWidth / this.imgData.width
-          this.imgData.width = this.outputWidth
-          this.imgData.height = this.imgData.height * _x
+          this.scaleRatio = this.outputWidth / this.naturalWidth
         }
 
         if (this.imgData.height < this.outputHeight) {
-          let _x = this.outputHeight / this.imgData.height
-          this.imgData.height = this.outputHeight
-          this.imgData.width = this.imgData.width * _x
+          this.scaleRatio = this.outputHeight / this.naturalHeight
         }
       },
 
@@ -892,10 +913,6 @@
 
       _draw () {
         if (!this.img) return
-        // if (noWS) {
-        //   this._preventZoomingToWhiteSpace()
-        //   this._preventMovingToWhiteSpace()
-        // }
         if (window.requestAnimationFrame) {
           requestAnimationFrame(this._drawFrame)
         } else {
@@ -910,6 +927,10 @@
         this._paintBackground()
         ctx.drawImage(this.img, startX, startY, width, height)
         this.$emit(events.DRAW, ctx)
+        if (!this.imageSet) {
+          this.imageSet = true
+          this.$emit(events.NEW_IMAGE_DRAWN)
+        }
       },
 
       _applyMetadata () {
@@ -925,8 +946,6 @@
         }
 
         if (u.numberValid(scale)) {
-          this.imgData.width = this.naturalWidth * scale
-          this.imgData.height = this.naturalHeight * scale
           this.scaleRatio = scale
         }
       }
