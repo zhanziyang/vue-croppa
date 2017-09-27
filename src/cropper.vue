@@ -195,7 +195,6 @@
           x: this.imgData.startX + this.imgData.width / 2,
           y: this.imgData.startY + this.imgData.height / 2
         }
-        console.log(pos)
         this.imgData.width = this.naturalWidth * val
         this.imgData.height = this.naturalHeight * val
 
