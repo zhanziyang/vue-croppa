@@ -198,7 +198,7 @@ Initial background color and white space color if there is an image.
 Specifies how many times larger the actual image is than the container's display size.
 - type: `number`
 - default: `2`
-- valid: `isInteger(val) && val > 0
+- valid: `val > 0`
 
 #### zoom-speed
 Specifies how fast the zoom is reacting to scroll gestures. Default to level 3.
@@ -289,7 +289,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - default: `undefined`
 
 #### initial-size
-(**v0.2.0+**) works similar to css's background-size. It specifies the image's size when it is first loaded on croppa.
+(**v0.2.0+**) works similar to css's background-size. It specifies the image's size when it is first loaded on croppa. `contain` and `natural` won't work if `prevent-white-space` is set to `true`.
 - type: `string`
 - default: `'cover'`
 - valid: one of `'cover'`, `'contain'`, `'natural'`

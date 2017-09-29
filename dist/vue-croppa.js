@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.1
+ * vue-croppa v1.0.2
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -350,7 +350,7 @@ var props = {
     type: Number,
     default: 2,
     validator: function validator(val) {
-      return Number.isInteger(val) && val > 0;
+      return val > 0;
     }
   },
   zoomSpeed: {
