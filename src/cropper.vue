@@ -122,7 +122,7 @@
     },
 
     mounted () {
-      this._init()
+      this._initialize()
       u.rAFPolyfill()
       u.toBlobPolyfill()
 
@@ -135,7 +135,7 @@
     watch: {
       outputWidth: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         } else {
           if (this.preventWhiteSpace) {
             this.imageSet = false
@@ -146,7 +146,7 @@
       },
       outputHeight: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         } else {
           if (this.preventWhiteSpace) {
             this.imageSet = false
@@ -157,24 +157,24 @@
       },
       canvasColor: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         } else {
           this._draw()
         }
       },
       placeholder: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         }
       },
       placeholderColor: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         }
       },
       computedPlaceholderFontSize: function () {
         if (!this.hasImage()) {
-          this._init()
+          this._initialize()
         }
       },
       preventWhiteSpace (val) {
@@ -311,7 +311,7 @@
       },
 
       refresh () {
-        this.$nextTick(this._init)
+        this.$nextTick(this._initialize)
       },
 
       hasImage () {
@@ -407,7 +407,7 @@
         }
       },
 
-      _init () {
+      _initialize () {
         this.canvas = this.$refs.canvas
         this._setSize()
         this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
