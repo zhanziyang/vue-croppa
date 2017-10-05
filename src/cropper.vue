@@ -203,7 +203,6 @@
         }
 
         if (this.userMetadata) return
-        console.log('---------!!!----------')
 
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
