@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.2
+ * vue-croppa v1.0.3
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -536,7 +536,7 @@ var component = { render: function render() {
   },
 
   mounted: function mounted() {
-    this._init();
+    this._initialize();
     u.rAFPolyfill();
     u.toBlobPolyfill();
 
@@ -550,7 +550,7 @@ var component = { render: function render() {
   watch: {
     outputWidth: function outputWidth() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       } else {
         if (this.preventWhiteSpace) {
           this.imageSet = false;
@@ -561,7 +561,7 @@ var component = { render: function render() {
     },
     outputHeight: function outputHeight() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       } else {
         if (this.preventWhiteSpace) {
           this.imageSet = false;
@@ -572,24 +572,24 @@ var component = { render: function render() {
     },
     canvasColor: function canvasColor() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       } else {
         this._draw();
       }
     },
     placeholder: function placeholder() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       }
     },
     placeholderColor: function placeholderColor() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       }
     },
     computedPlaceholderFontSize: function computedPlaceholderFontSize() {
       if (!this.hasImage()) {
-        this._init();
+        this._initialize();
       }
     },
     preventWhiteSpace: function preventWhiteSpace(val) {
@@ -618,7 +618,6 @@ var component = { render: function render() {
       }
 
       if (this.userMetadata) return;
-      console.log('---------!!!----------');
 
       var offsetX = (x - 1) * (pos.x - this.imgData.startX);
       var offsetY = (x - 1) * (pos.y - this.imgData.startY);
@@ -727,7 +726,7 @@ var component = { render: function render() {
       this._setOrientation(4);
     },
     refresh: function refresh() {
-      this.$nextTick(this._init);
+      this.$nextTick(this._initialize);
     },
     hasImage: function hasImage() {
       return !!this.imageSet;
@@ -823,7 +822,7 @@ var component = { render: function render() {
         this.$emit(events.IMAGE_REMOVE_EVENT);
       }
     },
-    _init: function _init() {
+    _initialize: function _initialize() {
       this.canvas = this.$refs.canvas;
       this._setSize();
       this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? 'transparent' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
