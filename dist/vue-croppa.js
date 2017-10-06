@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.3
+ * vue-croppa v1.0.4
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -599,7 +599,7 @@ var component = { render: function render() {
       this._placeImage();
     },
     scaleRatio: function scaleRatio(val, oldVal) {
-      if (!this.hasImage()) return;
+      if (!this.img) return;
       if (!u.numberValid(val)) return;
 
       var x = 1;
@@ -732,7 +732,7 @@ var component = { render: function render() {
       return !!this.imageSet;
     },
     applyMetadata: function applyMetadata(metadata) {
-      if (!metadata || !this.hasImage()) return;
+      if (!metadata) return;
       this.userMetadata = metadata;
       var ori = metadata.orientation || this.orientation || 1;
       this._setOrientation(ori, true);
@@ -918,12 +918,12 @@ var component = { render: function render() {
         return;
       }
       if (u.imageLoaded(img)) {
-        this.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
-        this._onload(img, +img.dataset['exifOrientation']);
+        // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+        this._onload(img, +img.dataset['exifOrientation'], true);
       } else {
         img.onload = function () {
-          _this3.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
-          _this3._onload(img, +img.dataset['exifOrientation']);
+          // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+          _this3._onload(img, +img.dataset['exifOrientation'], true);
         };
 
         img.onerror = function () {
@@ -933,6 +933,7 @@ var component = { render: function render() {
     },
     _onload: function _onload(img) {
       var orientation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      var initial = arguments[2];
 
       this.originalImage = img;
       this.img = img;
@@ -942,6 +943,10 @@ var component = { render: function render() {
       }
 
       this._setOrientation(orientation);
+
+      if (initial) {
+        this.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
+      }
     },
     _handleClick: function _handleClick() {
       if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
@@ -1280,7 +1285,6 @@ var component = { render: function render() {
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
       var applyMetadata = arguments[1];
 
-      if (!this.img) return;
       var useOriginal = applyMetadata && this.userMetadata.orientation !== this.orientation;
       if (orientation > 1 || useOriginal) {
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
