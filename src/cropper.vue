@@ -184,7 +184,7 @@
         this._placeImage()
       },
       scaleRatio (val, oldVal) {
-        if (!this.hasImage()) return
+        if (!this.img) return
         if (!u.numberValid(val)) return
 
         var x = 1
@@ -319,7 +319,7 @@
       },
 
       applyMetadata (metadata) {
-        if (!metadata || !this.hasImage()) return
+        if (!metadata) return
         this.userMetadata = metadata
         var ori = metadata.orientation || this.orientation || 1
         this._setOrientation(ori, true)
@@ -498,12 +498,12 @@
           return
         }
         if (u.imageLoaded(img)) {
-          this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
-          this._onload(img, +img.dataset['exifOrientation'])
+          // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+          this._onload(img, +img.dataset['exifOrientation'], true)
         } else {
           img.onload = () => {
-            this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
-            this._onload(img, +img.dataset['exifOrientation'])
+            // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+            this._onload(img, +img.dataset['exifOrientation'], true)
           }
 
           img.onerror = () => {
@@ -512,7 +512,7 @@
         }
       },
 
-      _onload (img, orientation = 1) {
+      _onload (img, orientation = 1, initial) {
         this.originalImage = img
         this.img = img
 
@@ -521,6 +521,10 @@
         }
 
         this._setOrientation(orientation)
+
+        if (initial) {
+          this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+        }
       },
 
       _handleClick () {
@@ -872,7 +876,6 @@
       },
 
       _setOrientation (orientation = 6, applyMetadata) {
-        if (!this.img) return
         var useOriginal = applyMetadata && this.userMetadata.orientation !== this.orientation
         if (orientation > 1 || useOriginal) {
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
