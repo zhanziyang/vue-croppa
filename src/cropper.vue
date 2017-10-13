@@ -186,6 +186,7 @@
 
         if (this.preventWhiteSpace) {
           this._preventZoomingToWhiteSpace()
+          this._preventMovingToWhiteSpace()
         }
 
         if (this.userMetadata || !this.imageSet || this.rotating) return
