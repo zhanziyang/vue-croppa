@@ -2,18 +2,16 @@
   <v-expansion-panel expand>
     <v-expansion-panel-content :value="expand">
       <div slot="header"
-           class="title">Output Image Size</div>
-      <div class="pt-2 pl-2">NOTIC: We are talking about
-        <strong>image visual size like 200X200 etc</strong>, not file size like xxx kb.</div>
-      <div class="pt-2 pl-2">There are three props that determine the output image size:
+           class="title">Output Image Dimension</div>
+      <div class="pt-2 pl-2">There are three props that determine the output image dimension:
         <code>width</code>,
         <code>height</code> and
         <code>quality</code>.
       </div>
       <div class="pt-2 pl-2">
         <code>width</code> and
-        <code>height</code> is the component's size, i.e. the size you see, while
-        <code>quality</code> describes how many times larger the output image will be than the size you see.
+        <code>height</code> is the component's dimension, i.e. the dimension you see, while
+        <code>quality</code> describes how many times larger the output image will be than the dimension you see.
       </div>
       <div class="pt-2 pl-2">
         So,
