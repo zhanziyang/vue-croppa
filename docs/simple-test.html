@@ -40,7 +40,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa ref="myCroppa" v-model="croppa" :width="300" :height="300" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
+    <croppa ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
       initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
       :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
@@ -76,17 +76,20 @@
       data: {
         initialImage: null,
         croppa: null,
+        width: 300,
+        height: 300,
         sliderVal: 0,
         sliderMin: 0,
         sliderMax: 0,
-        preventWhiteSpace: false
+        preventWhiteSpace: true
       },
 
       mounted: function () {
         var image = new Image()
         image.setAttribute('crossorigin', 'anonymous')
         // image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
-        image.src = '/vue-croppa/static/500.jpeg'
+        // image.src = '/vue-croppa/static/500.jpeg'
+        image.src = 'https://picsum.photos/400/300'
         this.initialImage = image
         this.croppa.refresh()
 
@@ -121,13 +124,16 @@
 
         onInitialLoaded: function () {
           console.log('loadedd')
-          this.applyMetadata.call(this)
+          // this.applyMetadata.call(this)
         },
 
         onNewImageDrawn() {
           this.sliderVal = this.croppa.scaleRatio
           this.sliderMin = this.croppa.scaleRatio / 2
           this.sliderMax = this.croppa.scaleRatio * 2
+
+          this.width = this.croppa.naturalWidth
+          this.height = this.croppa.naturalHeight
         },
 
         onMove() {

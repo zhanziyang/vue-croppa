@@ -89,6 +89,7 @@
         tabStart: 0,
         scrolling: false,
         pinching: false,
+        rotating: false,
         pinchDistance: 0,
         supportTouch: false,
         pointerMoved: false,
@@ -135,46 +136,30 @@
 
     watch: {
       outputWidth: function () {
-        if (!this.hasImage()) {
-          this._initialize()
-        } else {
-          if (this.preventWhiteSpace) {
-            this.imageSet = false
-          }
-          this._setSize()
-          this._placeImage()
-        }
+        this.onDimensionChange()
       },
       outputHeight: function () {
-        if (!this.hasImage()) {
-          this._initialize()
-        } else {
-          if (this.preventWhiteSpace) {
-            this.imageSet = false
-          }
-          this._setSize()
-          this._placeImage()
-        }
+        this.onDimensionChange()
       },
       canvasColor: function () {
-        if (!this.hasImage()) {
+        if (!this.img) {
           this._initialize()
         } else {
           this._draw()
         }
       },
       placeholder: function () {
-        if (!this.hasImage()) {
+        if (!this.img) {
           this._initialize()
         }
       },
       placeholderColor: function () {
-        if (!this.hasImage()) {
+        if (!this.img) {
           this._initialize()
         }
       },
       computedPlaceholderFontSize: function () {
-        if (!this.hasImage()) {
+        if (!this.img) {
           this._initialize()
         }
       },
@@ -203,8 +188,7 @@
           this._preventZoomingToWhiteSpace()
         }
 
-        if (this.userMetadata) return
-
+        if (this.userMetadata || !this.imageSet || this.rotating) return
         let offsetX = (x - 1) * (pos.x - this.imgData.startX)
         let offsetY = (x - 1) * (pos.y - this.imgData.startY)
         this.imgData.startX = this.imgData.startX - offsetX
@@ -878,8 +862,9 @@
       },
 
       _setOrientation (orientation = 6, applyMetadata) {
-        var useOriginal = applyMetadata && this.userMetadata.orientation !== this.orientation
+        var useOriginal = applyMetadata
         if (orientation > 1 || useOriginal) {
+          this.rotating = true
           var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
           _img.onload = () => {
             this.img = _img
@@ -942,6 +927,7 @@
           this.imageSet = true
           this.$emit(events.NEW_IMAGE_DRAWN)
         }
+        this.rotating = false
       },
 
       _applyMetadata () {
@@ -963,6 +949,18 @@
         this.$nextTick(() => {
           this.userMetadata = null
         })
+      },
+
+      onDimensionChange () {
+        if (!this.img) {
+          this._initialize()
+        } else {
+          if (this.preventWhiteSpace) {
+            this.imageSet = false
+          }
+          this._setSize()
+          this._placeImage()
+        }
       }
     }
   }
@@ -970,42 +968,53 @@
 
 <style lang="stylus">
   .croppa-container
-    display: inline-block
-    cursor: pointer
-    transition: all .3s
-    position: relative
-    font-size: 0
-    align-self: flex-start
-    background-color: #e6e6e6
-    canvas
-      transition: all .3s
-    &:hover
-      opacity: .7
-    &.croppa--dropzone
-      box-shadow: inset 0 0 10px lightness(black, 20%)
-      canvas
-        opacity: .5
-    &.croppa--disabled-cc
-      cursor: default
-      &:hover
-        opacity: 1
-    &.croppa--has-target
-      cursor: move
-      &:hover
-        opacity: 1
-      &.croppa--disabled-mz
-        cursor: default
-    &.croppa--disabled
-      cursor: not-allowed
-      &:hover
-        opacity: 1
-    svg.icon-remove
-      position: absolute
-      background: white
-      border-radius: 50%
-      filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.7))
-      z-index: 10
-      cursor: pointer
-      border: 2px solid white
+    display inline-block
+    cursor pointer
+    transition all 0.3s
+    position relative
+    font-size 0
+    align-self flex-start
+    background-color #e6e6e6
 
+    canvas
+      transition all 0.3s
+
+    &:hover
+      opacity 0.7
+
+    &.croppa--dropzone
+      box-shadow inset 0 0 10px lightness(black, 20%)
+
+      canvas
+        opacity 0.5
+
+    &.croppa--disabled-cc
+      cursor default
+
+      &:hover
+        opacity 1
+
+    &.croppa--has-target
+      cursor move
+
+      &:hover
+        opacity 1
+
+      &.croppa--disabled-mz
+        cursor default
+
+    &.croppa--disabled
+      cursor not-allowed
+
+      &:hover
+        opacity 1
+
+    svg.icon-remove
+      position absolute
+      background white
+      border-radius 50%
+      filter drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.7))
+      z-index 10
+      cursor pointer
+      border 2px solid white
 </style>
