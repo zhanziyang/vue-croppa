@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.4
+ * vue-croppa v1.0.5
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -505,6 +505,7 @@ var component = { render: function render() {
       tabStart: 0,
       scrolling: false,
       pinching: false,
+      rotating: false,
       pinchDistance: 0,
       supportTouch: false,
       pointerMoved: false,
@@ -515,7 +516,8 @@ var component = { render: function render() {
       orientation: 1,
       userMetadata: null,
       imageSet: false,
-      currentPointerCoord: null
+      currentPointerCoord: null,
+      currentIsInitial: false
     };
   },
 
@@ -549,46 +551,30 @@ var component = { render: function render() {
 
   watch: {
     outputWidth: function outputWidth() {
-      if (!this.hasImage()) {
-        this._initialize();
-      } else {
-        if (this.preventWhiteSpace) {
-          this.imageSet = false;
-        }
-        this._setSize();
-        this._placeImage();
-      }
+      this.onDimensionChange();
     },
     outputHeight: function outputHeight() {
-      if (!this.hasImage()) {
-        this._initialize();
-      } else {
-        if (this.preventWhiteSpace) {
-          this.imageSet = false;
-        }
-        this._setSize();
-        this._placeImage();
-      }
+      this.onDimensionChange();
     },
     canvasColor: function canvasColor() {
-      if (!this.hasImage()) {
+      if (!this.img) {
         this._initialize();
       } else {
         this._draw();
       }
     },
     placeholder: function placeholder() {
-      if (!this.hasImage()) {
+      if (!this.img) {
         this._initialize();
       }
     },
     placeholderColor: function placeholderColor() {
-      if (!this.hasImage()) {
+      if (!this.img) {
         this._initialize();
       }
     },
     computedPlaceholderFontSize: function computedPlaceholderFontSize() {
-      if (!this.hasImage()) {
+      if (!this.img) {
         this._initialize();
       }
     },
@@ -615,10 +601,10 @@ var component = { render: function render() {
 
       if (this.preventWhiteSpace) {
         this._preventZoomingToWhiteSpace();
+        this._preventMovingToWhiteSpace();
       }
 
-      if (this.userMetadata) return;
-
+      if (this.userMetadata || !this.imageSet || this.rotating) return;
       var offsetX = (x - 1) * (pos.x - this.imgData.startX);
       var offsetY = (x - 1) * (pos.y - this.imgData.startY);
       this.imgData.startX = this.imgData.startX - offsetX;
@@ -937,6 +923,7 @@ var component = { render: function render() {
 
       this.originalImage = img;
       this.img = img;
+      this.currentIsInitial = !!initial;
 
       if (isNaN(orientation)) {
         orientation = 1;
@@ -1285,8 +1272,9 @@ var component = { render: function render() {
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
       var applyMetadata = arguments[1];
 
-      var useOriginal = applyMetadata && this.userMetadata.orientation !== this.orientation;
+      var useOriginal = applyMetadata;
       if (orientation > 1 || useOriginal) {
+        this.rotating = true;
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
           _this6.img = _img;
@@ -1353,6 +1341,7 @@ var component = { render: function render() {
         this.imageSet = true;
         this.$emit(events.NEW_IMAGE_DRAWN);
       }
+      this.rotating = false;
     },
     _applyMetadata: function _applyMetadata() {
       var _this8 = this;
@@ -1379,6 +1368,17 @@ var component = { render: function render() {
       this.$nextTick(function () {
         _this8.userMetadata = null;
       });
+    },
+    onDimensionChange: function onDimensionChange() {
+      if (!this.img) {
+        this._initialize();
+      } else {
+        if (this.preventWhiteSpace) {
+          this.imageSet = false;
+        }
+        this._setSize();
+        this._placeImage();
+      }
     }
   }
 };
