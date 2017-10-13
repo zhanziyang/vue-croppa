@@ -99,7 +99,8 @@
         orientation: 1,
         userMetadata: null,
         imageSet: false,
-        currentPointerCoord: null
+        currentPointerCoord: null,
+        currentIsInitial: false
       }
     },
 
@@ -515,6 +516,7 @@
       _onload (img, orientation = 1, initial) {
         this.originalImage = img
         this.img = img
+        this.currentIsInitial = !!initial
 
         if (isNaN(orientation)) {
           orientation = 1

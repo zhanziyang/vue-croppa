@@ -50,7 +50,9 @@
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
     <br>
-    <label for="prevent"><input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
+    <label for="prevent">
+      <input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
+    <button @click="croppa.refresh()">REFRESH</button>
     <br>
     <button @click="croppa.rotate()">ROTATE</button>
     <button @click="croppa.flipX()">FLIP-X</button>
