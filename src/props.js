@@ -1,6 +1,12 @@
-Number.isInteger = Number.isInteger || function (value) {
-  return typeof value === 'number' && isFinite(value) && Math.floor(value) === value
-}
+Number.isInteger =
+  Number.isInteger ||
+  function(value) {
+    return (
+      typeof value === 'number' &&
+      isFinite(value) &&
+      Math.floor(value) === value
+    )
+  }
 
 var initialImageType = String
 if (window && window.Image) {
@@ -12,14 +18,14 @@ export default {
   width: {
     type: Number,
     default: 200,
-    validator: function (val) {
+    validator: function(val) {
       return val > 0
     }
   },
   height: {
     type: Number,
     default: 200,
-    validator: function (val) {
+    validator: function(val) {
       return val > 0
     }
   },
@@ -33,7 +39,7 @@ export default {
   placeholderFontSize: {
     type: Number,
     default: 0,
-    validator: function (val) {
+    validator: function(val) {
       return val >= 0
     }
   },
@@ -43,14 +49,14 @@ export default {
   quality: {
     type: Number,
     default: 2,
-    validator: function (val) {
+    validator: function(val) {
       return val > 0
     }
   },
   zoomSpeed: {
     default: 3,
     type: Number,
-    validator: function (val) {
+    validator: function(val) {
       return val > 0
     }
   },
@@ -58,7 +64,7 @@ export default {
   fileSizeLimit: {
     type: Number,
     default: 0,
-    validator: function (val) {
+    validator: function(val) {
       return val >= 0
     }
   },
@@ -86,25 +92,30 @@ export default {
   initialSize: {
     type: String,
     default: 'cover',
-    validator: function (val) {
+    validator: function(val) {
       return val === 'cover' || val === 'contain' || val === 'natural'
     }
   },
   initialPosition: {
     type: String,
     default: 'center',
-    validator: function (val) {
-      var valids = [
-        'center',
-        'top',
-        'bottom',
-        'left',
-        'right'
-      ]
-      return val.split(' ').every(word => {
-        return valids.indexOf(word) >= 0
-      }) || /^-?\d+% -?\d+%$/.test(val)
+    validator: function(val) {
+      var valids = ['center', 'top', 'bottom', 'left', 'right']
+      return (
+        val.split(' ').every(word => {
+          return valids.indexOf(word) >= 0
+        }) || /^-?\d+% -?\d+%$/.test(val)
+      )
     }
   },
-  inputAttrs: Object
+  inputAttrs: Object,
+  showLoading: Boolean,
+  loadingSize: {
+    type: Number,
+    default: 20
+  },
+  loadingColor: {
+    type: String,
+    default: '#606060'
+  }
 }

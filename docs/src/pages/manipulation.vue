@@ -1,32 +1,32 @@
 <template>
   <div id="manipulation">
     <v-layout row
-              wrap>
+      wrap>
       <v-flex>
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="true">
             <div slot="header"
-                 class="title">Move</div>
+              class="title">Move</div>
             <div class="pt-2 pl-2">By default, image on croppa can be moved by
               <strong>dragging it with mouse or one finger (on mobile)</strong>. You can disable this feature by setting
               <code>:disable-drag-to-move="true"</code> -
               <router-link to="/customization?sec=disablings">Try here</router-link>.</div>
             <v-layout class="pt-2 pl-2">
               <div class="mr-2"
-                   style="width: 388.88px">
+                style="width: 388.88px">
                 <video autoplay=""
-                       loop=""
-                       width="100%">
+                  loop=""
+                  width="100%">
                   <source type="video/mp4"
-                          src="https://i.imgur.com/tbMCe1M.mp4">
+                    src="https://i.imgur.com/tbMCe1M.mp4">
                 </video>
               </div>
               <div style="height: 315px">
                 <video autoplay=""
-                       loop=""
-                       height="100%">
+                  loop=""
+                  height="100%">
                   <source type="video/mp4"
-                          src="https://i.imgur.com/YPBtFaq.mp4">
+                    src="https://i.imgur.com/YPBtFaq.mp4">
                 </video>
               </div>
             </v-layout>
@@ -39,19 +39,21 @@
             </div>
             <div class="pt-2 pl-2">
               <p data-height="300"
-                 data-theme-id="19967"
-                 data-slug-hash="preWzY"
-                 data-default-tab="html,result"
-                 data-user="zhanziyang"
-                 data-embed-version="2"
-                 data-pen-title="Vue Croppa move"
-                 class="codepen">See the Pen
+                data-theme-id="19967"
+                data-slug-hash="preWzY"
+                data-default-tab="html,result"
+                data-user="zhanziyang"
+                data-embed-version="2"
+                data-pen-title="Vue Croppa move"
+                class="codepen">See the Pen
                 <a href="https://codepen.io/zhanziyang/pen/preWzY/">Vue Croppa move</a> by Chris (
                 <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
                 <a href="https://codepen.io">CodePen</a>.</p>
             </div>
             <div class="pt-2 pl-2 pb-2">
-              Related event: move
+              Related event:
+              <code>move</code>,
+              <code>draw</code>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -59,7 +61,7 @@
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="true">
             <div slot="header"
-                 class="title">Zoom</div>
+              class="title">Zoom</div>
             <div class="pt-2 pl-2">By default, image on croppa can be zoomed by
               <strong>scrolling or pinching with two fingers (on mobile)</strong>. </div>
             <div class="pt-2 pl-2">You can disable them by setting
@@ -73,20 +75,20 @@
               <router-link to="/customization?sec=zoom-control">Try here</router-link>.</div>
             <v-layout class="pt-2 pl-2">
               <div class="mr-2"
-                   style="width: 395px">
+                style="width: 395px">
                 <video autoplay=""
-                       loop=""
-                       width="100%">
+                  loop=""
+                  width="100%">
                   <source type="video/mp4"
-                          src="https://i.imgur.com/MOsxBnj.mp4">
+                    src="https://i.imgur.com/MOsxBnj.mp4">
                 </video>
               </div>
               <div style="height: 315px">
                 <video autoplay=""
-                       loop=""
-                       height="100%">
+                  loop=""
+                  height="100%">
                   <source type="video/mp4"
-                          src="https://i.imgur.com/Vt301a9.mp4">
+                    src="https://i.imgur.com/Vt301a9.mp4">
                 </video>
               </div>
             </v-layout>
@@ -97,19 +99,21 @@
             </div>
             <div class="pt-2 pl-2">
               <p data-height="300"
-                 data-theme-id="19967"
-                 data-slug-hash="eEvGWN"
-                 data-default-tab="html,result"
-                 data-user="zhanziyang"
-                 data-embed-version="2"
-                 data-pen-title="Vue Croppa zoom"
-                 class="codepen">See the Pen
+                data-theme-id="19967"
+                data-slug-hash="eEvGWN"
+                data-default-tab="html,result"
+                data-user="zhanziyang"
+                data-embed-version="2"
+                data-pen-title="Vue Croppa zoom"
+                class="codepen">See the Pen
                 <a href="https://codepen.io/zhanziyang/pen/eEvGWN/">Vue Croppa zoom</a> by Chris (
                 <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
                 <a href="https://codepen.io">CodePen</a>.</p>
             </div>
             <div class="pt-2 pl-2 pb-2">
-              Related event: zoom
+              Related event:
+              <code>zoom</code>,
+              <code>draw</code>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -117,7 +121,7 @@
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="true">
             <div slot="header"
-                 class="title">Rotate</div>
+              class="title">Rotate</div>
             <div class="pt-2 pl-2">Unlike move and zoom, there is no built-in rotate gesture recognizer. But since v0.2.0 we can rotate the image by calling methods. They are:</div>
             <div class="pt-2 pl-2">
               <ul>
@@ -131,16 +135,20 @@
             </div>
             <div class="pt-2 pl-2">
               <p data-height="300"
-                 data-theme-id="19967"
-                 data-slug-hash="WEpZme"
-                 data-default-tab="html,result"
-                 data-user="zhanziyang"
-                 data-embed-version="2"
-                 data-pen-title="Vue Croppa rotate"
-                 class="codepen">See the Pen
+                data-theme-id="19967"
+                data-slug-hash="WEpZme"
+                data-default-tab="html,result"
+                data-user="zhanziyang"
+                data-embed-version="2"
+                data-pen-title="Vue Croppa rotate"
+                class="codepen">See the Pen
                 <a href="https://codepen.io/zhanziyang/pen/WEpZme/">Vue Croppa rotate</a> by Chris (
                 <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
                 <a href="https://codepen.io">CodePen</a>.</p>
+            </div>
+            <div class="pt-2 pl-2 pb-2">
+              Related event:
+              <code>draw</code>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -148,7 +156,7 @@
         <v-expansion-panel expand>
           <v-expansion-panel-content :value="true">
             <div slot="header"
-                 class="title">Save state and retrieve it</div>
+              class="title">Save state and retrieve it</div>
             <div class="pt-2 pl-2">Inspired by
               <a href="https://github.com/zhanziyang/vue-croppa/issues/24">this issue</a>, since v0.3.0, you can get the metadata that describes current user manipulations (moving, zooming, rotating), save it somewhere, and later you can apply it to retrieve the previous state. These are done by using
               <code>getMetadata()</code> and

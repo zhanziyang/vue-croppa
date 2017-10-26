@@ -313,6 +313,20 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 <croppa :input-attrs="{capture: true, class: 'file-input'}"></croppa>
 ```
 
+#### show-loading
+(**v1.1.0+**) show default loading spinner at the bottom right corner of the container when image is loading (will but not yet be drawn on canvas).
+- type: `boolean`
+- default: `false`
+
+#### loading-size
+(**v1.1.0+**) loading spinner's size in px.
+- type: `number`
+- default: `20`
+
+#### loading-color
+(**v1.1.0+**) loading spinner's color in css color value formats.
+- type: `string`
+- default: `'#606060'` 
 ---
 
 ### 🌱 Slots
@@ -341,7 +355,9 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 - The image will be drawn with 100% width and height of croppa container, i.e. it will cover the container. So it is recommended to use a images with the same aspect ratio as the container.
 - Find demo "Image Placeholder" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos)
 
-
+#### default
+- (**v1.1.0+**) Default slots (unnamed) will be appended to the container element after the built-in elements. 
+- Usually you need to set `position: absolute` on these slots or it will expand the container.
 
 ### 🌱 Methods
 
@@ -485,7 +501,7 @@ this.myCroppa.applyMetadata(metadata)
 - emitted when a new valid image is received and read successfully(v0.2.0).
 
 #### new-image-drawn
-- emitted when a new image is drawn on canvas for the first time.
+- (v1.0.0+) emitted when a new image is drawn on canvas for the first time.
 
 #### image-remove
 - emitted when image remove from croppa.
@@ -501,7 +517,13 @@ this.myCroppa.applyMetadata(metadata)
 - Find demo "Attachments" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
 
 #### initial-image-loaded
-- emitted when initial image loaded. It can be useful when you provide initial image with the `initial-image` prop.
+- (v0.3.2+) emitted when initial image loaded. It can be useful when you provide initial image with the `initial-image` prop.
+
+#### loading-start
+- (v1.1.0+) emitted when image loading phase starts.
+
+#### loading-end
+- (v1.1.0+) emitted when image loading phase ends.
 ---
 
 ### 🌱 State data
@@ -523,6 +545,8 @@ Sorry I'm too lazy to doc about each of them. Please open the **vue-devtool** to
 You can also open an issue to ask me any question about this component.
 
 Note that "computed" and "props" are read-only. Some value on "data" are also not recommended to modify from outside, for example `ctx`, `canvas`, `img`.
+
+- **v1.1.0**: `loading` indicates whether an image is loading (will but not yet be drawn on canvas).
 
 ### 🌱 Customize styles
 
@@ -562,3 +586,6 @@ $ npm run build
 
 ## To Do
 - [ ] Add unit test.
+- [ ] Big image rotation optimizations.
+- [ ] Add demo of custom loading spinner.
+- [ ] Add demo of manipulating sticker.

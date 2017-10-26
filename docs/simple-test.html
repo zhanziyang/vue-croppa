@@ -31,6 +31,37 @@
     input[type=range] {
       width: 300px;
     }
+
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 70px;
+      width: 70px;
+      margin-left: -35px;
+      margin-top: -35px;
+      -webkit-animation: spin 1s linear infinite;
+      animation: spin 1s linear infinite;
+      border: 3px solid #ddd;
+      border-top: 3px solid #42a5f5;
+      border-radius: 50%;
+    }
+
+    @-webkit-keyframes spin {
+      to {
+        border-top-color: #ec407a;
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        border-top-color: #ec407a;
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
   </style>
   <meta name="theme-color" content="#ffffff">
   <title>Vue Croppa - Simple Test</title>
@@ -42,10 +73,12 @@
     <h1>Vue-Croppa Simple Test</h1>
     <croppa ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
       initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
-      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace">
+      @loading-start="onLoadingStart" @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'"
+      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace" show-loading>
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
+      <div class="spinner" v-if="croppa && croppa.loading"></div>
     </croppa>
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
@@ -65,6 +98,9 @@
     <br>
     <button @click="saveMetadata">SAVE METADATA</button>
     <button @click="applyMetadata">APPLY METADATA</button>
+    <br>
+    <button @click="removeSticker">REMOVE STICKER</button>
+
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
   <script src="https://unpkg.com/vue@2.4.2/dist/vue.js"></script>
@@ -81,7 +117,9 @@
         sliderVal: 0,
         sliderMin: 0,
         sliderMax: 0,
-        preventWhiteSpace: true
+        preventWhiteSpace: true,
+        noSticker: false,
+        loading: false
       },
 
       mounted: function () {
@@ -89,7 +127,7 @@
         image.setAttribute('crossorigin', 'anonymous')
         // image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
         // image.src = '/vue-croppa/static/500.jpeg'
-        image.src = 'https://picsum.photos/400/300'
+        image.src = 'https://picsum.photos/900/900?' + new Date().valueOf()
         this.initialImage = image
         this.croppa.refresh()
 
@@ -115,11 +153,17 @@
         },
 
         onDraw: function (ctx) {
+          if (this.noSticker) return
           console.log('drawn')
           ctx.save()
           ctx.globalAlpha = 0.5
-          ctx.drawImage(document.querySelector('.addon'), 700, 700, 100, 100)
+          ctx.drawImage(document.querySelector('.addon'), 100, 100, 400, 400)
           ctx.restore()
+        },
+
+        removeSticker() {
+          this.noSticker = true
+          this.croppa._draw()
         },
 
         onInitialLoaded: function () {
@@ -154,6 +198,14 @@
         onSliderChange(evt) {
           var increment = evt.target.value
           this.croppa.scaleRatio = +increment
+        },
+
+        onLoadingStart() {
+          console.log('loading start')
+        },
+
+        onLoadingEnd() {
+          console.log('loading end')
         }
       }
     })
