@@ -587,5 +587,3 @@ $ npm run build
 ## To Do
 - [ ] Add unit test.
 - [ ] Big image rotation optimizations.
-- [ ] Add demo of custom loading spinner.
-- [ ] Add demo of manipulating sticker.
