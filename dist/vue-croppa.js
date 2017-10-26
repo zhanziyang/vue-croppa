@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.0.5
+ * vue-croppa v1.1.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -406,7 +406,16 @@ var props = {
       }) || /^-?\d+% -?\d+%$/.test(val);
     }
   },
-  inputAttrs: Object
+  inputAttrs: Object,
+  showLoading: Boolean,
+  loadingSize: {
+    type: Number,
+    default: 20
+  },
+  loadingColor: {
+    type: String,
+    default: '#606060'
+  }
 };
 
 var events = {
@@ -420,7 +429,9 @@ var events = {
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom',
   DRAW: 'draw',
-  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded'
+  INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded',
+  LOADING_START: 'loading-start',
+  LOADING_END: 'loading-end'
 };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -478,7 +489,9 @@ var component = { render: function render() {
           $event.stopPropagation();_vm._handleWheel($event);
         }, "mousewheel": function mousewheel($event) {
           $event.stopPropagation();_vm._handleWheel($event);
-        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e()]);
+        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e(), _vm.showLoading && _vm.loading ? _c('div', { staticClass: "sk-fading-circle", style: _vm.loadingStyle }, _vm._l(12, function (i) {
+      return _c('div', { key: i, class: 'sk-circle' + i + ' sk-circle' }, [_c('div', { staticClass: "sk-circle-indicator", style: { backgroundColor: _vm.loadingColor } })]);
+    })) : _vm._e(), _vm._t("default")], 2);
   }, staticRenderFns: [],
   model: {
     prop: 'value',
@@ -517,7 +530,8 @@ var component = { render: function render() {
       userMetadata: null,
       imageSet: false,
       currentPointerCoord: null,
-      currentIsInitial: false
+      currentIsInitial: false,
+      loading: false
     };
   },
 
@@ -534,6 +548,14 @@ var component = { render: function render() {
     },
     aspectRatio: function aspectRatio() {
       return this.naturalWidth / this.naturalHeight;
+    },
+    loadingStyle: function loadingStyle() {
+      return {
+        width: this.loadingSize + 'px',
+        height: this.loadingSize + 'px',
+        right: '15px',
+        bottom: '10px'
+      };
     }
   },
 
@@ -558,24 +580,24 @@ var component = { render: function render() {
     },
     canvasColor: function canvasColor() {
       if (!this.img) {
-        this._initialize();
+        this._setPlaceholders();
       } else {
         this._draw();
       }
     },
     placeholder: function placeholder() {
       if (!this.img) {
-        this._initialize();
+        this._setPlaceholders();
       }
     },
     placeholderColor: function placeholderColor() {
       if (!this.img) {
-        this._initialize();
+        this._setPlaceholders();
       }
     },
     computedPlaceholderFontSize: function computedPlaceholderFontSize() {
       if (!this.img) {
-        this._initialize();
+        this._setPlaceholders();
       }
     },
     preventWhiteSpace: function preventWhiteSpace(val) {
@@ -624,6 +646,13 @@ var component = { render: function render() {
     'imgData.height': function imgDataHeight(val) {
       if (!u.numberValid(val)) return;
       this.scaleRatio = val / this.naturalHeight;
+    },
+    loading: function loading(val) {
+      if (val) {
+        this.$emit(events.LOADING_START);
+      } else {
+        this.$emit(events.LOADING_END);
+      }
     }
   },
 
@@ -777,17 +806,7 @@ var component = { render: function render() {
       this.$refs.fileInput.click();
     },
     remove: function remove() {
-      var ctx = this.ctx;
-      this._paintBackground();
-
-      this._setImagePlaceholder();
-      ctx.textBaseline = 'middle';
-      ctx.textAlign = 'center';
-      var defaultFontSize = this.outputWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length;
-      var fontSize = !this.computedPlaceholderFontSize || this.computedPlaceholderFontSize == 0 ? defaultFontSize : this.computedPlaceholderFontSize;
-      ctx.font = fontSize + 'px sans-serif';
-      ctx.fillStyle = !this.placeholderColor || this.placeholderColor == 'default' ? '#606060' : this.placeholderColor;
-      ctx.fillText(this.placeholder, this.outputWidth / 2, this.outputHeight / 2);
+      this._setPlaceholders();
 
       var hadImage = this.img != null;
       this.originalImage = null;
@@ -803,6 +822,7 @@ var component = { render: function render() {
       this.scaleRatio = null;
       this.userMetadata = null;
       this.imageSet = false;
+      this.loading = false;
 
       if (hadImage) {
         this.$emit(events.IMAGE_REMOVE_EVENT);
@@ -875,6 +895,21 @@ var component = { render: function render() {
         img.onload = onLoad;
       }
     },
+    _setTextPlaceholder: function _setTextPlaceholder() {
+      var ctx = this.ctx;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      var defaultFontSize = this.outputWidth * DEFAULT_PLACEHOLDER_TAKEUP / this.placeholder.length;
+      var fontSize = !this.computedPlaceholderFontSize || this.computedPlaceholderFontSize == 0 ? defaultFontSize : this.computedPlaceholderFontSize;
+      ctx.font = fontSize + 'px sans-serif';
+      ctx.fillStyle = !this.placeholderColor || this.placeholderColor == 'default' ? '#606060' : this.placeholderColor;
+      ctx.fillText(this.placeholder, this.outputWidth / 2, this.outputHeight / 2);
+    },
+    _setPlaceholders: function _setPlaceholders() {
+      this._paintBackground();
+      this._setImagePlaceholder();
+      this._setTextPlaceholder();
+    },
     _setInitial: function _setInitial() {
       var _this3 = this;
 
@@ -900,20 +935,22 @@ var component = { render: function render() {
         img = this.initialImage;
       }
       if (!src && !img) {
-        this.remove();
+        this._setPlaceholders();
         return;
       }
+      this.currentIsInitial = true;
       if (u.imageLoaded(img)) {
         // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
         this._onload(img, +img.dataset['exifOrientation'], true);
       } else {
+        this.loading = true;
         img.onload = function () {
           // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
           _this3._onload(img, +img.dataset['exifOrientation'], true);
         };
 
         img.onerror = function () {
-          _this3.remove();
+          _this3._setPlaceholders();
         };
       }
     },
@@ -923,7 +960,6 @@ var component = { render: function render() {
 
       this.originalImage = img;
       this.img = img;
-      this.currentIsInitial = !!initial;
 
       if (isNaN(orientation)) {
         orientation = 1;
@@ -950,12 +986,16 @@ var component = { render: function render() {
     _onNewFileIn: function _onNewFileIn(file) {
       var _this4 = this;
 
+      this.currentIsInitial = false;
+      this.loading = true;
       this.$emit(events.FILE_CHOOSE_EVENT, file);
       if (!this._fileSizeIsValid(file)) {
+        this.loading = false;
         this.$emit(events.FILE_SIZE_EXCEED_EVENT, file);
         throw new Error('File size exceeds limit which is ' + this.fileSizeLimit + ' bytes.');
       }
       if (!this._fileTypeIsValid(file)) {
+        this.loading = false;
         this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file);
         var type = file.type || file.name.toLowerCase().split('.').pop();
         throw new Error('File type (' + type + ') does not match what you specified (' + this.accept + ').');
@@ -1274,6 +1314,7 @@ var component = { render: function render() {
 
       var useOriginal = applyMetadata;
       if (orientation > 1 || useOriginal) {
+        if (!this.img) return;
         this.rotating = true;
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
@@ -1326,6 +1367,7 @@ var component = { render: function render() {
       });
     },
     _drawFrame: function _drawFrame() {
+      this.loading = false;
       var ctx = this.ctx;
       var _imgData2 = this.imgData,
           startX = _imgData2.startX,
