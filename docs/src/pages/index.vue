@@ -7,28 +7,28 @@
     </h2>
     <div class="text-xs-center">
       <video class="post video-post"
-             id="video-element"
-             autoplay
-             loop
-             poster="https://i.imgur.com/YhWLgqLh.jpg"
-             preload="auto"
-             muted="muted"
-             webkit-playsinline=""
-             style="width: 524px; height: 413.96px;">
+        id="video-element"
+        autoplay
+        loop
+        poster="https://i.imgur.com/YhWLgqLh.jpg"
+        preload="auto"
+        muted="muted"
+        webkit-playsinline=""
+        style="width: 524px; height: 413.96px;">
         <source type="video/mp4"
-                src="https://i.imgur.com/vO1FgQM.mp4">
+          src="https://i.imgur.com/vO1FgQM.mp4">
       </video>
       <video class="post video-post"
-             id="video-element"
-             autoplay
-             loop
-             poster="https://i.imgur.com/sJAQPo7h.jpg"
-             preload="auto"
-             muted="muted"
-             webkit-playsinline=""
-             style="height: 413.96px;">
+        id="video-element"
+        autoplay
+        loop
+        poster="https://i.imgur.com/sJAQPo7h.jpg"
+        preload="auto"
+        muted="muted"
+        webkit-playsinline=""
+        style="height: 413.96px;">
         <source type="video/mp4"
-                src="https://i.imgur.com/sJAQPo7.mp4">
+          src="https://i.imgur.com/sJAQPo7.mp4">
       </video>
 
       <br>
@@ -52,9 +52,9 @@
     <br>
     <v-card class="white--text try-out">
       <v-container fluid
-                   grid-list-lg>
+        grid-list-lg>
         <v-layout row-md
-                  column>
+          column>
           <v-flex md4>
             <div>
               <p class="tip">
@@ -75,23 +75,23 @@
           </v-flex>
           <v-flex md8>
             <croppa v-model="myCroppa"
-                    :width="+width"
-                    :height="+height"
-                    :placeholder="placeholder"
-                    :placeholder-font-size="+placeholderFontSize"
-                    :disabled="disabled"
-                    :prevent-white-space="preventWhiteSpace"
-                    :show-remove-button="showRemoveButton"
-                    @file-choose="handleCroppaFileChoose"
-                    @file-size-exceed="handleCroppaFileSizeExceed"
-                    @file-type-mismatch="handleCroppaFileTypeMismatch"
-                    @image-remove="handleImageRemove"
-                    @move="handleCroppaMove"
-                    @zoom="handleCroppaZoom">
+              :width="+width"
+              :height="+height"
+              :placeholder="placeholder"
+              :placeholder-font-size="+placeholderFontSize"
+              :disabled="disabled"
+              :prevent-white-space="preventWhiteSpace"
+              :show-remove-button="showRemoveButton"
+              @file-choose="handleCroppaFileChoose"
+              @file-size-exceed="handleCroppaFileSizeExceed"
+              @file-type-mismatch="handleCroppaFileTypeMismatch"
+              @image-remove="handleImageRemove"
+              @move="handleCroppaMove"
+              @zoom="handleCroppaZoom">
               <img crossOrigin="anonymous"
-                   :src="initialImageSrc"
-                   slot="initial"
-                   v-if="withInitialImage">
+                :src="initialImageSrc"
+                slot="initial"
+                v-if="withInitialImage">
             </croppa>
           </v-flex>
         </v-layout>
@@ -101,79 +101,79 @@
     <br>
     <v-layout>
       <v-flex xs12
-              order-md1>
+        order-md1>
         <v-layout row
-                  wrap>
+          wrap>
           <v-flex md6
-                  xs12>
+            xs12>
             <v-slider v-model="width"
-                      label="width"
-                      thumb-label
-                      :max="500"
-                      :min="100"></v-slider>
+              label="width"
+              thumb-label
+              :max="500"
+              :min="100"></v-slider>
           </v-flex>
           <v-flex md6
-                  xs12>
+            xs12>
             <v-slider v-model="height"
-                      label="height"
-                      thumb-label
-                      :max="500"
-                      :min="100"></v-slider>
+              label="height"
+              thumb-label
+              :max="500"
+              :min="100"></v-slider>
           </v-flex>
         </v-layout>
         <v-layout row
-                  wrap>
+          wrap>
           <v-flex md4
-                  xs12>
+            xs12>
             <v-switch :label="`set initial image`"
-                      v-model="withInitialImage"></v-switch>
+              v-model="withInitialImage"></v-switch>
           </v-flex>
           <v-flex md8>
             <v-text-field name="initialImageSrc"
-                          label="initial image url"
-                          v-model="initialImageSrc"></v-text-field>
+              label="initial image url"
+              v-model="initialImageSrc"></v-text-field>
           </v-flex>
         </v-layout>
         <v-layout row
-                  wrap>
+          wrap>
           <v-flex md6
-                  xs12>
+            xs12>
             <v-text-field name="placeholder"
-                          label="placeholder"
-                          v-model="placeholder"></v-text-field>
+              label="placeholder"
+              v-model="placeholder"></v-text-field>
           </v-flex>
           <v-flex md6
-                  xs12>
+            xs12>
             <v-text-field name="placeholderFontSize"
-                          label="placeholderFontSize (px)"
-                          type="number"
-                          v-model="placeholderFontSize"></v-text-field>
+              label="placeholderFontSize (px)"
+              type="number"
+              v-model="placeholderFontSize"></v-text-field>
           </v-flex>
         </v-layout>
         <v-layout row
-                  wrap>
+          wrap>
           <v-flex md4
-                  xs12>
+            xs12>
             <v-switch :label="`disabled`"
-                      v-model="disabled"></v-switch>
+              v-model="disabled"></v-switch>
           </v-flex>
           <v-flex md4
-                  xs12>
+            xs12>
             <v-switch :label="`preventWhiteSpace`"
-                      v-model="preventWhiteSpace"></v-switch>
+              v-model="preventWhiteSpace"></v-switch>
           </v-flex>
           <v-flex md4
-                  xs12>
+            xs12>
             <v-switch :label="`showRemoveButton`"
-                      v-model="showRemoveButton"></v-switch>
+              v-model="showRemoveButton"></v-switch>
           </v-flex>
         </v-layout>
         <v-btn block
-               secondary
-               large
-               dark
-               to="/customization"
-               router>More Customizations</v-btn>
+          secondary
+          large
+          dark
+          to="/customization"
+          router>More Customizations</v-btn>
         <br>
       </v-flex>
     </v-layout>
@@ -253,14 +253,6 @@
       }
     },
 
-    mounted () {
-      setTimeout(() => {
-        this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
-        this.preload('/vue-croppa/static/400.jpeg')
-        this.preload('/vue-croppa/static/500.jpeg')
-      }, 1000)
-    },
-
     watch: {
       withInitialImage: function () {
         this.refresh()
@@ -271,10 +263,6 @@
     },
 
     methods: {
-      preload (src) {
-        new Image().src = src
-      },
-
       getDataUrl () {
         alert(this.myCroppa.generateDataUrl())
       },

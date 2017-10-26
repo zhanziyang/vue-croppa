@@ -1,28 +1,28 @@
 <template>
   <v-app standalone>
     <v-navigation-drawer persistent
-                         v-model="drawer"
-                         :mini-variant.sync="mini"
-                         light
-                         overflow>
+      v-model="drawer"
+      :mini-variant.sync="mini"
+      light
+      overflow>
       <v-toolbar flat
-                 class="transparent">
+        class="transparent">
         <v-list class="pa-0">
-  
+
           <v-list-tile avatar
-                       tag="ul">
+            tag="ul">
             Vue Croppa</v-list-tile>
         </v-list>
       </v-toolbar>
       <v-list class="py-0">
         <template v-for="(item, index) in items">
           <v-divider v-if="item.divider"
-                     :key="index"></v-divider>
+            :key="index"></v-divider>
           <v-list-tile v-else
-                       :class="[{'active': $route.path == item.link}]"
-                       router
-                       :href="'#' + item.link"
-                       :key="index">
+            :class="[{'active': $route.path == item.link}]"
+            router
+            :href="'#' + item.link"
+            :key="index">
             <v-list-tile-action>
               <v-icon>{{ item.icon }}</v-icon>
             </v-list-tile-action>
@@ -30,7 +30,7 @@
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
-  
+
         </template>
       </v-list>
     </v-navigation-drawer>
@@ -39,13 +39,13 @@
       <v-toolbar-title>{{page ? pageFormatted : 'Introduction'}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="grey darken-3"
-             href="https://github.com/zhanziyang/vue-croppa"
-             tag="a">
+        href="https://github.com/zhanziyang/vue-croppa"
+        tag="a">
         GITHUB
       </v-btn>
       <v-btn class="grey darken-3"
-             href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
-             tag="a">DOC</v-btn>
+        href="https://github.com/zhanziyang/vue-croppa/blob/master/README.md#documentation"
+        tag="a">DOC</v-btn>
     </v-toolbar>
     <main>
       <v-container fluid>
@@ -97,6 +97,21 @@
       let windowWidth = window.innerWidth
       if (windowWidth < 400) {
         this.drawer = false
+      }
+    },
+
+    mounted () {
+      setTimeout(() => {
+        this.preload('https://zhanziyang.github.io/vue-croppa/static/initial-image.png')
+        this.preload('/vue-croppa/static/400.jpeg')
+        this.preload('/vue-croppa/static/500.jpeg')
+        this.preload('/vue-croppa/static/favicons/android-chrome-512x512.png')
+      }, 1000)
+    },
+
+    methods: {
+      preload (src) {
+        new Image().src = src
       }
     }
   }
