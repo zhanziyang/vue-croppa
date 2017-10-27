@@ -587,3 +587,4 @@ $ npm run build
 ## To Do
 - [ ] Add unit test.
 - [ ] Big image rotation optimizations.
+- [ ] Doc about blob.
