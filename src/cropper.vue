@@ -344,7 +344,9 @@
       },
 
       generateBlob (callback, mimeType, qualityArgument) {
-        if (!this.hasImage()) return null
+        if (!this.hasImage()) {
+          callback(null)
+        }
         this.canvas.toBlob(callback, mimeType, qualityArgument)
       },
 

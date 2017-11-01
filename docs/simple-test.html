@@ -100,6 +100,7 @@
     <button @click="applyMetadata">APPLY METADATA</button>
     <br>
     <button @click="removeSticker">REMOVE STICKER</button>
+    <button @click="promisedBlob">Promised Blob</button>
 
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
@@ -127,7 +128,7 @@
         image.setAttribute('crossorigin', 'anonymous')
         // image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
         // image.src = '/vue-croppa/static/500.jpeg'
-        image.src = 'https://picsum.photos/900/900?' + new Date().valueOf()
+        image.src = 'https://picsum.photos/300/300?' + new Date().valueOf()
         this.initialImage = image
         this.croppa.refresh()
 
@@ -206,6 +207,12 @@
 
         onLoadingEnd() {
           console.log('loading end')
+        },
+
+        promisedBlob() {
+          this.croppa.promisedBlob().then((blob) => {
+            console.log(blob)
+          })
         }
       }
     })
