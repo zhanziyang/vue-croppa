@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.1.0
+ * vue-croppa v1.1.1
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -757,7 +757,9 @@ var component = { render: function render() {
       return this.canvas.toDataURL(type, compressionRate);
     },
     generateBlob: function generateBlob(callback, mimeType, qualityArgument) {
-      if (!this.hasImage()) return null;
+      if (!this.hasImage()) {
+        callback(null);
+      }
       this.canvas.toBlob(callback, mimeType, qualityArgument);
     },
     promisedBlob: function promisedBlob() {
