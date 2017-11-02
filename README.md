@@ -423,12 +423,14 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 
 #### generateBlob( callback: function, mimeType: string, compressionRate: number )
 - Creates a Blob object representing the image contained in the canvas. Look up  argument definition [here](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob).
+- If there is no image, the first argument of callback function is `null`.
 
 #### promisedBlob( mimeType: string, compressionRate: number )
-- This method returns a `Promise` wrapping around `generateBlob()`, so that you can use `async/await` syntax instead of a callback to get blob data, it's simpler.
+- This method returns a `Promise` wrapping around `generateBlob()`, so that you can use `async/await` syntax instead of a callback to get blob data, it's simpler. 
 ```js
 const blob = await this.myCroppa.promisedBlob()
 ```
+- If there is no image, it will resolve `null`.
 
 #### getMetadata()
 - Require v0.3.0+
