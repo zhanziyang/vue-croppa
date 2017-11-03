@@ -346,6 +346,7 @@
       generateBlob (callback, mimeType, qualityArgument) {
         if (!this.hasImage()) {
           callback(null)
+          return
         }
         this.canvas.toBlob(callback, mimeType, qualityArgument)
       },
