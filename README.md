@@ -590,3 +590,4 @@ $ npm run build
 - [ ] Add unit test.
 - [ ] Big image rotation optimizations (blob url?).
 - [ ] Doc about blob.
+- [ ] Support globally change default values.
