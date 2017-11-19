@@ -101,6 +101,11 @@
     <br>
     <button @click="removeSticker">REMOVE STICKER</button>
     <button @click="promisedBlob">Promised Blob</button>
+    <br>
+    <input type="text" placeholder="compress, ie: 0.2" v-model="compressRate">
+    <button @click="showOutputSize1">callback size</button>
+    <button @click="showOutputSize2">promise size</button>
+    <button @click="showOutputSize3">await size</button>
 
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
@@ -120,7 +125,8 @@
         sliderMax: 0,
         preventWhiteSpace: true,
         noSticker: false,
-        loading: false
+        loading: false,
+        compressRate: ''
       },
 
       mounted: function () {
@@ -213,6 +219,26 @@
           this.croppa.promisedBlob().then((blob) => {
             console.log(blob)
           })
+        },
+
+        showOutputSize1() {
+          var cr = +this.compressRate || undefined
+          this.croppa.generateBlob(blob => {
+            alert(blob.size)
+          }, 'image/jpeg', cr)
+        },
+
+        showOutputSize2() {
+          var cr = +this.compressRate || undefined
+          this.croppa.promisedBlob('image/jpeg', cr).then(blob => {
+            alert(blob.size)
+          })
+        },
+
+        async showOutputSize3() {
+          var cr = +this.compressRate || undefined
+          var blob = await this.croppa.promisedBlob('image/jpeg', cr)
+          alert(blob.size)
         }
       }
     })

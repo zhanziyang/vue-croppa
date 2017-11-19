@@ -360,7 +360,7 @@
           try {
             this.generateBlob((blob) => {
               resolve(blob)
-            }, args)
+            }, ...args)
           } catch (err) {
             reject(err)
           }
