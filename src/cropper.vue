@@ -846,7 +846,8 @@
       },
 
       _handleDragEnter (evt) {
-        if (this.disabled || this.disableDragAndDrop || this.hasImage() || !u.eventHasFile(evt)) return
+        if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return
+        if (this.hasImage() && !this.replaceDrop) return
         this.fileDraggedOver = true
       },
 
@@ -860,6 +861,9 @@
 
       _handleDrop (evt) {
         if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
+        if (this.hasImage() && this.replaceDrop) {
+          this.remove()
+        }
         this.fileDraggedOver = false
 
         let file
@@ -955,7 +959,7 @@
       _draw () {
         this.$nextTick(() => {
           if (!this.img) return
-          if (typeof window !== 'undefined' && .requestAnimationFrame) {
+          if (typeof window !== 'undefined' && window.requestAnimationFrame) {
             requestAnimationFrame(this._drawFrame)
           } else {
             this._drawFrame()

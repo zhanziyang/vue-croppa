@@ -117,5 +117,6 @@ export default {
   loadingColor: {
     type: String,
     default: '#606060'
-  }
+  },
+  replaceDrop: Boolean
 }
