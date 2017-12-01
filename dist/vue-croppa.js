@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.1.3
+ * vue-croppa v1.1.4
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -309,7 +309,7 @@ Number.isInteger = Number.isInteger || function (value) {
 };
 
 var initialImageType = String;
-if (window && window.Image) {
+if (typeof window !== 'undefined' && window.Image) {
   initialImageType = [String, Image];
 }
 
@@ -415,7 +415,8 @@ var props = {
   loadingColor: {
     type: String,
     default: '#606060'
-  }
+  },
+  replaceDrop: Boolean
 };
 
 var events = {
@@ -799,6 +800,7 @@ var component = { render: function render() {
       };
     },
     supportDetection: function supportDetection() {
+      if (typeof window === 'undefined') return;
       var div = document.createElement('div');
       return {
         'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
@@ -1003,7 +1005,7 @@ var component = { render: function render() {
         var type = file.type || file.name.toLowerCase().split('.').pop();
         throw new Error('File type (' + type + ') does not match what you specified (' + this.accept + ').');
       }
-      if (typeof window.FileReader !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
         var fr = new FileReader();
         fr.onload = function (e) {
           var fileData = e.target.result;
@@ -1255,7 +1257,8 @@ var component = { render: function render() {
       });
     },
     _handleDragEnter: function _handleDragEnter(evt) {
-      if (this.disabled || this.disableDragAndDrop || this.hasImage() || !u.eventHasFile(evt)) return;
+      if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return;
+      if (this.hasImage() && !this.replaceDrop) return;
       this.fileDraggedOver = true;
     },
     _handleDragLeave: function _handleDragLeave(evt) {
@@ -1265,6 +1268,9 @@ var component = { render: function render() {
     _handleDragOver: function _handleDragOver(evt) {},
     _handleDrop: function _handleDrop(evt) {
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
+      if (this.hasImage() && this.replaceDrop) {
+        this.remove();
+      }
       this.fileDraggedOver = false;
 
       var file = void 0;
@@ -1362,7 +1368,7 @@ var component = { render: function render() {
 
       this.$nextTick(function () {
         if (!_this7.img) return;
-        if (window.requestAnimationFrame) {
+        if (typeof window !== 'undefined' && window.requestAnimationFrame) {
           requestAnimationFrame(_this7._drawFrame);
         } else {
           _this7._drawFrame();
