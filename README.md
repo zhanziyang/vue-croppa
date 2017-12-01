@@ -327,6 +327,12 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 (**v1.1.0+**) loading spinner's color in css color value formats.
 - type: `string`
 - default: `'#606060'` 
+
+
+#### replace-drop
+(**v1.1.4+**) Replace current image on drag and drop.
+- type: `boolean`
+- default: `false` (By default you need to remove the current image to drop a new one)
 ---
 
 ### 🌱 Slots
