@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png">
+  <link rel="manifest" href="/static/favicons/manifest.json">
+  <link rel="mask-icon" href="/static/favicons/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="stylesheet" href="src/croppa/vue-croppa.css">
+  <style>
+    #app {
+      text-align: center
+    }
+
+    .external {
+      display: none
+    }
+
+    .addon {
+      height: 0;
+      width: 0;
+      line-height: 1;
+      font-size: 0;
+      visibility: 0;
+      border: 0;
+    }
+
+    input[type=range] {
+      width: 300px;
+    }
+
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 70px;
+      width: 70px;
+      margin-left: -35px;
+      margin-top: -35px;
+      -webkit-animation: spin 1s linear infinite;
+      animation: spin 1s linear infinite;
+      border: 3px solid #ddd;
+      border-top: 3px solid #42a5f5;
+      border-radius: 50%;
+    }
+
+    @-webkit-keyframes spin {
+      to {
+        border-top-color: #ec407a;
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        border-top-color: #ec407a;
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  <meta name="theme-color" content="#ffffff">
+  <title>Vue Croppa - Simple Test</title>
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/solarized-light.min.css">-->
+</head>
+
+<body>
+  <div id="app">
+    <h1>Vue-Croppa Coordinates</h1>
+    <croppa ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
+      initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
+      @loading-start="onLoadingStart" @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'"
+      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace" show-loading>
+      <!-- <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon"> -->
+      <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
+        ref="foo" class="external" data-exif-orientation="6"> -->
+      <div class="spinner" v-if="croppa && croppa.loading"></div>
+    </croppa>
+    <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
+      ref="foo" class="external"> -->
+    <br>
+    <label for="prevent">
+      <input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
+    <button @click="croppa.refresh()">REFRESH</button>
+    <br>
+
+    <div class="data" v-if="croppa">
+      <p>croppa dimension: 300 * 300</p>
+      <p>quality: 2</p>
+      <p>startX: {{croppa.imgData.startX}}</p>
+      <p>startY: {{croppa.imgData.startY}}</p>
+    </div>
+    <!-- <button @click="getUrl">URL</button>  -->
+  </div>
+  <script src="https://unpkg.com/vue@2.4.2/dist/vue.js"></script>
+  <script src="src/croppa/vue-croppa.js"></script>
+  <script>
+    Vue.use(Croppa)
+    new Vue({
+      el: '#app',
+      data: {
+        initialImage: null,
+        croppa: null,
+        width: 300,
+        height: 300,
+        sliderVal: 0,
+        sliderMin: 0,
+        sliderMax: 0,
+        preventWhiteSpace: false,
+        noSticker: false,
+        loading: false,
+        compressRate: ''
+      },
+
+      mounted: function () {
+        var image = new Image()
+        image.setAttribute('crossorigin', 'anonymous')
+        // image.src = 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg'
+        // image.src = '/vue-croppa/static/500.jpeg'
+        image.src = 'https://picsum.photos/300/300?' + new Date().valueOf()
+        this.initialImage = image
+        this.croppa.refresh()
+
+        // console.log('eq', this.$refs.myCroppa === this.croppa)
+      },
+
+      methods: {
+        getUrl: function () {
+          alert(this.croppa.generateDataUrl())
+        },
+
+        saveMetadata: function () {
+          localStorage.setItem('metadata', JSON.stringify(this.croppa.getMetadata()))
+        },
+
+        applyMetadata: function () {
+          var metadata = JSON.parse(localStorage.getItem('metadata'))
+          this.croppa.applyMetadata(metadata)
+        },
+
+        onInit(vm) {
+          window.croppa = vm
+        },
+
+        onDraw: function (ctx) {
+          // if (this.noSticker) return
+          // console.log('drawn')
+          ctx.save()
+          // ctx.globalAlpha = 0.5
+          ctx.strokeStyle = 'red'
+          // ctx.drawImage(document.querySelector('.addon'), 100, 100, 400, 400)
+          var { startX, startY, width, height } = this.croppa.imgData
+          ctx.beginPath()
+          ctx.setLineDash([5, 10])
+          ctx.moveTo(startX, 0)
+          ctx.lineTo(startX, startY)
+          ctx.closePath()
+          ctx.stroke()
+          ctx.beginPath()
+          ctx.moveTo(0, startY)
+          ctx.lineTo(startX, startY)
+          ctx.closePath()
+          ctx.stroke()
+          // ctx.clearRect(0, 0, this.croppa.outputWidth, this.croppa.outputHeight)
+          // ctx.restore()
+        },
+
+        removeSticker() {
+          this.noSticker = true
+          this.croppa._draw()
+        },
+
+        onInitialLoaded: function () {
+          console.log('loadedd')
+          // this.applyMetadata.call(this)
+        },
+
+        onNewImageDrawn() {
+          this.sliderVal = this.croppa.scaleRatio
+          this.sliderMin = this.croppa.scaleRatio / 2
+          this.sliderMax = this.croppa.scaleRatio * 2
+
+          // this.width = this.croppa.naturalWidth
+          // this.height = this.croppa.naturalHeight
+        },
+
+        onMove() {
+          console.log('move', this.croppa.dragging ? 'dragging' : 'not dragging')
+        },
+
+        onZoom() {
+          console.log('zoom', this.croppa.scrolling ? 'scrolling' : 'not scrolling')
+          if (this.sliderMax && this.croppa.scaleRatio >= this.sliderMax) {
+            this.croppa.scaleRatio = this.sliderMax
+          } else if (this.sliderMin && this.croppa.scaleRatio <= this.sliderMin) {
+            this.croppa.scaleRatio = this.sliderMin
+          }
+
+          this.sliderVal = this.croppa.scaleRatio
+        },
+
+        onSliderChange(evt) {
+          var increment = evt.target.value
+          this.croppa.scaleRatio = +increment
+        },
+
+        onLoadingStart() {
+          console.log('loading start')
+        },
+
+        onLoadingEnd() {
+          console.log('loading end')
+        },
+
+        promisedBlob() {
+          this.croppa.promisedBlob().then((blob) => {
+            console.log(blob)
+          })
+        },
+
+        showOutputSize1() {
+          var cr = +this.compressRate || undefined
+          this.croppa.generateBlob(blob => {
+            alert(blob.size)
+          }, 'image/jpeg', cr)
+        },
+
+        showOutputSize2() {
+          var cr = +this.compressRate || undefined
+          this.croppa.promisedBlob('image/jpeg', cr).then(blob => {
+            alert(blob.size)
+          })
+        },
+
+        async showOutputSize3() {
+          var cr = +this.compressRate || undefined
+          var blob = await this.croppa.promisedBlob('image/jpeg', cr)
+          alert(blob.size)
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

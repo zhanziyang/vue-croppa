@@ -9,7 +9,7 @@ Number.isInteger =
   }
 
 var initialImageType = String
-if (window && window.Image) {
+if (typeof window !== 'undefined' && window.Image) {
   initialImageType = [String, Image]
 }
 

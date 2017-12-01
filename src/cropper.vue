@@ -380,6 +380,7 @@
       },
 
       supportDetection () {
+        if (typeof window === 'undefined') return
         var div = document.createElement('div')
         return {
           'basic': window.requestAnimationFrame && window.File && window.FileReader && window.FileList && window.Blob,
@@ -583,7 +584,7 @@
           let type = file.type || file.name.toLowerCase().split('.').pop()
           throw new Error(`File type (${type}) does not match what you specified (${this.accept}).`)
         }
-        if (typeof window.FileReader !== 'undefined') {
+        if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
           let fr = new FileReader()
           fr.onload = (e) => {
             let fileData = e.target.result
@@ -954,7 +955,7 @@
       _draw () {
         this.$nextTick(() => {
           if (!this.img) return
-          if (window.requestAnimationFrame) {
+          if (typeof window !== 'undefined' && .requestAnimationFrame) {
             requestAnimationFrame(this._drawFrame)
           } else {
             this._drawFrame()
