@@ -75,7 +75,7 @@
       :input-attrs="{ capture: true, class: 'file-input' }" initial-position="50% 50%" initial-size="cover" @init="onInit"
       @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn" @loading-start="onLoadingStart" @loading-end="onLoadingEnd"
       :placeholder="croppa && croppa.loading ? '' : 'Choose A File'" :initial-image="initialImage" :prevent-white-space="preventWhiteSpace"
-      show-loading image-border-radius="100">
+      show-loading :image-border-radius="borderRadius">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
@@ -83,7 +83,7 @@
     </croppa>
     <croppa passive replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded"
       :prevent-white-space="preventWhiteSpace" placeholder="Preview" initial-position="50% 50%" initial-size="cover" @init="onInit"
-      show-loading image-border-radius="100">
+      show-loading :image-border-radius="borderRadius">
     </croppa>
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
@@ -111,6 +111,10 @@
     <button @click="showOutputSize1">callback size</button>
     <button @click="showOutputSize2">promise size</button>
     <button @click="showOutputSize3">await size</button>
+    <br> image border radius:
+    <input type="number" v-model="borderRadius">
+    <br>
+    <button @click="addCircleClip">add circle clip</button>
 
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
@@ -131,7 +135,8 @@
         preventWhiteSpace: true,
         noSticker: false,
         loading: false,
-        compressRate: ''
+        compressRate: '',
+        borderRadius: 100
       },
 
       mounted: function () {
@@ -162,6 +167,15 @@
 
         onInit(vm) {
           window.croppa = vm
+          // this.addCircleClip()
+        },
+
+        addCircleClip() {
+          this.croppa.addClipPlugin(function (ctx, x, y, w, h) {
+            ctx.beginPath()
+            ctx.arc(x + w / 2, y + h / 2, w / 2, 0, 2 * Math.PI, true)
+            ctx.closePath()
+          })
         },
 
         onDraw: function (ctx) {

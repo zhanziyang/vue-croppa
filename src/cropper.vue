@@ -198,6 +198,11 @@
           this._draw()
         }
       },
+      imageBorderRadius: function () {
+        if (this.img) {
+          this._draw()
+        }
+      },
       placeholder: function () {
         if (!this.img) {
           this._setPlaceholders()
@@ -461,6 +466,17 @@
 
         if (hadImage) {
           this.$emit(events.IMAGE_REMOVE_EVENT)
+        }
+      },
+
+      addClipPlugin (plugin) {
+        if (!this.clipPlugins) {
+          this.clipPlugins = []
+        }
+        if (typeof plugin === 'function' && this.clipPlugins.indexOf(plugin) < 0) {
+          this.clipPlugins.push(plugin)
+        } else {
+          throw Error('Clip plugins should be functions')
         }
       },
 
@@ -1066,23 +1082,28 @@
 
       _createContainerClipPath () {
         this._clipPathFactory(0, 0, this.outputWidth, this.outputHeight)
+        if (this.clipPlugins && this.clipPlugins.length) {
+          this.clipPlugins.forEach(func => {
+            func(this.ctx, 0, 0, this.outputWidth, this.outputHeight)
+          })
+        }
       },
 
-      _createImageClipPath () {
-        let { startX, startY, width, height } = this.imgData
-        let w = width
-        let h = height
-        let x = startX
-        let y = startY
-        if (w < h) {
-          h = this.outputHeight * (width / this.outputWidth)
-        }
-        if (h < w) {
-          w = this.outputWidth * (height / this.outputHeight)
-          x = startX + (width - this.outputWidth) / 2
-        }
-        this._clipPathFactory(x, startY, w, h)
-      },
+      // _createImageClipPath () {
+      //   let { startX, startY, width, height } = this.imgData
+      //   let w = width
+      //   let h = height
+      //   let x = startX
+      //   let y = startY
+      //   if (w < h) {
+      //     h = this.outputHeight * (width / this.outputWidth)
+      //   }
+      //   if (h < w) {
+      //     w = this.outputWidth * (height / this.outputHeight)
+      //     x = startX + (width - this.outputWidth) / 2
+      //   }
+      //   this._clipPathFactory(x, startY, w, h)
+      // },
 
       _clip (createPath) {
         let ctx = this.ctx

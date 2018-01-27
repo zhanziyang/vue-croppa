@@ -14,6 +14,8 @@ const VueCroppa = {
     }
     let componentName = options.componentName || 'croppa'
 
+    console.log(component)
+
     // registration
     Vue.component(componentName, component)
   },
