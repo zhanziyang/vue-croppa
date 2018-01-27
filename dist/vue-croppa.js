@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.1.4
+ * vue-croppa v1.1.5
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2017 zhanziyang
@@ -22,7 +22,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var index = createCommonjsModule(function (module, exports) {
+var canvasExifOrientation = createCommonjsModule(function (module, exports) {
 (function (root, factory) {
     if (typeof undefined === 'function' && undefined.amd) {
         undefined([], factory);
@@ -259,7 +259,7 @@ var u = {
     return bytes.buffer;
   },
   getRotatedImage: function getRotatedImage(img, orientation) {
-    var _canvas = index.drawImage(img, orientation);
+    var _canvas = canvasExifOrientation.drawImage(img, orientation);
     var _img = new Image();
     _img.src = _canvas.toDataURL();
     return _img;
@@ -458,7 +458,7 @@ var component = { render: function render() {
           $event.stopPropagation();$event.preventDefault();_vm._handleDragOver($event);
         }, "drop": function drop($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleDrop($event);
-        } } }, [_c('input', _vm._b({ ref: "fileInput", staticStyle: { "height": "1px", "width": "1px", "overflow": "hidden", "margin-left": "-99999px", "position": "absolute" }, attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled }, on: { "change": _vm._handleInputChange } }, 'input', _vm.inputAttrs)), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._t("placeholder")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+        } } }, [_c('input', _vm._b({ ref: "fileInput", staticStyle: { "height": "1px", "width": "1px", "overflow": "hidden", "margin-left": "-99999px", "position": "absolute" }, attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled }, on: { "change": _vm._handleInputChange } }, 'input', _vm.inputAttrs, false)), _vm._v(" "), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._v(" "), _vm._t("placeholder")], 2), _vm._v(" "), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleClick($event);
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();_vm._handlePointerStart($event);
@@ -490,9 +490,9 @@ var component = { render: function render() {
           $event.stopPropagation();_vm._handleWheel($event);
         }, "mousewheel": function mousewheel($event) {
           $event.stopPropagation();_vm._handleWheel($event);
-        } } }), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e(), _vm.showLoading && _vm.loading ? _c('div', { staticClass: "sk-fading-circle", style: _vm.loadingStyle }, _vm._l(12, function (i) {
+        } } }), _vm._v(" "), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e(), _vm._v(" "), _vm.showLoading && _vm.loading ? _c('div', { staticClass: "sk-fading-circle", style: _vm.loadingStyle }, _vm._l(12, function (i) {
       return _c('div', { key: i, class: 'sk-circle' + i + ' sk-circle' }, [_c('div', { staticClass: "sk-circle-indicator", style: { backgroundColor: _vm.loadingColor } })]);
-    })) : _vm._e(), _vm._t("default")], 2);
+    })) : _vm._e(), _vm._v(" "), _vm._t("default")], 2);
   }, staticRenderFns: [],
   model: {
     prop: 'value',
@@ -1003,7 +1003,7 @@ var component = { render: function render() {
         this.loading = false;
         this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file);
         var type = file.type || file.name.toLowerCase().split('.').pop();
-        throw new Error('File type (' + type + ') does not match what you specified (' + this.accept + ').');
+        throw new Error('File type (' + type + ') mimatches (' + this.accept + ').');
       }
       if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
         var fr = new FileReader();
@@ -1031,7 +1031,7 @@ var component = { render: function render() {
       return file.size < this.fileSizeLimit;
     },
     _fileTypeIsValid: function _fileTypeIsValid(file) {
-      if (!this.accepct) return true;
+      if (!this.accept) return true;
       var accept = this.accept;
       var baseMimetype = accept.replace(/\/.*$/, '');
       var types = accept.split(',');
@@ -1497,7 +1497,7 @@ function shouldUseNative() {
 	}
 }
 
-var index$1 = shouldUseNative() ? Object.assign : function (target, source) {
+var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
 	var from;
 	var to = toObject(target);
 	var symbols;
@@ -1530,7 +1530,7 @@ var defaultOptions = {
 
 var VueCroppa = {
   install: function install(Vue, options) {
-    options = index$1({}, defaultOptions, options);
+    options = objectAssign({}, defaultOptions, options);
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');

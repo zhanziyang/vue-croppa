@@ -648,7 +648,7 @@
           this.loading = false
           this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
           let type = file.type || file.name.toLowerCase().split('.').pop()
-          throw new Error(`File type (${type}) does not match what you specified (${this.accept}).`)
+          throw new Error(`File type (${type}) mimatches (${this.accept}).`)
         }
         if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
           let fr = new FileReader()
@@ -678,7 +678,7 @@
       },
 
       _fileTypeIsValid (file) {
-        if (!this.accepct) return true
+        if (!this.accept) return true
         let accept = this.accept
         let baseMimetype = accept.replace(/\/.*$/, '')
         let types = accept.split(',')

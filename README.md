@@ -597,3 +597,4 @@ $ npm run build
 - [ ] Big image rotation optimizations (blob url?).
 - [ ] Doc about blob.
 - [ ] Support globally change default values.
+- [ ] Support output rounded-corner image.
