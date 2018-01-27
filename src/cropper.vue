@@ -235,16 +235,17 @@
         this.imgData.width = this.naturalWidth * val
         this.imgData.height = this.naturalHeight * val
 
+        if (!this.userMetadata && this.imageSet && !this.rotating) {
+          let offsetX = (x - 1) * (pos.x - this.imgData.startX)
+          let offsetY = (x - 1) * (pos.y - this.imgData.startY)
+          this.imgData.startX = this.imgData.startX - offsetX
+          this.imgData.startY = this.imgData.startY - offsetY
+        }
+
         if (this.preventWhiteSpace) {
           this._preventZoomingToWhiteSpace()
           this._preventMovingToWhiteSpace()
         }
-
-        if (this.userMetadata || !this.imageSet || this.rotating) return
-        let offsetX = (x - 1) * (pos.x - this.imgData.startX)
-        let offsetY = (x - 1) * (pos.y - this.imgData.startY)
-        this.imgData.startX = this.imgData.startX - offsetX
-        this.imgData.startY = this.imgData.startY - offsetY
       },
       'imgData.width': function (val, oldVal) {
         // if (this.passive) return
