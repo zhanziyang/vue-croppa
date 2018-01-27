@@ -1,6 +1,6 @@
 <template>
   <div ref="wrapper"
-    :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
+    :class="`croppa-container ${img ? 'croppa--has-target' : ''} ${passive ? 'croppa--passive' : ''} ${disabled ? 'croppa--disabled' : ''} ${disableClickToChoose ? 'croppa--disabled-cc' : ''} ${disableDragToMove && disableScrollToZoom ? 'croppa--disabled-mz' : ''} ${fileDraggedOver ? 'croppa--dropzone' : ''}`"
     @dragenter.stop.prevent="_handleDragEnter"
     @dragleave.stop.prevent="_handleDragLeave"
     @dragover.stop.prevent="_handleDragOver"
@@ -35,7 +35,7 @@
       @wheel.stop="_handleWheel"
       @mousewheel.stop="_handleWheel"></canvas>
     <svg class="icon icon-remove"
-      v-if="showRemoveButton && img"
+      v-if="showRemoveButton && img && !passive"
       @click="remove"
       :style="`top: -${height/40}px; right: -${width/40}px`"
       viewBox="0 0 1024 1024"
@@ -72,6 +72,8 @@
   const MIN_WIDTH = 10 // The minimal width the user can zoom to.
   const DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3 // Placeholder text by default takes up this amount of times of canvas width.
   const PINCH_ACCELERATION = 1 // The amount of times by which the pinching is more sensitive than the scolling
+
+  const syncData = ['imgData', 'img', 'imgSet', 'originalImage', 'naturalHeight', 'naturalWidth', 'orientation', 'scaleRatio']
   // const DEBUG = false
 
   export default {
@@ -153,6 +155,33 @@
       if (!supports.basic) {
         console.warn('Your browser does not support vue-croppa functionality.')
       }
+
+      if (this.passive) {
+        this.$watch('value._data', (data) => {
+          let set = false
+          if (!data) return
+          for (let key in data) {
+            if (syncData.indexOf(key) >= 0) {
+              let val = data[key]
+              if (val !== this[key]) {
+                this.$set(this, key, val)
+                set = true
+              }
+            }
+          }
+          if (set) {
+            if (!this.img) {
+              this.remove()
+            } else {
+              this.$nextTick(() => {
+                this._draw()
+              })
+            }
+          }
+        }, {
+            deep: true
+          })
+      }
     },
 
     watch: {
@@ -191,6 +220,7 @@
         this._placeImage()
       },
       scaleRatio (val, oldVal) {
+        if (this.passive) return
         if (!this.img) return
         if (!u.numberValid(val)) return
 
@@ -217,6 +247,7 @@
         this.imgData.startY = this.imgData.startY - offsetY
       },
       'imgData.width': function (val, oldVal) {
+        // if (this.passive) return
         if (!u.numberValid(val)) return
         this.scaleRatio = val / this.naturalWidth
         if (this.hasImage()) {
@@ -227,10 +258,24 @@
         }
       },
       'imgData.height': function (val) {
+        // if (this.passive) return
         if (!u.numberValid(val)) return
         this.scaleRatio = val / this.naturalHeight
       },
+      'imgData.startX': function (val) {
+        // if (this.passive) return
+        if (this.hasImage()) {
+          this.$nextTick(this._draw)
+        }
+      },
+      'imgData.startY': function (val) {
+        // if (this.passive) return
+        if (this.hasImage()) {
+          this.$nextTick(this._draw)
+        }
+      },
       loading (val) {
+        if (this.passive) return
         if (val) {
           this.$emit(events.LOADING_START)
         } else {
@@ -253,7 +298,7 @@
       },
 
       move (offset) {
-        if (!offset) return
+        if (!offset || this.passive) return
         let oldX = this.imgData.startX
         let oldY = this.imgData.startY
         this.imgData.startX += offset.x
@@ -284,6 +329,7 @@
       },
 
       zoom (zoomIn = true, acceleration = 1) {
+        if (this.passive) return
         let realSpeed = this.zoomSpeed * acceleration
         let speed = (this.outputWidth * PCT_PER_ZOOM) * realSpeed
         let x = 1
@@ -305,7 +351,7 @@
       },
 
       rotate (step = 1) {
-        if (this.disableRotation || this.disabled) return
+        if (this.disableRotation || this.disabled || this.passive) return
         step = parseInt(step)
         if (isNaN(step) || step > 3 || step < -3) {
           console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.')
@@ -315,12 +361,12 @@
       },
 
       flipX () {
-        if (this.disableRotation || this.disabled) return
+        if (this.disableRotation || this.disabled || this.passive) return
         this._setOrientation(2)
       },
 
       flipY () {
-        if (this.disableRotation || this.disabled) return
+        if (this.disableRotation || this.disabled || this.passive) return
         this._setOrientation(4)
       },
 
@@ -333,7 +379,7 @@
       },
 
       applyMetadata (metadata) {
-        if (!metadata) return
+        if (!metadata || this.passive) return
         this.userMetadata = metadata
         var ori = metadata.orientation || this.orientation || 1
         this._setOrientation(ori, true)
@@ -389,6 +435,7 @@
       },
 
       chooseFile () {
+        if (this.passive) return
         this.$refs.fileInput.click()
       },
 
@@ -425,7 +472,9 @@
         this.img = null
         this.imageSet = false
         this._setInitial()
-        this.$emit(events.INIT_EVENT, this)
+        if (!this.passive) {
+          this.$emit(events.INIT_EVENT, this)
+        }
       },
 
       _setSize () {
@@ -556,14 +605,14 @@
       },
 
       _handleClick () {
-        if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
+        if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch && !this.passive) {
           this.chooseFile()
         }
       },
 
       _handleInputChange () {
         let input = this.$refs.fileInput
-        if (!input.files.length) return
+        if (!input.files.length || this.passive) return
 
         let file = input.files[0]
         this._onNewFileIn(file)
@@ -740,6 +789,7 @@
       },
 
       _handlePointerStart (evt) {
+        if (this.passive) return
         this.supportTouch = true
         this.pointerMoved = false
         let pointerCoord = u.getPointerCoords(evt, this)
@@ -775,6 +825,7 @@
       },
 
       _handlePointerEnd (evt) {
+        if (this.passive) return
         let pointerMoveDistance = 0
         if (this.pointerStartCoord) {
           let pointerCoord = u.getPointerCoords(evt, this)
@@ -799,6 +850,7 @@
       },
 
       _handlePointerMove (evt) {
+        if (this.passive) return
         this.pointerMoved = true
         if (!this.hasImage()) return
         let coord = u.getPointerCoords(evt, this)
@@ -828,10 +880,12 @@
       },
 
       _handlePointerLeave () {
+        if (this.passive) return
         this.currentPointerCoord = null
       },
 
       _handleWheel (evt) {
+        if (this.passive) return
         if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return
         evt.preventDefault()
         this.scrolling = true
@@ -846,12 +900,14 @@
       },
 
       _handleDragEnter (evt) {
+        if (this.passive) return
         if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return
         if (this.hasImage() && !this.replaceDrop) return
         this.fileDraggedOver = true
       },
 
       _handleDragLeave (evt) {
+        if (this.passive) return
         if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         this.fileDraggedOver = false
       },
@@ -860,6 +916,7 @@
       },
 
       _handleDrop (evt) {
+        if (this.passive) return
         if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
         if (this.hasImage() && this.replaceDrop) {
           this.remove()
@@ -1061,6 +1118,12 @@
       &:hover
         opacity 1
 
+    &.croppa--passive
+      cursor default
+
+      &:hover
+        opacity 1
+
     svg.icon-remove
       position absolute
       background white
@@ -1104,8 +1167,10 @@
 
     @for $i from 2 through $circleCount {
       .sk-circle#{$i} .sk-circle-indicator {
-        animation-delay: - $animationDuration + $animationDuration / $circleCount * ($i -
-              1);
+        animation-delay: - $animationDuration + $animationDuration / $circleCount *
+          (
+            $i - 1
+          );
       }
     }
   }

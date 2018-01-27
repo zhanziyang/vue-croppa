@@ -46,6 +46,7 @@
     "autoprefixer": "^7.1.1",
     "babel-eslint": "^7.2.3",
     "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-latest": "^6.24.1",
     "eslint": "^3.19.0",
     "eslint-config-standard": "^10.2.1",
@@ -54,6 +55,7 @@
     "eslint-plugin-node": "^5.0.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-vue": "^4.2.0",
     "file-loader": "^0.11.2",
     "lodash": "^4.17.4",
     "postcss": "^6.0.2",
@@ -70,7 +72,8 @@
     "rollup-watch": "^4.0.0",
     "stylus": "^0.54.5",
     "url-loader": "^0.5.9",
-    "vue": "^2.3.4"
+    "vue": "^2.3.4",
+    "vue-eslint-parser": "^2.0.2"
   },
   "dependencies": {
     "canvas-exif-orientation": "^0.4.0",

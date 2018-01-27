@@ -1,24 +1,22 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
+  parser: 'vue-eslint-parser',
   env: {
     browser: true,
     node: true
   },
-  extends: 'standard',
+  extends: 'plugin:vue/recommended',
   // required to lint *.vue files
-  plugins: [
-    'html'
-  ],
+  plugins: ['html'],
   // add your custom rules here
   rules: {
-    "space-before-function-paren": 0,
-    "eol-last": 0,
-    "eqeqeq": 0,
-    "camelcase": 0,
-    "no-useless-call": 0
+    'space-before-function-paren': 0,
+    'eol-last': 0,
+    eqeqeq: 0,
+    camelcase: 0,
+    'no-useless-call': 0
   },
   globals: {
-    "DocumentTouch": true
+    DocumentTouch: true
   }
 }

@@ -16,7 +16,9 @@ let min = process.env.BUILD === 'production-min'
 
 module.exports = {
   entry: 'src/main.js',
-  dest: `${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${min ? '.min' : ''}.js`,
+  dest: `${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${
+    min ? '.min' : ''
+  }.js`,
   format: 'umd',
   moduleName: 'Croppa',
   sourceMap: production ? false : 'inline',
@@ -25,7 +27,7 @@ module.exports = {
  * vue-croppa v${version}
  * https://github.com/zhanziyang/vue-croppa
  * 
- * Copyright (c) 2017 zhanziyang
+ * Copyright (c) ${new Date().getFullYear()} zhanziyang
  * Released under the ISC license
  */
   `,
@@ -34,36 +36,43 @@ module.exports = {
     resolve(),
     json(),
     vue({
-      css: function (css, allStyles, compile) {
-        postcss(min ? [autoprefixer, clean] : [autoprefixer]).process(css).then(function (result) {
-          result.warnings().forEach(function (warn) {
-            console.warn(warn.toString())
+      css: function(css, allStyles, compile) {
+        postcss(min ? [autoprefixer, clean] : [autoprefixer])
+          .process(css)
+          .then(function(result) {
+            result.warnings().forEach(function(warn) {
+              console.warn(warn.toString())
+            })
+            fs.writeFile(
+              `${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${
+                min ? '.min' : ''
+              }.css`,
+              result.css,
+              err => {
+                if (err) throw err
+              }
+            )
           })
-          fs.writeFile(`${production ? 'dist' : 'docs/src/croppa'}/vue-croppa${min ? '.min' : ''}.css`, result.css, (err) => {
-            if (err) throw err
-          })
-        })
       }
     }),
-    (production && eslint()),
+    production && eslint(),
     babel({
       presets: [
         [
           'es2015',
           {
-            'modules': false
+            modules: false
           }
         ]
       ],
-      plugins: [
-        'external-helpers'
-      ],
+      plugins: ['external-helpers', 'transform-object-rest-spread'],
       exclude: 'node_modules/**'
     }),
-    (min && uglify({
-      output: {
-        comments: /zhanziyang/
-      }
-    }))
+    min &&
+      uglify({
+        output: {
+          comments: /zhanziyang/
+        }
+      })
   ]
 }

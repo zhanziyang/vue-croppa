@@ -201,7 +201,11 @@
 </template>
 
 <script>
+  import Croppa from '../croppa/vue-croppa'
   export default {
+    components: {
+      croppa: Croppa.component
+    },
     data () {
       return {
         myCroppa: {},
@@ -333,45 +337,55 @@
 
 
 <style lang="stylus" scoped>
-  @font-face {
-    font-family: 'Black Ops One';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Black Ops One'), local('BlackOpsOne-Regular'), url(https://fonts.gstatic.com/s/blackopsone/v7/2XW-DmDsGbDLE372KrMW1TxObtw73-qQgbr7Be51v5c.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
-  }
+  @font-face
+    font-family 'Black Ops One'
+    font-style normal
+    font-weight 400
+    src local('Black Ops One'), local('BlackOpsOne-Regular'), url('https://fonts.gstatic.com/s/blackopsone/v7/2XW-DmDsGbDLE372KrMW1TxObtw73-qQgbr7Be51v5c.woff2') format('woff2') // fonts.gstatic.com/s/blackopsone/v7/2XW-DmDsGbDLE372KrMW1TxObtw73-qQgbr7Be51v5c.woff2) format('woff2');
+    unicode-range U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215
+
   h2
-    position: relative
-    text-align: center
+    position relative
+    text-align center
+
     @media screen and (max-width: 600px)
-      padding-bottom: 1px
-      margin-bottom: 4px
+      padding-bottom 1px
+      margin-bottom 4px
+
     span.header
-      font-family: 'Black Ops One', cursive
+      font-family 'Black Ops One', cursive
+
     span.header:first-child
-      color: #41b883
+      color #41b883
+
     span.header:nth-child(2)
-      color: #35495e
+      color #35495e
+
     img
-      position: absolute
-      right: 12px
-      width: 60px
-      bottom: 0px
-      transition: all .3s
+      position absolute
+      right 12px
+      width 60px
+      bottom 0px
+      transition all 0.3s
+
       &:hover
-        opacity: .7
+        opacity 0.7
+
   .subheader
-    padding: 0
-    font-size: 20px
-    margin: 10px 0
-    text-align: center
-    display: block
-    height: auto
+    padding 0
+    font-size 20px
+    margin 10px 0
+    text-align center
+    display block
+    height auto
+
     @media screen and (max-width: 600px)
-      font-size: 14px
-      margin: 4px 0
+      font-size 14px
+      margin 4px 0
+
   .croppa-container
-    float: right
+    float right
+
   .card.try-out
-    background-color: #35495e !important;
+    background-color #35495e !important
 </style>

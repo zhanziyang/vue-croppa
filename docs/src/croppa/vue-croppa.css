@@ -143,6 +143,12 @@
 .croppa-container.croppa--disabled:hover {
   opacity: 1;
 }
+.croppa-container.croppa--passive {
+  cursor: default;
+}
+.croppa-container.croppa--passive:hover {
+  opacity: 1;
+}
 .croppa-container svg.icon-remove {
   position: absolute;
   background: #fff;
