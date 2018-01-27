@@ -119,5 +119,9 @@ export default {
     default: '#606060'
   },
   replaceDrop: Boolean,
-  passive: Boolean
+  passive: Boolean,
+  imageBorderRadius: {
+    type: [Number, String],
+    default: 0
+  }
 }

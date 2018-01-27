@@ -1032,12 +1032,66 @@
 
         this._paintBackground()
         ctx.drawImage(this.img, startX, startY, width, height)
+
+        if (this.preventWhiteSpace) {
+          this._clip(this._createContainerClipPath)
+          // this._clip(this._createImageClipPath)
+        }
+
         this.$emit(events.DRAW, ctx)
         if (!this.imageSet) {
           this.imageSet = true
           this.$emit(events.NEW_IMAGE_DRAWN)
         }
         this.rotating = false
+      },
+
+      _clipPathFactory (x, y, width, height) {
+        let ctx = this.ctx
+        let radius = typeof this.imageBorderRadius === 'number' ?
+          this.imageBorderRadius :
+          !isNaN(Number(this.imageBorderRadius)) ? Number(this.imageBorderRadius) : 0
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      },
+
+      _createContainerClipPath () {
+        this._clipPathFactory(0, 0, this.outputWidth, this.outputHeight)
+      },
+
+      _createImageClipPath () {
+        let { startX, startY, width, height } = this.imgData
+        let w = width
+        let h = height
+        let x = startX
+        let y = startY
+        if (w < h) {
+          h = this.outputHeight * (width / this.outputWidth)
+        }
+        if (h < w) {
+          w = this.outputWidth * (height / this.outputHeight)
+          x = startX + (width - this.outputWidth) / 2
+        }
+        this._clipPathFactory(x, startY, w, h)
+      },
+
+      _clip (createPath) {
+        let ctx = this.ctx
+        ctx.save()
+        ctx.fillStyle = '#fff'
+        ctx.globalCompositeOperation = 'destination-in'
+        createPath()
+        ctx.fill()
+        ctx.restore()
       },
 
       _applyMetadata () {
