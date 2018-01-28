@@ -343,9 +343,10 @@ These states will be synced:
 ```
 - type: `boolean`
 - default: `false`
+- [Demo](https://codepen.io/zhanziyang/pen/xYKbqJ)
 
 #### image-border-radius
-(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image. **Note that it only works when `prevent-white-space` is `true`**.
+(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image. **Note that it only works when `prevent-white-space` is `true`**. ([Demo](https://codepen.io/zhanziyang/pen/jZNmOa))
 - type: `number` or `string`
 - default: `0`
 ---
@@ -511,6 +512,7 @@ onInit(vm) {
 ```
 - Note: in the plugin function you should always start with `ctx.beginPath()` and end with `ctx.closePath()`.
 - Note: it only works when `prevent-white-space` is `true`.
+- [Demo](https://codepen.io/zhanziyang/pen/GQKmJq?editors=1011)
 
 #### supportDetection()
 - Return an object indicating browser supports. Like this:

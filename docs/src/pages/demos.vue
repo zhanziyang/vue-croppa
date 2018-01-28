@@ -195,6 +195,41 @@
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
+        <br>
+        <v-expansion-panel expand>
+          <v-expansion-panel-content :value="false">
+            <div slot="header"
+              class="title">Clip Image (1.2.0+)</div>
+            <div class="pt-2 pl-2">
+              <h5>Using image-border-radius</h5>
+              <p data-height="300"
+                data-theme-id="19967"
+                data-slug-hash="jZNmOa"
+                data-default-tab="html,result"
+                data-user="zhanziyang"
+                data-embed-version="2"
+                data-pen-title="Vue Croppa rounded corners"
+                class="codepen">See the Pen
+                <a href="https://codepen.io/zhanziyang/pen/jZNmOa/">Vue Croppa rounded corners</a> by Chris (
+                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                <a href="https://codepen.io">CodePen</a>.</p>
+            </div>
+            <div class="pt-2 pl-2">
+              <h5>Using clip plugin</h5>
+              <p data-height="300"
+                data-theme-id="19967"
+                data-slug-hash="GQKmJq"
+                data-default-tab="js,result"
+                data-user="zhanziyang"
+                data-embed-version="2"
+                data-pen-title="Vue Croppa clip plugin"
+                class="codepen">See the Pen
+                <a href="https://codepen.io/zhanziyang/pen/GQKmJq/">Vue Croppa clip plugin</a> by Chris (
+                <a href="https://codepen.io/zhanziyang">@zhanziyang</a>) on
+                <a href="https://codepen.io">CodePen</a>.</p>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
       </v-flex>
     </v-layout>
   </div>
@@ -460,23 +495,24 @@
 </script>
 
 <style lang="stylus" scoped>
-.wrapper
-  position relative
-  display inline-block
-  font-size 0
-  .icon-resize
-    position absolute
-    right 4px
-    bottom 4px
-    font-size 16px
-    width 2em
-    cursor nwse-resize
+  .wrapper
+    position relative
+    display inline-block
+    font-size 0
 
-.addon
-  height: 0
-  width: 0
-  line-height: 1
-  font-size: 0
-  visibility: 0
-  border: 0
+    .icon-resize
+      position absolute
+      right 4px
+      bottom 4px
+      font-size 16px
+      width 2em
+      cursor nwse-resize
+
+  .addon
+    height 0
+    width 0
+    line-height 1
+    font-size 0
+    visibility 0
+    border 0
 </style>
