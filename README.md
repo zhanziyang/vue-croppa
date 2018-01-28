@@ -510,6 +510,7 @@ onInit(vm) {
 },
 ```
 - Note: in the plugin function you should always start with `ctx.beginPath()` and end with `ctx.closePath()`.
+- Note: it only works when `prevent-white-space` is `true`.
 
 #### supportDetection()
 - Return an object indicating browser supports. Like this:
