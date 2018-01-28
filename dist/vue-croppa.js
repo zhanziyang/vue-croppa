@@ -1,8 +1,8 @@
 /*
- * vue-croppa v1.1.5
+ * vue-croppa v1.2.0
  * https://github.com/zhanziyang/vue-croppa
  * 
- * Copyright (c) 2017 zhanziyang
+ * Copyright (c) 2018 zhanziyang
  * Released under the ISC license
  */
   
@@ -22,7 +22,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var canvasExifOrientation = createCommonjsModule(function (module, exports) {
+var index = createCommonjsModule(function (module, exports) {
 (function (root, factory) {
     if (typeof undefined === 'function' && undefined.amd) {
         undefined([], factory);
@@ -259,7 +259,7 @@ var u = {
     return bytes.buffer;
   },
   getRotatedImage: function getRotatedImage(img, orientation) {
-    var _canvas = canvasExifOrientation.drawImage(img, orientation);
+    var _canvas = index.drawImage(img, orientation);
     var _img = new Image();
     _img.src = _canvas.toDataURL();
     return _img;
@@ -416,7 +416,12 @@ var props = {
     type: String,
     default: '#606060'
   },
-  replaceDrop: Boolean
+  replaceDrop: Boolean,
+  passive: Boolean,
+  imageBorderRadius: {
+    type: [Number, String],
+    default: 0
+  }
 };
 
 var events = {
@@ -447,10 +452,12 @@ var CLICK_MOVE_THRESHOLD = 100; // If touch move distance is greater than this v
 var MIN_WIDTH = 10; // The minimal width the user can zoom to.
 var DEFAULT_PLACEHOLDER_TAKEUP = 2 / 3; // Placeholder text by default takes up this amount of times of canvas width.
 var PINCH_ACCELERATION = 1; // The amount of times by which the pinching is more sensitive than the scolling
+
+var syncData = ['imgData', 'img', 'imgSet', 'originalImage', 'naturalHeight', 'naturalWidth', 'orientation', 'scaleRatio'];
 // const DEBUG = false
 
 var component = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { ref: "wrapper", class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { ref: "wrapper", class: 'croppa-container ' + (_vm.img ? 'croppa--has-target' : '') + ' ' + (_vm.passive ? 'croppa--passive' : '') + ' ' + (_vm.disabled ? 'croppa--disabled' : '') + ' ' + (_vm.disableClickToChoose ? 'croppa--disabled-cc' : '') + ' ' + (_vm.disableDragToMove && _vm.disableScrollToZoom ? 'croppa--disabled-mz' : '') + ' ' + (_vm.fileDraggedOver ? 'croppa--dropzone' : ''), on: { "dragenter": function dragenter($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleDragEnter($event);
         }, "dragleave": function dragleave($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleDragLeave($event);
@@ -458,7 +465,7 @@ var component = { render: function render() {
           $event.stopPropagation();$event.preventDefault();_vm._handleDragOver($event);
         }, "drop": function drop($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleDrop($event);
-        } } }, [_c('input', _vm._b({ ref: "fileInput", staticStyle: { "height": "1px", "width": "1px", "overflow": "hidden", "margin-left": "-99999px", "position": "absolute" }, attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled }, on: { "change": _vm._handleInputChange } }, 'input', _vm.inputAttrs, false)), _vm._v(" "), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._v(" "), _vm._t("placeholder")], 2), _vm._v(" "), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
+        } } }, [_c('input', _vm._b({ ref: "fileInput", staticStyle: { "height": "1px", "width": "1px", "overflow": "hidden", "margin-left": "-99999px", "position": "absolute" }, attrs: { "type": "file", "accept": _vm.accept, "disabled": _vm.disabled }, on: { "change": _vm._handleInputChange } }, 'input', _vm.inputAttrs)), _c('div', { staticClass: "slots", staticStyle: { "width": "0", "height": "0", "visibility": "hidden" } }, [_vm._t("initial"), _vm._t("placeholder")], 2), _c('canvas', { ref: "canvas", on: { "click": function click($event) {
           $event.stopPropagation();$event.preventDefault();_vm._handleClick($event);
         }, "touchstart": function touchstart($event) {
           $event.stopPropagation();_vm._handlePointerStart($event);
@@ -490,9 +497,9 @@ var component = { render: function render() {
           $event.stopPropagation();_vm._handleWheel($event);
         }, "mousewheel": function mousewheel($event) {
           $event.stopPropagation();_vm._handleWheel($event);
-        } } }), _vm._v(" "), _vm.showRemoveButton && _vm.img ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e(), _vm._v(" "), _vm.showLoading && _vm.loading ? _c('div', { staticClass: "sk-fading-circle", style: _vm.loadingStyle }, _vm._l(12, function (i) {
+        } } }), _vm.showRemoveButton && _vm.img && !_vm.passive ? _c('svg', { staticClass: "icon icon-remove", style: 'top: -' + _vm.height / 40 + 'px; right: -' + _vm.width / 40 + 'px', attrs: { "viewBox": "0 0 1024 1024", "version": "1.1", "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "width": _vm.removeButtonSize || _vm.width / 10, "height": _vm.removeButtonSize || _vm.width / 10 }, on: { "click": _vm.remove } }, [_c('path', { attrs: { "d": "M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024 794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692 732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231 373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308 500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077 511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846 373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z", "fill": _vm.removeButtonColor } })]) : _vm._e(), _vm.showLoading && _vm.loading ? _c('div', { staticClass: "sk-fading-circle", style: _vm.loadingStyle }, _vm._l(12, function (i) {
       return _c('div', { key: i, class: 'sk-circle' + i + ' sk-circle' }, [_c('div', { staticClass: "sk-circle-indicator", style: { backgroundColor: _vm.loadingColor } })]);
-    })) : _vm._e(), _vm._v(" "), _vm._t("default")], 2);
+    })) : _vm._e(), _vm._t("default")], 2);
   }, staticRenderFns: [],
   model: {
     prop: 'value',
@@ -561,6 +568,8 @@ var component = { render: function render() {
   },
 
   mounted: function mounted() {
+    var _this = this;
+
     this._initialize();
     u.rAFPolyfill();
     u.toBlobPolyfill();
@@ -568,6 +577,33 @@ var component = { render: function render() {
     var supports = this.supportDetection();
     if (!supports.basic) {
       console.warn('Your browser does not support vue-croppa functionality.');
+    }
+
+    if (this.passive) {
+      this.$watch('value._data', function (data) {
+        var set$$1 = false;
+        if (!data) return;
+        for (var key in data) {
+          if (syncData.indexOf(key) >= 0) {
+            var val = data[key];
+            if (val !== _this[key]) {
+              _this.$set(_this, key, val);
+              set$$1 = true;
+            }
+          }
+        }
+        if (set$$1) {
+          if (!_this.img) {
+            _this.remove();
+          } else {
+            _this.$nextTick(function () {
+              _this._draw();
+            });
+          }
+        }
+      }, {
+        deep: true
+      });
     }
   },
 
@@ -583,6 +619,11 @@ var component = { render: function render() {
       if (!this.img) {
         this._setPlaceholders();
       } else {
+        this._draw();
+      }
+    },
+    imageBorderRadius: function imageBorderRadius() {
+      if (this.img) {
         this._draw();
       }
     },
@@ -608,6 +649,7 @@ var component = { render: function render() {
       this._placeImage();
     },
     scaleRatio: function scaleRatio(val, oldVal) {
+      if (this.passive) return;
       if (!this.img) return;
       if (!u.numberValid(val)) return;
 
@@ -622,19 +664,21 @@ var component = { render: function render() {
       this.imgData.width = this.naturalWidth * val;
       this.imgData.height = this.naturalHeight * val;
 
+      if (!this.userMetadata && this.imageSet && !this.rotating) {
+        var offsetX = (x - 1) * (pos.x - this.imgData.startX);
+        var offsetY = (x - 1) * (pos.y - this.imgData.startY);
+        this.imgData.startX = this.imgData.startX - offsetX;
+        this.imgData.startY = this.imgData.startY - offsetY;
+      }
+
       if (this.preventWhiteSpace) {
         this._preventZoomingToWhiteSpace();
         this._preventMovingToWhiteSpace();
       }
-
-      if (this.userMetadata || !this.imageSet || this.rotating) return;
-      var offsetX = (x - 1) * (pos.x - this.imgData.startX);
-      var offsetY = (x - 1) * (pos.y - this.imgData.startY);
-      this.imgData.startX = this.imgData.startX - offsetX;
-      this.imgData.startY = this.imgData.startY - offsetY;
     },
 
     'imgData.width': function imgDataWidth(val, oldVal) {
+      // if (this.passive) return
       if (!u.numberValid(val)) return;
       this.scaleRatio = val / this.naturalWidth;
       if (this.hasImage()) {
@@ -645,10 +689,24 @@ var component = { render: function render() {
       }
     },
     'imgData.height': function imgDataHeight(val) {
+      // if (this.passive) return
       if (!u.numberValid(val)) return;
       this.scaleRatio = val / this.naturalHeight;
     },
+    'imgData.startX': function imgDataStartX(val) {
+      // if (this.passive) return
+      if (this.hasImage()) {
+        this.$nextTick(this._draw);
+      }
+    },
+    'imgData.startY': function imgDataStartY(val) {
+      // if (this.passive) return
+      if (this.hasImage()) {
+        this.$nextTick(this._draw);
+      }
+    },
     loading: function loading(val) {
+      if (this.passive) return;
       if (val) {
         this.$emit(events.LOADING_START);
       } else {
@@ -668,7 +726,7 @@ var component = { render: function render() {
       return this.$refs.fileInput.files[0];
     },
     move: function move(offset) {
-      if (!offset) return;
+      if (!offset || this.passive) return;
       var oldX = this.imgData.startX;
       var oldY = this.imgData.startY;
       this.imgData.startX += offset.x;
@@ -705,6 +763,7 @@ var component = { render: function render() {
       var zoomIn = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
       var acceleration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
 
+      if (this.passive) return;
       var realSpeed = this.zoomSpeed * acceleration;
       var speed = this.outputWidth * PCT_PER_ZOOM * realSpeed;
       var x = 1;
@@ -725,7 +784,7 @@ var component = { render: function render() {
     rotate: function rotate() {
       var step = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
-      if (this.disableRotation || this.disabled) return;
+      if (this.disableRotation || this.disabled || this.passive) return;
       step = parseInt(step);
       if (isNaN(step) || step > 3 || step < -3) {
         console.warn('Invalid argument for rotate() method. It should one of the integers from -3 to 3.');
@@ -734,11 +793,11 @@ var component = { render: function render() {
       this._rotateByStep(step);
     },
     flipX: function flipX() {
-      if (this.disableRotation || this.disabled) return;
+      if (this.disableRotation || this.disabled || this.passive) return;
       this._setOrientation(2);
     },
     flipY: function flipY() {
-      if (this.disableRotation || this.disabled) return;
+      if (this.disableRotation || this.disabled || this.passive) return;
       this._setOrientation(4);
     },
     refresh: function refresh() {
@@ -748,7 +807,7 @@ var component = { render: function render() {
       return !!this.imageSet;
     },
     applyMetadata: function applyMetadata(metadata) {
-      if (!metadata) return;
+      if (!metadata || this.passive) return;
       this.userMetadata = metadata;
       var ori = metadata.orientation || this.orientation || 1;
       this._setOrientation(ori, true);
@@ -765,7 +824,7 @@ var component = { render: function render() {
       this.canvas.toBlob(callback, mimeType, qualityArgument);
     },
     promisedBlob: function promisedBlob() {
-      var _this = this;
+      var _this2 = this;
 
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -777,7 +836,7 @@ var component = { render: function render() {
       }
       return new Promise(function (resolve, reject) {
         try {
-          _this.generateBlob.apply(_this, [function (blob) {
+          _this2.generateBlob.apply(_this2, [function (blob) {
             resolve(blob);
           }].concat(args));
         } catch (err) {
@@ -808,6 +867,7 @@ var component = { render: function render() {
       };
     },
     chooseFile: function chooseFile() {
+      if (this.passive) return;
       this.$refs.fileInput.click();
     },
     remove: function remove() {
@@ -833,6 +893,16 @@ var component = { render: function render() {
         this.$emit(events.IMAGE_REMOVE_EVENT);
       }
     },
+    addClipPlugin: function addClipPlugin(plugin) {
+      if (!this.clipPlugins) {
+        this.clipPlugins = [];
+      }
+      if (typeof plugin === 'function' && this.clipPlugins.indexOf(plugin) < 0) {
+        this.clipPlugins.push(plugin);
+      } else {
+        throw Error('Clip plugins should be functions');
+      }
+    },
     _initialize: function _initialize() {
       this.canvas = this.$refs.canvas;
       this._setSize();
@@ -842,7 +912,9 @@ var component = { render: function render() {
       this.img = null;
       this.imageSet = false;
       this._setInitial();
-      this.$emit(events.INIT_EVENT, this);
+      if (!this.passive) {
+        this.$emit(events.INIT_EVENT, this);
+      }
     },
     _setSize: function _setSize() {
       this.canvas.width = this.outputWidth;
@@ -875,7 +947,7 @@ var component = { render: function render() {
       this._setOrientation(orientation);
     },
     _setImagePlaceholder: function _setImagePlaceholder() {
-      var _this2 = this;
+      var _this3 = this;
 
       var img = void 0;
       if (this.$slots.placeholder && this.$slots.placeholder[0]) {
@@ -891,7 +963,7 @@ var component = { render: function render() {
       if (!img) return;
 
       var onLoad = function onLoad() {
-        _this2.ctx.drawImage(img, 0, 0, _this2.outputWidth, _this2.outputHeight);
+        _this3.ctx.drawImage(img, 0, 0, _this3.outputWidth, _this3.outputHeight);
       };
 
       if (u.imageLoaded(img)) {
@@ -916,7 +988,7 @@ var component = { render: function render() {
       this._setTextPlaceholder();
     },
     _setInitial: function _setInitial() {
-      var _this3 = this;
+      var _this4 = this;
 
       var src = void 0,
           img = void 0;
@@ -951,11 +1023,11 @@ var component = { render: function render() {
         this.loading = true;
         img.onload = function () {
           // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
-          _this3._onload(img, +img.dataset['exifOrientation'], true);
+          _this4._onload(img, +img.dataset['exifOrientation'], true);
         };
 
         img.onerror = function () {
-          _this3._setPlaceholders();
+          _this4._setPlaceholders();
         };
       }
     },
@@ -977,19 +1049,19 @@ var component = { render: function render() {
       }
     },
     _handleClick: function _handleClick() {
-      if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch) {
+      if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch && !this.passive) {
         this.chooseFile();
       }
     },
     _handleInputChange: function _handleInputChange() {
       var input = this.$refs.fileInput;
-      if (!input.files.length) return;
+      if (!input.files.length || this.passive) return;
 
       var file = input.files[0];
       this._onNewFileIn(file);
     },
     _onNewFileIn: function _onNewFileIn(file) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.currentIsInitial = false;
       this.loading = true;
@@ -1017,8 +1089,8 @@ var component = { render: function render() {
           var img = new Image();
           img.src = fileData;
           img.onload = function () {
-            _this4._onload(img, orientation);
-            _this4.$emit(events.NEW_IMAGE);
+            _this5._onload(img, orientation);
+            _this5.$emit(events.NEW_IMAGE);
           };
         };
         fr.readAsDataURL(file);
@@ -1154,6 +1226,7 @@ var component = { render: function render() {
       this.imgData.startY = -(this.imgData.height - this.outputHeight) / 2;
     },
     _handlePointerStart: function _handlePointerStart(evt) {
+      if (this.passive) return;
       this.supportTouch = true;
       this.pointerMoved = false;
       var pointerCoord = u.getPointerCoords(evt, this);
@@ -1188,6 +1261,7 @@ var component = { render: function render() {
       }
     },
     _handlePointerEnd: function _handlePointerEnd(evt) {
+      if (this.passive) return;
       var pointerMoveDistance = 0;
       if (this.pointerStartCoord) {
         var pointerCoord = u.getPointerCoords(evt, this);
@@ -1211,6 +1285,7 @@ var component = { render: function render() {
       this.pointerStartCoord = null;
     },
     _handlePointerMove: function _handlePointerMove(evt) {
+      if (this.passive) return;
       this.pointerMoved = true;
       if (!this.hasImage()) return;
       var coord = u.getPointerCoords(evt, this);
@@ -1239,11 +1314,13 @@ var component = { render: function render() {
       }
     },
     _handlePointerLeave: function _handlePointerLeave() {
+      if (this.passive) return;
       this.currentPointerCoord = null;
     },
     _handleWheel: function _handleWheel(evt) {
-      var _this5 = this;
+      var _this6 = this;
 
+      if (this.passive) return;
       if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return;
       evt.preventDefault();
       this.scrolling = true;
@@ -1253,20 +1330,23 @@ var component = { render: function render() {
         this.zoom(!this.reverseScrollToZoom);
       }
       this.$nextTick(function () {
-        _this5.scrolling = false;
+        _this6.scrolling = false;
       });
     },
     _handleDragEnter: function _handleDragEnter(evt) {
+      if (this.passive) return;
       if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return;
       if (this.hasImage() && !this.replaceDrop) return;
       this.fileDraggedOver = true;
     },
     _handleDragLeave: function _handleDragLeave(evt) {
+      if (this.passive) return;
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       this.fileDraggedOver = false;
     },
     _handleDragOver: function _handleDragOver(evt) {},
     _handleDrop: function _handleDrop(evt) {
+      if (this.passive) return;
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       if (this.hasImage() && this.replaceDrop) {
         this.remove();
@@ -1316,7 +1396,7 @@ var component = { render: function render() {
       }
     },
     _setOrientation: function _setOrientation() {
-      var _this6 = this;
+      var _this7 = this;
 
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
       var applyMetadata = arguments[1];
@@ -1327,8 +1407,8 @@ var component = { render: function render() {
         this.rotating = true;
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
-          _this6.img = _img;
-          _this6._placeImage(applyMetadata);
+          _this7.img = _img;
+          _this7._placeImage(applyMetadata);
         };
       } else {
         this._placeImage(applyMetadata);
@@ -1364,14 +1444,14 @@ var component = { render: function render() {
       this.ctx.fillRect(0, 0, this.outputWidth, this.outputHeight);
     },
     _draw: function _draw() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.$nextTick(function () {
-        if (!_this7.img) return;
+        if (!_this8.img) return;
         if (typeof window !== 'undefined' && window.requestAnimationFrame) {
-          requestAnimationFrame(_this7._drawFrame);
+          requestAnimationFrame(_this8._drawFrame);
         } else {
-          _this7._drawFrame();
+          _this8._drawFrame();
         }
       });
     },
@@ -1387,6 +1467,13 @@ var component = { render: function render() {
 
       this._paintBackground();
       ctx.drawImage(this.img, startX, startY, width, height);
+
+      if (this.preventWhiteSpace) {
+        this._clip(this._createContainerClipPath
+        // this._clip(this._createImageClipPath)
+        );
+      }
+
       this.$emit(events.DRAW, ctx);
       if (!this.imageSet) {
         this.imageSet = true;
@@ -1394,8 +1481,60 @@ var component = { render: function render() {
       }
       this.rotating = false;
     },
+    _clipPathFactory: function _clipPathFactory(x, y, width, height) {
+      var ctx = this.ctx;
+      var radius = typeof this.imageBorderRadius === 'number' ? this.imageBorderRadius : !isNaN(Number(this.imageBorderRadius)) ? Number(this.imageBorderRadius) : 0;
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    },
+    _createContainerClipPath: function _createContainerClipPath() {
+      var _this9 = this;
+
+      this._clipPathFactory(0, 0, this.outputWidth, this.outputHeight);
+      if (this.clipPlugins && this.clipPlugins.length) {
+        this.clipPlugins.forEach(function (func) {
+          func(_this9.ctx, 0, 0, _this9.outputWidth, _this9.outputHeight);
+        });
+      }
+    },
+
+
+    // _createImageClipPath () {
+    //   let { startX, startY, width, height } = this.imgData
+    //   let w = width
+    //   let h = height
+    //   let x = startX
+    //   let y = startY
+    //   if (w < h) {
+    //     h = this.outputHeight * (width / this.outputWidth)
+    //   }
+    //   if (h < w) {
+    //     w = this.outputWidth * (height / this.outputHeight)
+    //     x = startX + (width - this.outputWidth) / 2
+    //   }
+    //   this._clipPathFactory(x, startY, w, h)
+    // },
+
+    _clip: function _clip(createPath) {
+      var ctx = this.ctx;
+      ctx.save();
+      ctx.fillStyle = '#fff';
+      ctx.globalCompositeOperation = 'destination-in';
+      createPath();
+      ctx.fill();
+      ctx.restore();
+    },
     _applyMetadata: function _applyMetadata() {
-      var _this8 = this;
+      var _this10 = this;
 
       if (!this.userMetadata) return;
       var _userMetadata = this.userMetadata,
@@ -1417,7 +1556,7 @@ var component = { render: function render() {
       }
 
       this.$nextTick(function () {
-        _this8.userMetadata = null;
+        _this10.userMetadata = null;
       });
     },
     onDimensionChange: function onDimensionChange() {
@@ -1497,7 +1636,7 @@ function shouldUseNative() {
 	}
 }
 
-var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+var index$1 = shouldUseNative() ? Object.assign : function (target, source) {
 	var from;
 	var to = toObject(target);
 	var symbols;
@@ -1530,7 +1669,7 @@ var defaultOptions = {
 
 var VueCroppa = {
   install: function install(Vue, options) {
-    options = objectAssign({}, defaultOptions, options);
+    options = index$1({}, defaultOptions, options);
     var version = Number(Vue.version.split('.')[0]);
     if (version < 2) {
       throw new Error('vue-croppa supports vue version 2.0 and above. You are using Vue@' + version + '. Please upgrade to the latest version of Vue.');

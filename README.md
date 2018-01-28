@@ -333,6 +333,21 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
 (**v1.1.4+**) Replace current image on drag and drop.
 - type: `boolean`
 - default: `false` (By default you need to remove the current image to drop a new one)
+
+#### passive
+(**1.2.0**) Switch to passive mode. Croppa in passive mode will sync state with another croppa if they v-model the same object. Also it will not have self-control - user can't manipulate image on passive croppa. This is useful as a preview component.
+
+These states will be synced:
+```js
+['imgData', 'img', 'imgSet', 'originalImage', 'naturalHeight', 'naturalWidth', 'orientation', 'scaleRatio']
+```
+- type: `boolean`
+- default: `false`
+
+#### image-border-radius
+(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image.
+- type: `number` or `string`
+- default: `0`
 ---
 
 ### 🌱 Slots
@@ -356,6 +371,7 @@ Specifies the remove-button's width and height (they are equal). If set to `0`, 
   <img slot="placeholder" src="static/placeholder-image.png" />
 </croppa>
 ```
+
 ##### NOTE: 
 - It is recommended to use a small-sized image as the placeholder image.
 - The image will be drawn with 100% width and height of croppa container, i.e. it will cover the container. So it is recommended to use a images with the same aspect ratio as the container.
@@ -473,6 +489,27 @@ var metadata = {
 this.myCroppa.applyMetadata(metadata)
 ```
 - Find demo "Use Metadata" in the [demo page](https://zhanziyang.github.io/vue-croppa/#/demos).
+
+#### addClipPlugin(func)
+- Add clip plugin to clip the image. Example:
+```js
+// Add a clip plugin to make a circle clip on image
+onInit(vm) {
+  this.croppa.addClipPlugin(function (ctx, x, y, w, h) {
+    /*
+     * ctx: canvas context
+     * x: start point (top-left corner) x coordination
+     * y: start point (top-left corner) y coordination
+     * w: croppa width
+     * h: croppa height
+    */
+    ctx.beginPath()
+    ctx.arc(x + w / 2, y + h / 2, w / 2, 0, 2 * Math.PI, true)
+    ctx.closePath()
+  })
+},
+```
+- Note: in the plugin function you should always start with `ctx.beginPath()` and end with `ctx.closePath()`.
 
 #### supportDetection()
 - Return an object indicating browser supports. Like this:
@@ -595,6 +632,3 @@ $ npm run build
 ## To Do
 - [ ] Add unit test.
 - [ ] Big image rotation optimizations (blob url?).
-- [ ] Doc about blob.
-- [ ] Support globally change default values.
-- [ ] Support output rounded-corner image.
