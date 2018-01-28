@@ -345,7 +345,7 @@ These states will be synced:
 - default: `false`
 
 #### image-border-radius
-(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image.
+(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image. **Note that it only works when `prevent-white-space` is `true`**.
 - type: `number` or `string`
 - default: `0`
 ---
