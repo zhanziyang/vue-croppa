@@ -271,7 +271,7 @@ Prevents revealing background white space when moving or zooming the image.
 #### show-remove-button
 Specifies whether to show the built-in remove-button. You can change the button's color and size using the following two props. If you still find it ugly, hide it and use the `remove()` method to implement your own trigger.
 - type: `boolean`
-- default: `false`
+- default: `true`
 
 #### remove-button-color
 Changes the default color of the remove-button. Accepts any css color format.
