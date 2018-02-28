@@ -642,13 +642,11 @@
         if (!this._fileSizeIsValid(file)) {
           this.loading = false
           this.$emit(events.FILE_SIZE_EXCEED_EVENT, file)
-          throw new Error('File size exceeds limit which is ' + this.fileSizeLimit + ' bytes.')
         }
         if (!this._fileTypeIsValid(file)) {
           this.loading = false
           this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
           let type = file.type || file.name.toLowerCase().split('.').pop()
-          throw new Error(`File type (${type}) mimatches (${this.accept}).`)
         }
         if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
           let fr = new FileReader()
