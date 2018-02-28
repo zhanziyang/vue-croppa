@@ -642,11 +642,13 @@
         if (!this._fileSizeIsValid(file)) {
           this.loading = false
           this.$emit(events.FILE_SIZE_EXCEED_EVENT, file)
+          return false
         }
         if (!this._fileTypeIsValid(file)) {
           this.loading = false
           this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
           let type = file.type || file.name.toLowerCase().split('.').pop()
+          return false
         }
         if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
           let fr = new FileReader()
