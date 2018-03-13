@@ -453,7 +453,7 @@ These states will be synced:
 
 * type: `boolean`
 * default: `false`
-* [Demo](https://codepen.io/zhanziyang/pen/xYKbqJ)
+* [Demo](https://codepen.io/zhanziyang/pen/bvVKzL)
 
 ---
 
