@@ -123,5 +123,6 @@ export default {
   imageBorderRadius: {
     type: [Number, String],
     default: 0
-  }
+  },
+  autoSizing: Boolean
 }

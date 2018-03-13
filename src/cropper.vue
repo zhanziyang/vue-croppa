@@ -115,17 +115,19 @@
         imageSet: false,
         currentPointerCoord: null,
         currentIsInitial: false,
-        loading: false
+        loading: false,
+        realWidth: 0,
+        realHeight: 0
       }
     },
 
     computed: {
       outputWidth () {
-        return this.width * this.quality
+        return (this.realWidth || this.width) * this.quality
       },
 
       outputHeight () {
-        return this.height * this.quality
+        return (this.realHeight || this.height) * this.quality
       },
 
       computedPlaceholderFontSize () {
@@ -495,10 +497,19 @@
       },
 
       _setSize () {
+        var setContainerSize = () => {
+          this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
+          this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
+        }
+        let useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle
+        if (useAutoSizing) {
+          setContainerSize()
+          window.addEventListener('resize', setContainerSize)
+        }
         this.canvas.width = this.outputWidth
         this.canvas.height = this.outputHeight
-        this.canvas.style.width = this.width + 'px'
-        this.canvas.style.height = this.height + 'px'
+        this.canvas.style.width = (this.realWidth || this.width) + 'px'
+        this.canvas.style.height = (this.realHeight || this.height) + 'px'
       },
 
       _rotateByStep (step) {
