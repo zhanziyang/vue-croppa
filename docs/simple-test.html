@@ -71,11 +71,11 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa style="width: 100%; height: 300px" auto-sizing replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded"
-      :input-attrs="{ capture: true, class: 'file-input' }" initial-position="50% 50%" initial-size="cover" @init="onInit"
-      @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn" @loading-start="onLoadingStart" @loading-end="onLoadingEnd"
-      :placeholder="croppa && croppa.loading ? '' : 'Choose A File'" :initial-image="initialImage" :prevent-white-space="preventWhiteSpace"
-      show-loading :image-border-radius="borderRadius">
+    <croppa style="width: 100%; height: 300px" auto-sizing replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height"
+      @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }" initial-position="50% 50%"
+      initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn" @loading-start="onLoadingStart"
+      @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'" :initial-image="initialImage"
+      :prevent-white-space="preventWhiteSpace" show-loading :image-border-radius="borderRadius">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
@@ -176,6 +176,7 @@
             ctx.arc(x + w / 2, y + h / 2, w / 2, 0, 2 * Math.PI, true)
             ctx.closePath()
           })
+          this.croppa._draw()
         },
 
         onDraw: function (ctx) {
