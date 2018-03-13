@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.2.1
+ * vue-croppa v1.3.0
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -421,7 +421,8 @@ var props = {
   imageBorderRadius: {
     type: [Number, String],
     default: 0
-  }
+  },
+  autoSizing: Boolean
 };
 
 var events = {
@@ -539,17 +540,19 @@ var component = { render: function render() {
       imageSet: false,
       currentPointerCoord: null,
       currentIsInitial: false,
-      loading: false
+      loading: false,
+      realWidth: 0,
+      realHeight: 0
     };
   },
 
 
   computed: {
     outputWidth: function outputWidth() {
-      return this.width * this.quality;
+      return (this.realWidth || this.width) * this.quality;
     },
     outputHeight: function outputHeight() {
-      return this.height * this.quality;
+      return (this.realHeight || this.height) * this.quality;
     },
     computedPlaceholderFontSize: function computedPlaceholderFontSize() {
       return this.placeholderFontSize * this.quality;
@@ -917,10 +920,21 @@ var component = { render: function render() {
       }
     },
     _setSize: function _setSize() {
+      var _this3 = this;
+
+      var setContainerSize = function setContainerSize() {
+        _this3.realWidth = +getComputedStyle(_this3.$refs.wrapper).width.slice(0, -2);
+        _this3.realHeight = +getComputedStyle(_this3.$refs.wrapper).height.slice(0, -2);
+      };
+      var useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle;
+      if (useAutoSizing) {
+        setContainerSize();
+        window.addEventListener('resize', setContainerSize);
+      }
       this.canvas.width = this.outputWidth;
       this.canvas.height = this.outputHeight;
-      this.canvas.style.width = this.width + 'px';
-      this.canvas.style.height = this.height + 'px';
+      this.canvas.style.width = (this.realWidth || this.width) + 'px';
+      this.canvas.style.height = (this.realHeight || this.height) + 'px';
     },
     _rotateByStep: function _rotateByStep(step) {
       var orientation = 1;
@@ -947,7 +961,7 @@ var component = { render: function render() {
       this._setOrientation(orientation);
     },
     _setImagePlaceholder: function _setImagePlaceholder() {
-      var _this3 = this;
+      var _this4 = this;
 
       var img = void 0;
       if (this.$slots.placeholder && this.$slots.placeholder[0]) {
@@ -963,7 +977,7 @@ var component = { render: function render() {
       if (!img) return;
 
       var onLoad = function onLoad() {
-        _this3.ctx.drawImage(img, 0, 0, _this3.outputWidth, _this3.outputHeight);
+        _this4.ctx.drawImage(img, 0, 0, _this4.outputWidth, _this4.outputHeight);
       };
 
       if (u.imageLoaded(img)) {
@@ -988,7 +1002,7 @@ var component = { render: function render() {
       this._setTextPlaceholder();
     },
     _setInitial: function _setInitial() {
-      var _this4 = this;
+      var _this5 = this;
 
       var src = void 0,
           img = void 0;
@@ -1023,11 +1037,11 @@ var component = { render: function render() {
         this.loading = true;
         img.onload = function () {
           // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
-          _this4._onload(img, +img.dataset['exifOrientation'], true);
+          _this5._onload(img, +img.dataset['exifOrientation'], true);
         };
 
         img.onerror = function () {
-          _this4._setPlaceholders();
+          _this5._setPlaceholders();
         };
       }
     },
@@ -1061,7 +1075,7 @@ var component = { render: function render() {
       this._onNewFileIn(file);
     },
     _onNewFileIn: function _onNewFileIn(file) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.currentIsInitial = false;
       this.loading = true;
@@ -1089,8 +1103,8 @@ var component = { render: function render() {
           var img = new Image();
           img.src = fileData;
           img.onload = function () {
-            _this5._onload(img, orientation);
-            _this5.$emit(events.NEW_IMAGE);
+            _this6._onload(img, orientation);
+            _this6.$emit(events.NEW_IMAGE);
           };
         };
         fr.readAsDataURL(file);
@@ -1318,7 +1332,7 @@ var component = { render: function render() {
       this.currentPointerCoord = null;
     },
     _handleWheel: function _handleWheel(evt) {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this.passive) return;
       if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return;
@@ -1330,7 +1344,7 @@ var component = { render: function render() {
         this.zoom(!this.reverseScrollToZoom);
       }
       this.$nextTick(function () {
-        _this6.scrolling = false;
+        _this7.scrolling = false;
       });
     },
     _handleDragEnter: function _handleDragEnter(evt) {
@@ -1396,7 +1410,7 @@ var component = { render: function render() {
       }
     },
     _setOrientation: function _setOrientation() {
-      var _this7 = this;
+      var _this8 = this;
 
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
       var applyMetadata = arguments[1];
@@ -1407,8 +1421,8 @@ var component = { render: function render() {
         this.rotating = true;
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
-          _this7.img = _img;
-          _this7._placeImage(applyMetadata);
+          _this8.img = _img;
+          _this8._placeImage(applyMetadata);
         };
       } else {
         this._placeImage(applyMetadata);
@@ -1444,14 +1458,14 @@ var component = { render: function render() {
       this.ctx.fillRect(0, 0, this.outputWidth, this.outputHeight);
     },
     _draw: function _draw() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.$nextTick(function () {
-        if (!_this8.img) return;
+        if (!_this9.img) return;
         if (typeof window !== 'undefined' && window.requestAnimationFrame) {
-          requestAnimationFrame(_this8._drawFrame);
+          requestAnimationFrame(_this9._drawFrame);
         } else {
-          _this8._drawFrame();
+          _this9._drawFrame();
         }
       });
     },
@@ -1497,12 +1511,12 @@ var component = { render: function render() {
       ctx.closePath();
     },
     _createContainerClipPath: function _createContainerClipPath() {
-      var _this9 = this;
+      var _this10 = this;
 
       this._clipPathFactory(0, 0, this.outputWidth, this.outputHeight);
       if (this.clipPlugins && this.clipPlugins.length) {
         this.clipPlugins.forEach(function (func) {
-          func(_this9.ctx, 0, 0, _this9.outputWidth, _this9.outputHeight);
+          func(_this10.ctx, 0, 0, _this10.outputWidth, _this10.outputHeight);
         });
       }
     },
@@ -1534,7 +1548,7 @@ var component = { render: function render() {
       ctx.restore();
     },
     _applyMetadata: function _applyMetadata() {
-      var _this10 = this;
+      var _this11 = this;
 
       if (!this.userMetadata) return;
       var _userMetadata = this.userMetadata,
@@ -1556,7 +1570,7 @@ var component = { render: function render() {
       }
 
       this.$nextTick(function () {
-        _this10.userMetadata = null;
+        _this11.userMetadata = null;
       });
     },
     onDimensionChange: function onDimensionChange() {
