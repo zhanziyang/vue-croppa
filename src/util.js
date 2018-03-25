@@ -141,8 +141,12 @@ export default {
     return -1
   },
 
+  parseDataUrl (url) {
+    const reg = /^data:([^;]+)?(;base64)?,(.*)/gmi
+    return reg.exec(url)[3]
+  },
+
   base64ToArrayBuffer (base64) {
-    base64 = base64.replace(/^data:([^;]+);base64,/gmi, '')
     var binaryString = atob(base64)
     var len = binaryString.length
     var bytes = new Uint8Array(len)

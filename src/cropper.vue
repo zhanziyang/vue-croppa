@@ -19,6 +19,7 @@
     </div>
     <canvas ref="canvas"
       @click.stop.prevent="_handleClick"
+      @dblclick.stop.prevent="_handleDblClick"
       @touchstart.stop="_handlePointerStart"
       @mousedown.stop.prevent="_handlePointerStart"
       @pointerstart.stop.prevent="_handlePointerStart"
@@ -90,6 +91,7 @@ export default {
       ctx: null,
       originalImage: null,
       img: null,
+      video: null,
       dragging: false,
       lastMovingCoord: null,
       imgData: {
@@ -467,6 +469,10 @@ export default {
       this.imageSet = false
       this.loading = false
       this.chosenFile = null
+      if (this.video) {
+        this.video.pause()
+        this.video = null
+      }
 
       if (hadImage) {
         this.$emit(events.IMAGE_REMOVE_EVENT)
@@ -635,9 +641,56 @@ export default {
       }
     },
 
+    _onVideoLoad (video, initial) {
+      this.video = video
+      const canvas = document.createElement('canvas')
+      const { videoWidth, videoHeight } = video
+      canvas.width = videoWidth
+      canvas.height = videoHeight
+      const ctx = canvas.getContext('2d')
+      this.loading = false
+      const drawFrame = (initial) => {
+        if (!this.video) return
+        ctx.drawImage(this.video, 0, 0, videoWidth, videoHeight)
+        const frame = new Image()
+        frame.src = canvas.toDataURL()
+        frame.onload = () => {
+          this.img = frame
+          // this._placeImage()
+          if (initial) {
+            this._placeImage()
+          } else {
+            this._draw()
+          }
+        }
+      }
+      drawFrame(true)
+      const keepDrawing = () => {
+        this.$nextTick(() => {
+          drawFrame()
+          if (!this.video || this.video.ended || this.video.paused) return
+          requestAnimationFrame(keepDrawing)
+        })
+      }
+      this.video.addEventListener('play', () => {
+        requestAnimationFrame(keepDrawing)
+      })
+    },
+
     _handleClick () {
       if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch && !this.passive) {
         this.chooseFile()
+      }
+    },
+
+    _handleDblClick() {
+      if (this.videoEnabled && this.video) {
+        if (this.video.paused || this.video.ended) {
+          this.video.play()
+        } else {
+          this.video.pause()
+        }
+        return
       }
     },
 
@@ -665,20 +718,38 @@ export default {
         let type = file.type || file.name.toLowerCase().split('.').pop()
         return false
       }
+
       if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
         let fr = new FileReader()
         fr.onload = (e) => {
           let fileData = e.target.result
-          let orientation = 1
-          try {
-            orientation = u.getFileOrientation(u.base64ToArrayBuffer(fileData))
-          } catch (err) { }
-          if (orientation < 1) orientation = 1
-          let img = new Image()
-          img.src = fileData
-          img.onload = () => {
-            this._onload(img, orientation)
-            this.$emit(events.NEW_IMAGE)
+          const base64 = u.parseDataUrl(fileData)
+          const isVideo = /^video/.test(file.type)
+          if (isVideo) {
+            let video = document.createElement('video')
+            video.src = fileData
+            fileData = null;
+            if (video.readyState >= video.HAVE_FUTURE_DATA) {
+              this._onVideoLoad(video)
+            } else {
+              video.addEventListener('canplay', () => {
+                console.log('can play event')
+                this._onVideoLoad(video)
+              }, false);
+            }
+          } else {
+            let orientation = 1
+            try {
+              orientation = u.getFileOrientation(u.base64ToArrayBuffer(base64))
+            } catch (err) { }
+            if (orientation < 1) orientation = 1
+            let img = new Image()
+            img.src = fileData
+            fileData = null;
+            img.onload = () => {
+              this._onload(img, orientation)
+              this.$emit(events.NEW_IMAGE)
+            }
           }
         }
         fr.readAsDataURL(file)
@@ -693,6 +764,8 @@ export default {
     },
 
     _fileTypeIsValid (file) {
+      const acceptableMimeType = (this.videoEnabled && /^video/.test(file.type) && document.createElement('video').canPlayType(file.type)) || /^image/.test(file.type)
+      if (!acceptableMimeType) return false
       if (!this.accept) return true
       let accept = this.accept
       let baseMimetype = accept.replace(/\/.*$/, '')
@@ -1048,7 +1121,6 @@ export default {
 
     _draw () {
       this.$nextTick(() => {
-        if (!this.img) return
         if (typeof window !== 'undefined' && window.requestAnimationFrame) {
           requestAnimationFrame(this._drawFrame)
         } else {
@@ -1058,6 +1130,7 @@ export default {
     },
 
     _drawFrame () {
+      if (!this.img) return
       this.loading = false
       let ctx = this.ctx
       let { startX, startY, width, height } = this.imgData

@@ -124,5 +124,6 @@ export default {
     type: [Number, String],
     default: 0
   },
-  autoSizing: Boolean
+  autoSizing: Boolean,
+  videoEnabled: Boolean,
 }
