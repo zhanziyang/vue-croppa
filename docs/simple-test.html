@@ -73,7 +73,7 @@
     <h1>Vue-Croppa Simple Test</h1>
     <croppa :video-enabled="videoEnabled" :replace-drop="replaceDrop" :auto-sizing="autoSizing" :style="autoSizing ? 'width: 50%; height: 400px;' : ''"
       ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
-      initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
+      initial-position="50% 50%" initial-size="contain" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
       @loading-start="onLoadingStart" @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'"
       :initial-image="initialImage" :prevent-white-space="preventWhiteSpace" show-loading :image-border-radius="borderRadius">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
@@ -141,7 +141,7 @@
         sliderVal: 0,
         sliderMin: 0,
         sliderMax: 0,
-        preventWhiteSpace: true,
+        preventWhiteSpace: false,
         noSticker: true,
         loading: false,
         compressRate: '',
