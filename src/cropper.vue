@@ -126,11 +126,13 @@ export default {
 
   computed: {
     outputWidth () {
-      return (this.realWidth || this.width) * this.quality
+      const w = this.autoSizing ? this.realWidth : this.width
+      return w * this.quality
     },
 
     outputHeight () {
-      return (this.realHeight || this.height) * this.quality
+      const h = this.autoSizing ? this.realHeight : this.height
+      return h * this.quality
     },
 
     computedPlaceholderFontSize () {
@@ -187,6 +189,8 @@ export default {
           deep: true
         })
     }
+
+    this._autoSizingInit()
   },
 
   watch: {
@@ -291,6 +295,11 @@ export default {
         this.$emit(events.LOADING_START)
       } else {
         this.$emit(events.LOADING_END)
+      }
+    },
+    autoSizing (val) {
+      if (val) {
+        this._autoSizingInit()
       }
     }
   },
@@ -490,6 +499,18 @@ export default {
       }
     },
 
+    _autoSizingInit () {
+      var setContainerSize = () => {
+        this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
+        this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
+      }
+      let useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle
+      if (useAutoSizing) {
+        setContainerSize()
+        window.addEventListener('resize', setContainerSize)
+      }
+    },
+
     _initialize () {
       this.canvas = this.$refs.canvas
       this._setSize()
@@ -506,15 +527,6 @@ export default {
     },
 
     _setSize () {
-      var setContainerSize = () => {
-        this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
-        this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
-      }
-      let useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle
-      if (useAutoSizing) {
-        setContainerSize()
-        window.addEventListener('resize', setContainerSize)
-      }
       this.canvas.width = this.outputWidth
       this.canvas.height = this.outputHeight
       this.canvas.style.width = (this.realWidth || this.width) + 'px'
@@ -683,7 +695,7 @@ export default {
       }
     },
 
-    _handleDblClick() {
+    _handleDblClick () {
       if (this.videoEnabled && this.video) {
         if (this.video.paused || this.video.ended) {
           this.video.play()
@@ -1078,7 +1090,7 @@ export default {
       if (orientation > 1 || useOriginal) {
         if (!this.img) return
         this.rotating = true
-        u.getRotatedImageData(useOriginal ? this.originalImage : this.img, orientation)
+        // u.getRotatedImageData(useOriginal ? this.originalImage : this.img, orientation)
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation)
         _img.onload = () => {
           this.img = _img

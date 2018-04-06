@@ -71,25 +71,26 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa video-enabled replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded"
-      :input-attrs="{ capture: true, class: 'file-input' }" initial-position="50% 50%" initial-size="cover" @init="onInit"
-      @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn" @loading-start="onLoadingStart" @loading-end="onLoadingEnd"
-      :placeholder="croppa && croppa.loading ? '' : 'Choose A File'" :initial-image="initialImage" :prevent-white-space="preventWhiteSpace"
-      show-loading :image-border-radius="borderRadius">
+    <croppa :video-enabled="videoEnabled" :replace-drop="replaceDrop" :auto-sizing="autoSizing" :style="autoSizing ? 'width: 50%; height: 400px;' : ''"
+      ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
+      initial-position="50% 50%" initial-size="cover" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
+      @loading-start="onLoadingStart" @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'"
+      :initial-image="initialImage" :prevent-white-space="preventWhiteSpace" show-loading :image-border-radius="borderRadius">
       <img slot="placeholder" src="static/favicons/android-chrome-512x512.png" class="addon">
       <!-- <img slot="initial" crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
         ref="foo" class="external" data-exif-orientation="6"> -->
       <div class="spinner" v-if="croppa && croppa.loading"></div>
     </croppa>
-    <!-- <croppa passive replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded"
+    <croppa v-if="showPreview" passive replace-drop ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded"
       :prevent-white-space="preventWhiteSpace" placeholder="Preview" initial-position="50% 50%" initial-size="cover" @init="onInit"
       show-loading :image-border-radius="borderRadius">
-    </croppa> -->
+    </croppa>
     <!-- <img crossOrigin="anonymous" src="https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_6.jpg"
       ref="foo" class="external"> -->
     <br>
     <label for="prevent">
       <input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
+    <br>
     <button @click="croppa.refresh()">REFRESH</button>
     <br>
     <button @click="croppa.rotate()">ROTATE</button>
@@ -104,7 +105,7 @@
     <button @click="saveMetadata">SAVE METADATA</button>
     <button @click="applyMetadata">APPLY METADATA</button>
     <br>
-    <button @click="removeSticker">REMOVE STICKER</button>
+    <button @click="toggleSticker">TOGGLE STICKER</button>
     <button @click="promisedBlob">Promised Blob</button>
     <br>
     <input type="text" placeholder="compress, ie: 0.2" v-model="compressRate">
@@ -113,8 +114,16 @@
     <button @click="showOutputSize3">await size</button>
     <br> image border radius:
     <input type="number" v-model="borderRadius">
-    <br>
     <button @click="addCircleClip">add circle clip</button>
+    <br>
+    <input type="checkbox" id="preview" v-model="showPreview"> show preview </label>
+    <br>
+    <input type="checkbox" id="replace-drop" v-model="replaceDrop"> replace-drop </label>
+    <br>
+    <input type="checkbox" id="video-support" v-model="videoEnabled"> video enabled </label>
+    <br>
+    <input type="checkbox" id="auto-sizing" v-model="autoSizing"> auto-sizing </label>
+    <br>
 
     <!-- <button @click="getUrl">URL</button>  -->
   </div>
@@ -133,10 +142,14 @@
         sliderMin: 0,
         sliderMax: 0,
         preventWhiteSpace: true,
-        noSticker: false,
+        noSticker: true,
         loading: false,
         compressRate: '',
-        borderRadius: 100
+        borderRadius: 0,
+        showPreview: false,
+        videoEnabled: false,
+        replaceDrop: false,
+        autoSizing: false
       },
 
       mounted: function () {
@@ -191,6 +204,11 @@
 
         removeSticker() {
           this.noSticker = true
+          this.croppa._draw()
+        },
+
+        toggleSticker() {
+          this.noSticker = !this.noSticker
           this.croppa._draw()
         },
 
