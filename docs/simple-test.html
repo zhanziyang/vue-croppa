@@ -71,7 +71,7 @@
 <body>
   <div id="app">
     <h1>Vue-Croppa Simple Test</h1>
-    <croppa :video-enabled="videoEnabled" :replace-drop="replaceDrop" :auto-sizing="autoSizing" :style="autoSizing ? 'width: 50%; height: 400px;' : ''"
+    <croppa @click="onClick" :video-enabled="videoEnabled" :replace-drop="replaceDrop" :auto-sizing="autoSizing" :style="autoSizing ? 'width: 50%; height: 400px;' : ''"
       ref="myCroppa" v-model="croppa" :width="width" :height="height" @initial-image-loaded="onInitialLoaded" :input-attrs="{ capture: true, class: 'file-input' }"
       initial-position="50% 50%" initial-size="contain" @init="onInit" @move="onMove" @zoom="onZoom" @draw="onDraw" @new-image-drawn="onNewImageDrawn"
       @loading-start="onLoadingStart" @loading-end="onLoadingEnd" :placeholder="croppa && croppa.loading ? '' : 'Choose A File'"
@@ -166,6 +166,9 @@
       },
 
       methods: {
+        onClick() {
+          // alert('hi')
+        },
         getUrl: function () {
           alert(this.croppa.generateDataUrl())
         },

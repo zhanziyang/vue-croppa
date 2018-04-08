@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.3.2
+ * vue-croppa v1.3.3
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -928,14 +928,19 @@ var component = { render: function render() {
         throw Error('Clip plugins should be functions');
       }
     },
+    emitNativeEvent: function emitNativeEvent(evt) {
+      this.$emit(evt.type, evt);
+    },
     _autoSizingInit: function _autoSizingInit() {
       var _this3 = this;
 
       var setContainerSize = function setContainerSize() {
-        _this3.realWidth = +getComputedStyle(_this3.$refs.wrapper).width.slice(0, -2);
-        _this3.realHeight = +getComputedStyle(_this3.$refs.wrapper).height.slice(0, -2);
+        if (getComputedStyle && _this3.$refs.wrapper instanceof Element) {
+          _this3.realWidth = +getComputedStyle(_this3.$refs.wrapper).width.slice(0, -2);
+          _this3.realHeight = +getComputedStyle(_this3.$refs.wrapper).height.slice(0, -2);
+        }
       };
-      var useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle;
+      var useAutoSizing = this.autoSizing;
       if (useAutoSizing) {
         setContainerSize();
         window.addEventListener('resize', setContainerSize);
@@ -1126,12 +1131,14 @@ var component = { render: function render() {
         requestAnimationFrame(keepDrawing);
       });
     },
-    _handleClick: function _handleClick() {
+    _handleClick: function _handleClick(evt) {
+      this.emitNativeEvent(evt);
       if (!this.hasImage() && !this.disableClickToChoose && !this.disabled && !this.supportTouch && !this.passive) {
         this.chooseFile();
       }
     },
-    _handleDblClick: function _handleDblClick() {
+    _handleDblClick: function _handleDblClick(evt) {
+      this.emitNativeEvent(evt);
       if (this.videoEnabled && this.video) {
         if (this.video.paused || this.video.ended) {
           this.video.play();
@@ -1337,6 +1344,7 @@ var component = { render: function render() {
       this.imgData.startY = -(this.imgData.height - this.outputHeight) / 2;
     },
     _handlePointerStart: function _handlePointerStart(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       this.supportTouch = true;
       this.pointerMoved = false;
@@ -1372,6 +1380,7 @@ var component = { render: function render() {
       }
     },
     _handlePointerEnd: function _handlePointerEnd(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       var pointerMoveDistance = 0;
       if (this.pointerStartCoord) {
@@ -1396,6 +1405,7 @@ var component = { render: function render() {
       this.pointerStartCoord = null;
     },
     _handlePointerMove: function _handlePointerMove(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       this.pointerMoved = true;
       if (!this.hasImage()) return;
@@ -1424,13 +1434,15 @@ var component = { render: function render() {
         this.pinchDistance = distance;
       }
     },
-    _handlePointerLeave: function _handlePointerLeave() {
+    _handlePointerLeave: function _handlePointerLeave(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       this.currentPointerCoord = null;
     },
     _handleWheel: function _handleWheel(evt) {
       var _this8 = this;
 
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return;
       evt.preventDefault();
@@ -1445,18 +1457,23 @@ var component = { render: function render() {
       });
     },
     _handleDragEnter: function _handleDragEnter(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return;
       if (this.hasImage() && !this.replaceDrop) return;
       this.fileDraggedOver = true;
     },
     _handleDragLeave: function _handleDragLeave(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       this.fileDraggedOver = false;
     },
-    _handleDragOver: function _handleDragOver(evt) {},
+    _handleDragOver: function _handleDragOver(evt) {
+      this.emitNativeEvent(evt);
+    },
     _handleDrop: function _handleDrop(evt) {
+      this.emitNativeEvent(evt);
       if (this.passive) return;
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
       if (this.hasImage() && this.replaceDrop) {
