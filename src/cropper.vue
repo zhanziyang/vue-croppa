@@ -193,6 +193,10 @@ export default {
     this._autoSizingInit()
   },
 
+  beforeDestroy () {
+    this._autoSizingRemove()
+  },
+
   watch: {
     outputWidth: function () {
       this.onDimensionChange()
@@ -499,15 +503,23 @@ export default {
       }
     },
 
-    _autoSizingInit () {
-      var setContainerSize = () => {
+    _setContainerSize () {
+      if (this.$refs.wrapper && getComputedStyle) {
         this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
         this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
       }
-      let useAutoSizing = this.autoSizing && this.$refs.wrapper && getComputedStyle
-      if (useAutoSizing) {
-        setContainerSize()
-        window.addEventListener('resize', setContainerSize)
+    },
+
+    _autoSizingInit () {
+      if (this.useAutoSizing) {
+        this._setContainerSize()
+        window.addEventListener('resize', this._setContainerSize)
+      }
+    },
+
+    _autoSizingRemove () {
+      if (this.useAutoSizing) {
+        window.removeEventListener('resize', this._setContainerSize)
       }
     },
 
