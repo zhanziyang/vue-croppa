@@ -193,6 +193,10 @@ export default {
     this._autoSizingInit()
   },
 
+  beforeDestroy () {
+    this._autoSizingRemove()
+  },
+
   watch: {
     outputWidth: function () {
       this.onDimensionChange()
@@ -503,17 +507,23 @@ export default {
       this.$emit(evt.type, evt);
     },
 
-    _autoSizingInit () {
-      var setContainerSize = () => {
-        if (getComputedStyle && (this.$refs.wrapper instanceof Element)) {
-          this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
-          this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
-        }
+    _setContainerSize () {
+      if (this.$refs.wrapper && getComputedStyle) {
+        this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
+        this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
       }
-      let useAutoSizing = this.autoSizing
-      if (useAutoSizing) {
-        setContainerSize()
-        window.addEventListener('resize', setContainerSize)
+    },
+
+    _autoSizingInit () {
+      if (this.useAutoSizing) {
+        this._setContainerSize()
+        window.addEventListener('resize', this._setContainerSize)
+      }
+    },
+
+    _autoSizingRemove () {
+      if (this.useAutoSizing) {
+        window.removeEventListener('resize', this._setContainerSize)
       }
     },
 
@@ -522,6 +532,11 @@ export default {
       this._setSize()
       this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
       this.ctx = this.canvas.getContext('2d')
+      this.ctx.mozImageSmoothingEnabled = true;
+      this.ctx.imageSmoothingQuality = "high";
+      this.ctx.webkitImageSmoothingEnabled = true;
+      this.ctx.msImageSmoothingEnabled = true;
+      this.ctx.imageSmoothingEnabled = true;
       this.originalImage = null
       this.img = null
       this.imageSet = false
