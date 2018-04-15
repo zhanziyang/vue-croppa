@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.3.3
+ * vue-croppa v1.3.4
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -621,6 +621,9 @@ var component = { render: function render() {
 
     this._autoSizingInit();
   },
+  beforeDestroy: function beforeDestroy() {
+    this._autoSizingRemove();
+  },
 
 
   watch: {
@@ -931,19 +934,21 @@ var component = { render: function render() {
     emitNativeEvent: function emitNativeEvent(evt) {
       this.$emit(evt.type, evt);
     },
+    _setContainerSize: function _setContainerSize() {
+      if (this.$refs.wrapper && getComputedStyle) {
+        this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2);
+        this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2);
+      }
+    },
     _autoSizingInit: function _autoSizingInit() {
-      var _this3 = this;
-
-      var setContainerSize = function setContainerSize() {
-        if (getComputedStyle && _this3.$refs.wrapper instanceof Element) {
-          _this3.realWidth = +getComputedStyle(_this3.$refs.wrapper).width.slice(0, -2);
-          _this3.realHeight = +getComputedStyle(_this3.$refs.wrapper).height.slice(0, -2);
-        }
-      };
-      var useAutoSizing = this.autoSizing;
-      if (useAutoSizing) {
-        setContainerSize();
-        window.addEventListener('resize', setContainerSize);
+      if (this.useAutoSizing) {
+        this._setContainerSize();
+        window.addEventListener('resize', this._setContainerSize);
+      }
+    },
+    _autoSizingRemove: function _autoSizingRemove() {
+      if (this.useAutoSizing) {
+        window.removeEventListener('resize', this._setContainerSize);
       }
     },
     _initialize: function _initialize() {
@@ -951,6 +956,11 @@ var component = { render: function render() {
       this._setSize();
       this.canvas.style.backgroundColor = !this.canvasColor || this.canvasColor == 'default' ? 'transparent' : typeof this.canvasColor === 'string' ? this.canvasColor : '';
       this.ctx = this.canvas.getContext('2d');
+      this.ctx.mozImageSmoothingEnabled = true;
+      this.ctx.imageSmoothingQuality = "high";
+      this.ctx.webkitImageSmoothingEnabled = true;
+      this.ctx.msImageSmoothingEnabled = true;
+      this.ctx.imageSmoothingEnabled = true;
       this.originalImage = null;
       this.img = null;
       this.imageSet = false;
@@ -991,7 +1001,7 @@ var component = { render: function render() {
       this._setOrientation(orientation);
     },
     _setImagePlaceholder: function _setImagePlaceholder() {
-      var _this4 = this;
+      var _this3 = this;
 
       var img = void 0;
       if (this.$slots.placeholder && this.$slots.placeholder[0]) {
@@ -1007,7 +1017,7 @@ var component = { render: function render() {
       if (!img) return;
 
       var onLoad = function onLoad() {
-        _this4.ctx.drawImage(img, 0, 0, _this4.outputWidth, _this4.outputHeight);
+        _this3.ctx.drawImage(img, 0, 0, _this3.outputWidth, _this3.outputHeight);
       };
 
       if (u.imageLoaded(img)) {
@@ -1032,7 +1042,7 @@ var component = { render: function render() {
       this._setTextPlaceholder();
     },
     _setInitial: function _setInitial() {
-      var _this5 = this;
+      var _this4 = this;
 
       var src = void 0,
           img = void 0;
@@ -1067,11 +1077,11 @@ var component = { render: function render() {
         this.loading = true;
         img.onload = function () {
           // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
-          _this5._onload(img, +img.dataset['exifOrientation'], true);
+          _this4._onload(img, +img.dataset['exifOrientation'], true);
         };
 
         img.onerror = function () {
-          _this5._setPlaceholders();
+          _this4._setPlaceholders();
         };
       }
     },
@@ -1093,7 +1103,7 @@ var component = { render: function render() {
       }
     },
     _onVideoLoad: function _onVideoLoad(video, initial) {
-      var _this6 = this;
+      var _this5 = this;
 
       this.video = video;
       var canvas = document.createElement('canvas');
@@ -1105,25 +1115,25 @@ var component = { render: function render() {
       var ctx = canvas.getContext('2d');
       this.loading = false;
       var drawFrame = function drawFrame(initial) {
-        if (!_this6.video) return;
-        ctx.drawImage(_this6.video, 0, 0, videoWidth, videoHeight);
+        if (!_this5.video) return;
+        ctx.drawImage(_this5.video, 0, 0, videoWidth, videoHeight);
         var frame = new Image();
         frame.src = canvas.toDataURL();
         frame.onload = function () {
-          _this6.img = frame;
+          _this5.img = frame;
           // this._placeImage()
           if (initial) {
-            _this6._placeImage();
+            _this5._placeImage();
           } else {
-            _this6._draw();
+            _this5._draw();
           }
         };
       };
       drawFrame(true);
       var keepDrawing = function keepDrawing() {
-        _this6.$nextTick(function () {
+        _this5.$nextTick(function () {
           drawFrame();
-          if (!_this6.video || _this6.video.ended || _this6.video.paused) return;
+          if (!_this5.video || _this5.video.ended || _this5.video.paused) return;
           requestAnimationFrame(keepDrawing);
         });
       };
@@ -1156,7 +1166,7 @@ var component = { render: function render() {
       this._onNewFileIn(file);
     },
     _onNewFileIn: function _onNewFileIn(file) {
-      var _this7 = this;
+      var _this6 = this;
 
       this.currentIsInitial = false;
       this.loading = true;
@@ -1185,11 +1195,11 @@ var component = { render: function render() {
             video.src = fileData;
             fileData = null;
             if (video.readyState >= video.HAVE_FUTURE_DATA) {
-              _this7._onVideoLoad(video);
+              _this6._onVideoLoad(video);
             } else {
               video.addEventListener('canplay', function () {
                 console.log('can play event');
-                _this7._onVideoLoad(video);
+                _this6._onVideoLoad(video);
               }, false);
             }
           } else {
@@ -1202,8 +1212,8 @@ var component = { render: function render() {
             img.src = fileData;
             fileData = null;
             img.onload = function () {
-              _this7._onload(img, orientation);
-              _this7.$emit(events.NEW_IMAGE);
+              _this6._onload(img, orientation);
+              _this6.$emit(events.NEW_IMAGE);
             };
           }
         };
@@ -1440,7 +1450,7 @@ var component = { render: function render() {
       this.currentPointerCoord = null;
     },
     _handleWheel: function _handleWheel(evt) {
-      var _this8 = this;
+      var _this7 = this;
 
       this.emitNativeEvent(evt);
       if (this.passive) return;
@@ -1453,7 +1463,7 @@ var component = { render: function render() {
         this.zoom(!this.reverseScrollToZoom);
       }
       this.$nextTick(function () {
-        _this8.scrolling = false;
+        _this7.scrolling = false;
       });
     },
     _handleDragEnter: function _handleDragEnter(evt) {
@@ -1524,7 +1534,7 @@ var component = { render: function render() {
       }
     },
     _setOrientation: function _setOrientation() {
-      var _this9 = this;
+      var _this8 = this;
 
       var orientation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
       var applyMetadata = arguments[1];
@@ -1536,8 +1546,8 @@ var component = { render: function render() {
         // u.getRotatedImageData(useOriginal ? this.originalImage : this.img, orientation)
         var _img = u.getRotatedImage(useOriginal ? this.originalImage : this.img, orientation);
         _img.onload = function () {
-          _this9.img = _img;
-          _this9._placeImage(applyMetadata);
+          _this8.img = _img;
+          _this8._placeImage(applyMetadata);
         };
       } else {
         this._placeImage(applyMetadata);
@@ -1573,13 +1583,13 @@ var component = { render: function render() {
       this.ctx.fillRect(0, 0, this.outputWidth, this.outputHeight);
     },
     _draw: function _draw() {
-      var _this10 = this;
+      var _this9 = this;
 
       this.$nextTick(function () {
         if (typeof window !== 'undefined' && window.requestAnimationFrame) {
-          requestAnimationFrame(_this10._drawFrame);
+          requestAnimationFrame(_this9._drawFrame);
         } else {
-          _this10._drawFrame();
+          _this9._drawFrame();
         }
       });
     },
@@ -1626,12 +1636,12 @@ var component = { render: function render() {
       ctx.closePath();
     },
     _createContainerClipPath: function _createContainerClipPath() {
-      var _this11 = this;
+      var _this10 = this;
 
       this._clipPathFactory(0, 0, this.outputWidth, this.outputHeight);
       if (this.clipPlugins && this.clipPlugins.length) {
         this.clipPlugins.forEach(function (func) {
-          func(_this11.ctx, 0, 0, _this11.outputWidth, _this11.outputHeight);
+          func(_this10.ctx, 0, 0, _this10.outputWidth, _this10.outputHeight);
         });
       }
     },
@@ -1663,7 +1673,7 @@ var component = { render: function render() {
       ctx.restore();
     },
     _applyMetadata: function _applyMetadata() {
-      var _this12 = this;
+      var _this11 = this;
 
       if (!this.userMetadata) return;
       var _userMetadata = this.userMetadata,
@@ -1685,7 +1695,7 @@ var component = { render: function render() {
       }
 
       this.$nextTick(function () {
-        _this12.userMetadata = null;
+        _this11.userMetadata = null;
       });
     },
     onDimensionChange: function onDimensionChange() {
