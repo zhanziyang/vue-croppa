@@ -1,6 +1,6 @@
 # vue-croppa
 
-> A simple straightforward customizable lightweight mobile-friendly image cropper for Vue 2.0.
+> A simple straightforward customizable mobile-friendly image cropper for Vue 2.0.
 
 <a href="https://zhanziyang.github.io/vue-croppa/"><img src="https://zhanziyang.github.io/vue-croppa/static/preview2.png?v=3" width="400" alt="try it out" /></a>
 
@@ -8,7 +8,6 @@
 
 * **Straightforward**: What you see is what you get
 * **Highly customizable**: You can almost customize anything except the core functionalities
-* **Lightweight**: 28kb in total
 * **Mobile-friendly**: Supports drag to move and pinch with two fingers to zoom on mobile devices
 * **EXIF orientation**: v0.2.0+ Support correctly show image with EXIF orientation
 
@@ -454,6 +453,14 @@ These states will be synced:
 * type: `boolean`
 * default: `false`
 * [Demo](https://codepen.io/zhanziyang/pen/bvVKzL)
+
+
+#### video-enabled
+
+(**1.3.1**) If it is set to `true`, you can choose a video file. If the video is supported by the browser, the first frame will be drawn on the canvas. You can play/pause the video by dbclick croppa. This feature is not fully developed yet, but you can still play around with it.
+
+* type: `boolean`
+* default: `false`
 
 ---
 

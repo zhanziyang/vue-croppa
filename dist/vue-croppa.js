@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.3.4
+ * vue-croppa v1.3.5
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -548,8 +548,8 @@ var component = { render: function render() {
       currentPointerCoord: null,
       currentIsInitial: false,
       loading: false,
-      realWidth: 0,
-      realHeight: 0,
+      realWidth: 0, // only for when autoSizing is on
+      realHeight: 0, // only for when autoSizing is on
       chosenFile: null
     };
   },
@@ -557,11 +557,11 @@ var component = { render: function render() {
 
   computed: {
     outputWidth: function outputWidth() {
-      var w = this.autoSizing ? this.realWidth : this.width;
+      var w = this.useAutoSizing ? this.realWidth : this.width;
       return w * this.quality;
     },
     outputHeight: function outputHeight() {
-      var h = this.autoSizing ? this.realHeight : this.height;
+      var h = this.useAutoSizing ? this.realHeight : this.height;
       return h * this.quality;
     },
     computedPlaceholderFontSize: function computedPlaceholderFontSize() {
@@ -577,6 +577,9 @@ var component = { render: function render() {
         right: '15px',
         bottom: '10px'
       };
+    },
+    useAutoSizing: function useAutoSizing() {
+      return this.autoSizing && this.$refs.wrapper && getComputedStyle;
     }
   },
 
@@ -619,10 +622,14 @@ var component = { render: function render() {
       });
     }
 
-    this._autoSizingInit();
+    if (this.useAutoSizing) {
+      this._autoSizingInit();
+    }
   },
   beforeDestroy: function beforeDestroy() {
-    this._autoSizingRemove();
+    if (this.useAutoSizing) {
+      this._autoSizingRemove();
+    }
   },
 
 
@@ -731,9 +738,11 @@ var component = { render: function render() {
         this.$emit(events.LOADING_END);
       }
     },
-    autoSizing: function autoSizing(val) {
+    useAutoSizing: function useAutoSizing(val) {
       if (val) {
         this._autoSizingInit();
+      } else {
+        this._autoSizingRemove();
       }
     }
   },
@@ -935,21 +944,18 @@ var component = { render: function render() {
       this.$emit(evt.type, evt);
     },
     _setContainerSize: function _setContainerSize() {
-      if (this.$refs.wrapper && getComputedStyle) {
+      if (this.useAutoSizing) {
         this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2);
         this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2);
       }
     },
     _autoSizingInit: function _autoSizingInit() {
-      if (this.useAutoSizing) {
-        this._setContainerSize();
-        window.addEventListener('resize', this._setContainerSize);
-      }
+      this._setContainerSize();
+      window.addEventListener('resize', this._setContainerSize);
     },
     _autoSizingRemove: function _autoSizingRemove() {
-      if (this.useAutoSizing) {
-        window.removeEventListener('resize', this._setContainerSize);
-      }
+      this._setContainerSize();
+      window.removeEventListener('resize', this._setContainerSize);
     },
     _initialize: function _initialize() {
       this.canvas = this.$refs.canvas;
@@ -963,6 +969,7 @@ var component = { render: function render() {
       this.ctx.imageSmoothingEnabled = true;
       this.originalImage = null;
       this.img = null;
+      this.$refs.fileInput.value = '';
       this.imageSet = false;
       this.chosenFile = null;
       this._setInitial();
@@ -973,8 +980,8 @@ var component = { render: function render() {
     _setSize: function _setSize() {
       this.canvas.width = this.outputWidth;
       this.canvas.height = this.outputHeight;
-      this.canvas.style.width = (this.realWidth || this.width) + 'px';
-      this.canvas.style.height = (this.realHeight || this.height) + 'px';
+      this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px';
+      this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px';
     },
     _rotateByStep: function _rotateByStep(step) {
       var orientation = 1;

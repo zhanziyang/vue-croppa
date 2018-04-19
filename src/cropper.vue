@@ -118,20 +118,20 @@ export default {
       currentPointerCoord: null,
       currentIsInitial: false,
       loading: false,
-      realWidth: 0,
-      realHeight: 0,
+      realWidth: 0, // only for when autoSizing is on
+      realHeight: 0, // only for when autoSizing is on
       chosenFile: null
     }
   },
 
   computed: {
     outputWidth () {
-      const w = this.autoSizing ? this.realWidth : this.width
+      const w = this.useAutoSizing ? this.realWidth : this.width
       return w * this.quality
     },
 
     outputHeight () {
-      const h = this.autoSizing ? this.realHeight : this.height
+      const h = this.useAutoSizing ? this.realHeight : this.height
       return h * this.quality
     },
 
@@ -150,6 +150,10 @@ export default {
         right: '15px',
         bottom: '10px'
       }
+    },
+
+    useAutoSizing () {
+      return this.autoSizing && this.$refs.wrapper && getComputedStyle
     }
   },
 
@@ -190,11 +194,15 @@ export default {
         })
     }
 
-    this._autoSizingInit()
+    if (this.useAutoSizing) {
+      this._autoSizingInit()
+    }
   },
 
   beforeDestroy () {
-    this._autoSizingRemove()
+    if (this.useAutoSizing) {
+      this._autoSizingRemove()
+    }
   },
 
   watch: {
@@ -301,9 +309,11 @@ export default {
         this.$emit(events.LOADING_END)
       }
     },
-    autoSizing (val) {
+    useAutoSizing (val) {
       if (val) {
         this._autoSizingInit()
+      } else {
+        this._autoSizingRemove()
       }
     }
   },
@@ -503,28 +513,25 @@ export default {
       }
     },
 
-    emitNativeEvent(evt) {
+    emitNativeEvent (evt) {
       this.$emit(evt.type, evt);
     },
 
     _setContainerSize () {
-      if (this.$refs.wrapper && getComputedStyle) {
+      if (this.useAutoSizing) {
         this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
         this.realHeight = +getComputedStyle(this.$refs.wrapper).height.slice(0, -2)
       }
     },
 
     _autoSizingInit () {
-      if (this.useAutoSizing) {
-        this._setContainerSize()
-        window.addEventListener('resize', this._setContainerSize)
-      }
+      this._setContainerSize()
+      window.addEventListener('resize', this._setContainerSize)
     },
 
     _autoSizingRemove () {
-      if (this.useAutoSizing) {
-        window.removeEventListener('resize', this._setContainerSize)
-      }
+      this._setContainerSize()
+      window.removeEventListener('resize', this._setContainerSize)
     },
 
     _initialize () {
@@ -539,6 +546,7 @@ export default {
       this.ctx.imageSmoothingEnabled = true;
       this.originalImage = null
       this.img = null
+      this.$refs.fileInput.value = ''
       this.imageSet = false
       this.chosenFile = null
       this._setInitial()
@@ -550,8 +558,8 @@ export default {
     _setSize () {
       this.canvas.width = this.outputWidth
       this.canvas.height = this.outputHeight
-      this.canvas.style.width = (this.realWidth || this.width) + 'px'
-      this.canvas.style.height = (this.realHeight || this.height) + 'px'
+      this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px'
+      this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px'
     },
 
     _rotateByStep (step) {
@@ -931,7 +939,7 @@ export default {
     },
 
     _handlePointerStart (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       this.supportTouch = true
       this.pointerMoved = false
@@ -968,7 +976,7 @@ export default {
     },
 
     _handlePointerEnd (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       let pointerMoveDistance = 0
       if (this.pointerStartCoord) {
@@ -1031,7 +1039,7 @@ export default {
     },
 
     _handleWheel (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       if (this.disabled || this.disableScrollToZoom || !this.hasImage()) return
       evt.preventDefault()
@@ -1047,7 +1055,7 @@ export default {
     },
 
     _handleDragEnter (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       if (this.disabled || this.disableDragAndDrop || !u.eventHasFile(evt)) return
       if (this.hasImage() && !this.replaceDrop) return
@@ -1055,18 +1063,18 @@ export default {
     },
 
     _handleDragLeave (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
       this.fileDraggedOver = false
     },
 
     _handleDragOver (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
     },
 
     _handleDrop (evt) {
-      this.emitNativeEvent(evt)      
+      this.emitNativeEvent(evt)
       if (this.passive) return
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
       if (this.hasImage() && this.replaceDrop) {
