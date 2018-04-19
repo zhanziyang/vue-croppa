@@ -120,7 +120,8 @@ export default {
       loading: false,
       realWidth: 0, // only for when autoSizing is on
       realHeight: 0, // only for when autoSizing is on
-      chosenFile: null
+      chosenFile: null,
+      useAutoSizing: false,
     }
   },
 
@@ -151,10 +152,6 @@ export default {
         bottom: '10px'
       }
     },
-
-    useAutoSizing () {
-      return this.autoSizing && this.$refs.wrapper && getComputedStyle
-    }
   },
 
   mounted () {
@@ -194,6 +191,7 @@ export default {
         })
     }
 
+    this.useAutoSizing = !!(this.autoSizing && this.$refs.wrapper && getComputedStyle)
     if (this.useAutoSizing) {
       this._autoSizingInit()
     }
@@ -309,7 +307,8 @@ export default {
         this.$emit(events.LOADING_END)
       }
     },
-    useAutoSizing (val) {
+    autoSizing (val) {
+      this.useAutoSizing = !!(this.autoSizing && this.$refs.wrapper && getComputedStyle)
       if (val) {
         this._autoSizingInit()
       } else {

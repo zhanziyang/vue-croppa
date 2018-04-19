@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.3.5
+ * vue-croppa v1.3.6
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -550,7 +550,8 @@ var component = { render: function render() {
       loading: false,
       realWidth: 0, // only for when autoSizing is on
       realHeight: 0, // only for when autoSizing is on
-      chosenFile: null
+      chosenFile: null,
+      useAutoSizing: false
     };
   },
 
@@ -577,9 +578,6 @@ var component = { render: function render() {
         right: '15px',
         bottom: '10px'
       };
-    },
-    useAutoSizing: function useAutoSizing() {
-      return this.autoSizing && this.$refs.wrapper && getComputedStyle;
     }
   },
 
@@ -622,6 +620,7 @@ var component = { render: function render() {
       });
     }
 
+    this.useAutoSizing = !!(this.autoSizing && this.$refs.wrapper && getComputedStyle);
     if (this.useAutoSizing) {
       this._autoSizingInit();
     }
@@ -738,7 +737,8 @@ var component = { render: function render() {
         this.$emit(events.LOADING_END);
       }
     },
-    useAutoSizing: function useAutoSizing(val) {
+    autoSizing: function autoSizing(val) {
+      this.useAutoSizing = !!(this.autoSizing && this.$refs.wrapper && getComputedStyle);
       if (val) {
         this._autoSizingInit();
       } else {
