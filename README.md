@@ -51,6 +51,7 @@
         @file-choose="handleCroppaFileChoose"
         @file-size-exceed="handleCroppaFileSizeExceed"
         @file-type-mismatch="handleCroppaFileTypeMismatch"
+        @new-image-drawn="handleNewImage"
         @image-remove="handleImageRemove"
         @move="handleCroppaMove"
         @zoom="handleCroppaZoom"></croppa>
