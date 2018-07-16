@@ -319,7 +319,7 @@ export default {
 
   methods: {
     emitEvent (...args) {
-      console.log(args[0])
+      // console.log(args[0])
       this.$emit(...args);
     },
 

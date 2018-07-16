@@ -1,5 +1,5 @@
 /*
- * vue-croppa v1.3.6
+ * vue-croppa v1.3.7
  * https://github.com/zhanziyang/vue-croppa
  * 
  * Copyright (c) 2018 zhanziyang
@@ -434,15 +434,15 @@ var events = {
   FILE_CHOOSE_EVENT: 'file-choose',
   FILE_SIZE_EXCEED_EVENT: 'file-size-exceed',
   FILE_TYPE_MISMATCH_EVENT: 'file-type-mismatch',
-  NEW_IMAGE: 'new-image',
-  NEW_IMAGE_DRAWN: 'new-image-drawn',
+  NEW_IMAGE_EVENT: 'new-image',
+  NEW_IMAGE_DRAWN_EVENT: 'new-image-drawn',
   IMAGE_REMOVE_EVENT: 'image-remove',
   MOVE_EVENT: 'move',
   ZOOM_EVENT: 'zoom',
-  DRAW: 'draw',
+  DRAW_EVENT: 'draw',
   INITIAL_IMAGE_LOADED_EVENT: 'initial-image-loaded',
-  LOADING_START: 'loading-start',
-  LOADING_END: 'loading-end'
+  LOADING_START_EVENT: 'loading-start',
+  LOADING_END_EVENT: 'loading-end'
 };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -707,7 +707,7 @@ var component = { render: function render() {
       this.scaleRatio = val / this.naturalWidth;
       if (this.hasImage()) {
         if (Math.abs(val - oldVal) > val * (1 / 100000)) {
-          this.$emit(events.ZOOM_EVENT);
+          this.emitEvent(events.ZOOM_EVENT);
           this._draw();
         }
       }
@@ -732,9 +732,9 @@ var component = { render: function render() {
     loading: function loading(val) {
       if (this.passive) return;
       if (val) {
-        this.$emit(events.LOADING_START);
+        this.emitEvent(events.LOADING_START_EVENT);
       } else {
-        this.$emit(events.LOADING_END);
+        this.emitEvent(events.LOADING_END_EVENT);
       }
     },
     autoSizing: function autoSizing(val) {
@@ -748,6 +748,10 @@ var component = { render: function render() {
   },
 
   methods: {
+    emitEvent: function emitEvent() {
+      // console.log(args[0])
+      this.$emit.apply(this, arguments);
+    },
     getCanvas: function getCanvas() {
       return this.canvas;
     },
@@ -767,7 +771,7 @@ var component = { render: function render() {
         this._preventMovingToWhiteSpace();
       }
       if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
-        this.$emit(events.MOVE_EVENT);
+        this.emitEvent(events.MOVE_EVENT);
         this._draw();
       }
     },
@@ -903,6 +907,7 @@ var component = { render: function render() {
       this.$refs.fileInput.click();
     },
     remove: function remove() {
+      if (!this.imageSet) return;
       this._setPlaceholders();
 
       var hadImage = this.img != null;
@@ -919,7 +924,6 @@ var component = { render: function render() {
       this.scaleRatio = null;
       this.userMetadata = null;
       this.imageSet = false;
-      this.loading = false;
       this.chosenFile = null;
       if (this.video) {
         this.video.pause();
@@ -927,7 +931,7 @@ var component = { render: function render() {
       }
 
       if (hadImage) {
-        this.$emit(events.IMAGE_REMOVE_EVENT);
+        this.emitEvent(events.IMAGE_REMOVE_EVENT);
       }
     },
     addClipPlugin: function addClipPlugin(plugin) {
@@ -941,7 +945,7 @@ var component = { render: function render() {
       }
     },
     emitNativeEvent: function emitNativeEvent(evt) {
-      this.$emit(evt.type, evt);
+      this.emitEvent(evt.type, evt);
     },
     _setContainerSize: function _setContainerSize() {
       if (this.useAutoSizing) {
@@ -974,7 +978,7 @@ var component = { render: function render() {
       this.chosenFile = null;
       this._setInitial();
       if (!this.passive) {
-        this.$emit(events.INIT_EVENT, this);
+        this.emitEvent(events.INIT_EVENT, this);
       }
     },
     _setSize: function _setSize() {
@@ -1078,12 +1082,12 @@ var component = { render: function render() {
       }
       this.currentIsInitial = true;
       if (u.imageLoaded(img)) {
-        // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+        // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
         this._onload(img, +img.dataset['exifOrientation'], true);
       } else {
         this.loading = true;
         img.onload = function () {
-          // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+          // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
           _this4._onload(img, +img.dataset['exifOrientation'], true);
         };
 
@@ -1096,6 +1100,9 @@ var component = { render: function render() {
       var orientation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
       var initial = arguments[2];
 
+      if (this.imageSet) {
+        this.remove();
+      }
       this.originalImage = img;
       this.img = img;
 
@@ -1106,7 +1113,7 @@ var component = { render: function render() {
       this._setOrientation(orientation);
 
       if (initial) {
-        this.$emit(events.INITIAL_IMAGE_LOADED_EVENT);
+        this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT);
       }
     },
     _onVideoLoad: function _onVideoLoad(video, initial) {
@@ -1177,16 +1184,16 @@ var component = { render: function render() {
 
       this.currentIsInitial = false;
       this.loading = true;
-      this.$emit(events.FILE_CHOOSE_EVENT, file);
+      this.emitEvent(events.FILE_CHOOSE_EVENT, file);
       this.chosenFile = file;
       if (!this._fileSizeIsValid(file)) {
         this.loading = false;
-        this.$emit(events.FILE_SIZE_EXCEED_EVENT, file);
+        this.emitEvent(events.FILE_SIZE_EXCEED_EVENT, file);
         return false;
       }
       if (!this._fileTypeIsValid(file)) {
         this.loading = false;
-        this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file);
+        this.emitEvent(events.FILE_TYPE_MISMATCH_EVENT, file);
         var type = file.type || file.name.toLowerCase().split('.').pop();
         return false;
       }
@@ -1220,7 +1227,7 @@ var component = { render: function render() {
             fileData = null;
             img.onload = function () {
               _this6._onload(img, orientation);
-              _this6.$emit(events.NEW_IMAGE);
+              _this6.emitEvent(events.NEW_IMAGE_EVENT);
             };
           }
         };
@@ -1493,8 +1500,8 @@ var component = { render: function render() {
       this.emitNativeEvent(evt);
       if (this.passive) return;
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return;
-      if (this.hasImage() && this.replaceDrop) {
-        this.remove();
+      if (this.hasImage() && !this.replaceDrop) {
+        return;
       }
       this.fileDraggedOver = false;
 
@@ -1620,10 +1627,10 @@ var component = { render: function render() {
         );
       }
 
-      this.$emit(events.DRAW, ctx);
+      this.emitEvent(events.DRAW_EVENT, ctx);
       if (!this.imageSet) {
         this.imageSet = true;
-        this.$emit(events.NEW_IMAGE_DRAWN);
+        this.emitEvent(events.NEW_IMAGE_DRAWN_EVENT);
       }
       this.rotating = false;
     },
