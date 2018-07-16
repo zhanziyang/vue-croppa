@@ -92,6 +92,8 @@
       <input type="checkbox" id="prevent" v-model="preventWhiteSpace"> prevent whitespace</label>
     <br>
     <button @click="croppa.refresh()">REFRESH</button>
+    <button @click="croppa.remove()">REMOVE</button>
+    <button @click="croppa.chooseFile()">CHOOSE</button>
     <br>
     <button @click="croppa.rotate()">ROTATE</button>
     <button @click="croppa.flipX()">FLIP-X</button>
@@ -141,7 +143,7 @@
         sliderVal: 0,
         sliderMin: 0,
         sliderMax: 0,
-        preventWhiteSpace: true,
+        preventWhiteSpace: false,
         noSticker: true,
         loading: false,
         compressRate: '',
@@ -149,7 +151,7 @@
         showPreview: false,
         videoEnabled: false,
         replaceDrop: false,
-        autoSizing: true
+        autoSizing: false
       },
 
       mounted: function () {
@@ -198,7 +200,7 @@
 
         onDraw: function (ctx) {
           if (this.noSticker) return
-          console.log('drawn')
+          // console.log('drawn')
           ctx.save()
           ctx.globalAlpha = 0.5
           ctx.drawImage(document.querySelector('.addon'), 100, 100, 400, 400)
@@ -216,11 +218,12 @@
         },
 
         onInitialLoaded: function () {
-          console.log('loadedd')
+          // console.log('loadedd')
           // this.applyMetadata.call(this)
         },
 
         onNewImageDrawn() {
+          // console.log('new-image-drawn event')
           this.sliderVal = this.croppa.scaleRatio
           this.sliderMin = this.croppa.scaleRatio / 2
           this.sliderMax = this.croppa.scaleRatio * 2
@@ -230,11 +233,11 @@
         },
 
         onMove() {
-          console.log('move', this.croppa.dragging ? 'dragging' : 'not dragging')
+          console.log('move with', this.croppa.dragging ? ' dragging' : 'out dragging')
         },
 
         onZoom() {
-          console.log('zoom', this.croppa.scrolling ? 'scrolling' : 'not scrolling')
+          console.log('zoom with', this.croppa.scrolling ? ' scrolling' : 'out scrolling')
           if (this.sliderMax && this.croppa.scaleRatio >= this.sliderMax) {
             this.croppa.scaleRatio = this.sliderMax
           } else if (this.sliderMin && this.croppa.scaleRatio <= this.sliderMin) {
@@ -250,11 +253,11 @@
         },
 
         onLoadingStart() {
-          console.log('loading start')
+          // console.log('loading start')
         },
 
         onLoadingEnd() {
-          console.log('loading end')
+          // console.log('loading end')
         },
 
         promisedBlob() {

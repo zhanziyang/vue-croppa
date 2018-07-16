@@ -277,7 +277,7 @@ export default {
       this.scaleRatio = val / this.naturalWidth
       if (this.hasImage()) {
         if (Math.abs(val - oldVal) > (val * (1 / 100000))) {
-          this.$emit(events.ZOOM_EVENT)
+          this.emitEvent(events.ZOOM_EVENT)
           this._draw()
         }
       }
@@ -302,9 +302,9 @@ export default {
     loading (val) {
       if (this.passive) return
       if (val) {
-        this.$emit(events.LOADING_START)
+        this.emitEvent(events.LOADING_START_EVENT)
       } else {
-        this.$emit(events.LOADING_END)
+        this.emitEvent(events.LOADING_END_EVENT)
       }
     },
     autoSizing (val) {
@@ -318,6 +318,11 @@ export default {
   },
 
   methods: {
+    emitEvent (...args) {
+      console.log(args[0])
+      this.$emit(...args);
+    },
+
     getCanvas () {
       return this.canvas
     },
@@ -340,7 +345,7 @@ export default {
         this._preventMovingToWhiteSpace()
       }
       if (this.imgData.startX !== oldX || this.imgData.startY !== oldY) {
-        this.$emit(events.MOVE_EVENT)
+        this.emitEvent(events.MOVE_EVENT)
         this._draw()
       }
     },
@@ -473,6 +478,7 @@ export default {
     },
 
     remove () {
+      if (!this.imageSet) return
       this._setPlaceholders()
 
       let hadImage = this.img != null
@@ -489,7 +495,6 @@ export default {
       this.scaleRatio = null
       this.userMetadata = null
       this.imageSet = false
-      this.loading = false
       this.chosenFile = null
       if (this.video) {
         this.video.pause()
@@ -497,7 +502,7 @@ export default {
       }
 
       if (hadImage) {
-        this.$emit(events.IMAGE_REMOVE_EVENT)
+        this.emitEvent(events.IMAGE_REMOVE_EVENT)
       }
     },
 
@@ -513,7 +518,7 @@ export default {
     },
 
     emitNativeEvent (evt) {
-      this.$emit(evt.type, evt);
+      this.emitEvent(evt.type, evt);
     },
 
     _setContainerSize () {
@@ -550,7 +555,7 @@ export default {
       this.chosenFile = null
       this._setInitial()
       if (!this.passive) {
-        this.$emit(events.INIT_EVENT, this)
+        this.emitEvent(events.INIT_EVENT, this)
       }
     },
 
@@ -651,12 +656,12 @@ export default {
       }
       this.currentIsInitial = true
       if (u.imageLoaded(img)) {
-        // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+        // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
         this._onload(img, +img.dataset['exifOrientation'], true)
       } else {
         this.loading = true
         img.onload = () => {
-          // this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+          // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
           this._onload(img, +img.dataset['exifOrientation'], true)
         }
 
@@ -667,6 +672,9 @@ export default {
     },
 
     _onload (img, orientation = 1, initial) {
+      if (this.imageSet) {
+        this.remove()
+      }
       this.originalImage = img
       this.img = img
 
@@ -677,7 +685,7 @@ export default {
       this._setOrientation(orientation)
 
       if (initial) {
-        this.$emit(events.INITIAL_IMAGE_LOADED_EVENT)
+        this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
       }
     },
 
@@ -747,16 +755,16 @@ export default {
     _onNewFileIn (file) {
       this.currentIsInitial = false
       this.loading = true
-      this.$emit(events.FILE_CHOOSE_EVENT, file)
+      this.emitEvent(events.FILE_CHOOSE_EVENT, file)
       this.chosenFile = file;
       if (!this._fileSizeIsValid(file)) {
         this.loading = false
-        this.$emit(events.FILE_SIZE_EXCEED_EVENT, file)
+        this.emitEvent(events.FILE_SIZE_EXCEED_EVENT, file)
         return false
       }
       if (!this._fileTypeIsValid(file)) {
         this.loading = false
-        this.$emit(events.FILE_TYPE_MISMATCH_EVENT, file)
+        this.emitEvent(events.FILE_TYPE_MISMATCH_EVENT, file)
         let type = file.type || file.name.toLowerCase().split('.').pop()
         return false
       }
@@ -790,7 +798,7 @@ export default {
             fileData = null;
             img.onload = () => {
               this._onload(img, orientation)
-              this.$emit(events.NEW_IMAGE)
+              this.emitEvent(events.NEW_IMAGE_EVENT)
             }
           }
         }
@@ -1076,8 +1084,8 @@ export default {
       this.emitNativeEvent(evt)
       if (this.passive) return
       if (!this.fileDraggedOver || !u.eventHasFile(evt)) return
-      if (this.hasImage() && this.replaceDrop) {
-        this.remove()
+      if (this.hasImage() && !this.replaceDrop) {
+        return
       }
       this.fileDraggedOver = false
 
@@ -1196,10 +1204,10 @@ export default {
         // this._clip(this._createImageClipPath)
       }
 
-      this.$emit(events.DRAW, ctx)
+      this.emitEvent(events.DRAW_EVENT, ctx)
       if (!this.imageSet) {
         this.imageSet = true
-        this.$emit(events.NEW_IMAGE_DRAWN)
+        this.emitEvent(events.NEW_IMAGE_DRAWN_EVENT)
       }
       this.rotating = false
     },
@@ -1385,10 +1393,7 @@ export default {
 
   @for $i from 2 through $circleCount {
     .sk-circle#{$i} .sk-circle-indicator {
-      animation-delay: - $animationDuration + $animationDuration / $circleCount *
-        (
-          $i - 1
-        );
+      animation-delay: -$animationDuration + $animationDuration / $circleCount * ($i - 1);
     }
   }
 }
