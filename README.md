@@ -805,5 +805,10 @@ $ npm run build
 
 ## To Do
 
+* [ ] Native support for grid #115
+* [ ] Auto crop the output image #118
+* [ ] Customizable-size preview #68
+* [ ] Automatically keeps the output size when container resized due to `auto-size=true` #122
+* [ ] Snapshot the current state and restore. #112
 * [ ] Add unit test.
 * [ ] Big image rotation optimizations (blob url?).
