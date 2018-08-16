@@ -543,7 +543,7 @@ export default {
       this._setSize()
       this.canvas.style.backgroundColor = (!this.canvasColor || this.canvasColor == 'default') ? 'transparent' : (typeof this.canvasColor === 'string' ? this.canvasColor : '')
       this.ctx = this.canvas.getContext('2d')
-      this.ctx.mozImageSmoothingEnabled = true;
+      this.ctx.imageSmoothingEnabled = true;
       this.ctx.imageSmoothingQuality = "high";
       this.ctx.webkitImageSmoothingEnabled = true;
       this.ctx.msImageSmoothingEnabled = true;
