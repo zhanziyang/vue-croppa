@@ -426,7 +426,8 @@ var props = {
     default: 0
   },
   autoSizing: Boolean,
-  videoEnabled: Boolean
+  videoEnabled: Boolean,
+  ignoreCanvasDimensionStyles: Boolean
 };
 
 var events = {
@@ -984,8 +985,10 @@ var component = { render: function render() {
     _setSize: function _setSize() {
       this.canvas.width = this.outputWidth;
       this.canvas.height = this.outputHeight;
-      this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px';
-      this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px';
+      if (!this.ignoreCanvasDimensionStyles) {
+        this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px';
+        this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px';
+      }
     },
     _rotateByStep: function _rotateByStep(step) {
       var orientation = 1;

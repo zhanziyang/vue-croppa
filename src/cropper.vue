@@ -562,8 +562,10 @@ export default {
     _setSize () {
       this.canvas.width = this.outputWidth
       this.canvas.height = this.outputHeight
-      this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px'
-      this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px'
+      if (!this.ignoreCanvasDimensionStyles) {
+        this.canvas.style.width = (this.useAutoSizing ? this.realWidth : this.width) + 'px'
+        this.canvas.style.height = (this.useAutoSizing ? this.realHeight : this.height) + 'px'
+      }
     },
 
     _rotateByStep (step) {
