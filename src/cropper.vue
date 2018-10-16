@@ -34,7 +34,9 @@
       @pointerleave.stop.prevent="_handlePointerLeave"
       @DOMMouseScroll.stop="_handleWheel"
       @wheel.stop="_handleWheel"
-      @mousewheel.stop="_handleWheel"></canvas>
+      @mousewheel.stop="_handleWheel"
+      :crossOrigin="canvasCrossorigin"
+    ></canvas>
     <svg class="icon icon-remove"
       v-if="showRemoveButton && img && !passive"
       @click="remove"

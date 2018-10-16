@@ -127,4 +127,5 @@ export default {
   autoSizing: Boolean,
   videoEnabled: Boolean,
   ignoreCanvasDimensionStyles: Boolean,
+  canvasCrossorigin: String,
 }
