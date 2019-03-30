@@ -521,6 +521,10 @@ export default {
       this.emitEvent(evt.type, evt);
     },
 
+    setFile (file) {
+      this._onNewFileIn(file)
+    },
+
     _setContainerSize () {
       if (this.useAutoSizing) {
         this.realWidth = +getComputedStyle(this.$refs.wrapper).width.slice(0, -2)
