@@ -38,7 +38,7 @@
     <svg class="icon icon-remove"
       v-if="showRemoveButton && img && !passive"
       @click="remove"
-      :style="`top: -${height/40}px; right: -${width/40}px`"
+      :style="`top: -${removeButtonSize/2 || height/40}px; right: -${removeButtonSize/2 || width/40}px`"
       viewBox="0 0 1024 1024"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
