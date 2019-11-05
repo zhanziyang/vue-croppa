@@ -895,8 +895,8 @@ export default {
         this.zoom(false, 0)
       } else {
         this.move({ x: 0, y: 0 })
-        this._draw()
       }
+      this._draw()
     },
 
     _aspectFill () {
