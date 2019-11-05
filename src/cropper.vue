@@ -377,6 +377,16 @@ export default {
         x = 1 - speed
       }
 
+      // when a new image is loaded with the same aspect ratio
+      // as the previously remove()d one, the imgData.width and .height
+      // effectivelly don't change (they change through one tick
+      // and end up being the same as before the tick, so the
+      // watchers don't trigger), make sure scaleRatio isn't null so
+      // that zooming works...
+      if (this.scaleRatio === null) {
+        this.scaleRatio = this.imgData.width / this.naturalWidth
+      }
+
       this.scaleRatio *= x
     },
 
