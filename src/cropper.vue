@@ -117,7 +117,7 @@ export default {
       imageSet: false,
       currentPointerCoord: null,
       currentIsInitial: false,
-      loading: false,
+      _loading: false,
       realWidth: 0, // only for when autoSizing is on
       realHeight: 0, // only for when autoSizing is on
       chosenFile: null,
@@ -152,6 +152,24 @@ export default {
         bottom: '10px'
       }
     },
+
+    loading: {
+      get: function() {
+        return this._loading
+      },
+      set: function(newValue) {
+        let oldValue = this._loading
+        this._loading = newValue
+        if (oldValue != newValue) {
+          if (this.passive) return
+          if (newValue) {
+            this.emitEvent(events.LOADING_START_EVENT)
+          } else {
+            this.emitEvent(events.LOADING_END_EVENT)
+          }
+        }
+      }
+    }
   },
 
   mounted () {
@@ -297,14 +315,6 @@ export default {
       // if (this.passive) return
       if (this.hasImage()) {
         this.$nextTick(this._draw)
-      }
-    },
-    loading (val) {
-      if (this.passive) return
-      if (val) {
-        this.emitEvent(events.LOADING_START_EVENT)
-      } else {
-        this.emitEvent(events.LOADING_END_EVENT)
       }
     },
     autoSizing (val) {
@@ -659,9 +669,19 @@ export default {
         return
       }
       this.currentIsInitial = true
-      if (u.imageLoaded(img)) {
-        // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
-        this._onload(img, +img.dataset['exifOrientation'], true)
+
+      let onError = () => {
+        this._setPlaceholders()
+        this.loading = false
+      }
+      this.loading = true
+      if (img.complete) {
+        if (u.imageLoaded(img)) {
+          // this.emitEvent(events.INITIAL_IMAGE_LOADED_EVENT)
+          this._onload(img, +img.dataset['exifOrientation'], true)
+        } else {
+          onError()
+        }
       } else {
         this.loading = true
         img.onload = () => {
@@ -670,7 +690,7 @@ export default {
         }
 
         img.onerror = () => {
-          this._setPlaceholders()
+          onError()
         }
       }
     },
