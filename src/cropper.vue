@@ -117,7 +117,7 @@ export default {
       imageSet: false,
       currentPointerCoord: null,
       currentIsInitial: false,
-      loading: false,
+      _loading: false,
       realWidth: 0, // only for when autoSizing is on
       realHeight: 0, // only for when autoSizing is on
       chosenFile: null,
@@ -152,6 +152,25 @@ export default {
         bottom: '10px'
       }
     },
+
+    loading: {
+      get: function() {
+        return this._loading
+      },
+      set: function(newValue) {
+        console.log("Set loading", newValue)
+        let oldValue = this._loading
+        this._loading = newValue
+        if (oldValue != newValue) {
+          if (this.passive) return
+          if (newValue) {
+            this.emitEvent(events.LOADING_START_EVENT)
+          } else {
+            this.emitEvent(events.LOADING_END_EVENT)
+          }
+        }
+      }
+    }
   },
 
   mounted () {
@@ -297,14 +316,6 @@ export default {
       // if (this.passive) return
       if (this.hasImage()) {
         this.$nextTick(this._draw)
-      }
-    },
-    loading (val) {
-      if (this.passive) return
-      if (val) {
-        this.emitEvent(events.LOADING_START_EVENT)
-      } else {
-        this.emitEvent(events.LOADING_END_EVENT)
       }
     },
     autoSizing (val) {
