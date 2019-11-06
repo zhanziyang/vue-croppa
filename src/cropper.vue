@@ -158,7 +158,6 @@ export default {
         return this._loading
       },
       set: function(newValue) {
-        console.log("Set loading", newValue)
         let oldValue = this._loading
         this._loading = newValue
         if (oldValue != newValue) {
