@@ -132,8 +132,11 @@ test('zoom slider changes the real scale state', async ({ page }) => {
   const max = await page.locator('#zoom-range').getAttribute('max')
   const target = (Number(min) + Number(max)) / 2
 
-  await page.locator('#zoom-range').fill(String(target))
-  await page.locator('#zoom-range').dispatchEvent('input')
+  await page.locator('#zoom-range').evaluate((element, value) => {
+    const input = element as HTMLInputElement
+    input.value = String(value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  }, target)
 
   await expect.poll(() => page.evaluate(() => window.__croppa.scaleRatio)).toBeCloseTo(target, 2)
 })
