@@ -438,11 +438,11 @@ These states will be synced:
 
 * type: `boolean`
 * default: `false`
-* [Demo](https://codepen.io/zhanziyang/pen/xYKbqJ)
+* [Demo](https://zhanziyang.github.io/vue-croppa/examples/#passive-preview)
 
 #### image-border-radius
 
-(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image. **Note that it only works when `prevent-white-space` is `true`**. ([Demo](https://codepen.io/zhanziyang/pen/jZNmOa))
+(**1.2.0**) Set rounded corders to image. Note that this has effect on the output image. **Note that it only works when `prevent-white-space` is `true`**. ([Demo](https://zhanziyang.github.io/vue-croppa/examples/#rounded-output))
 
 * type: `number` or `string`
 * default: `0`\

@@ -1,0 +1,17 @@
+{
+  "name": "vue-croppa-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "legacy:prepare": "node scripts/prepare-legacy-assets.mjs",
+    "dev": "npm run legacy:prepare && vitepress dev . --host 0.0.0.0",
+    "build": "npm run legacy:prepare && vitepress build .",
+    "preview": "vitepress preview . --host 0.0.0.0",
+    "test:e2e": "npm run build && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "vitepress": "1.6.4",
+    "vue": "3.5.22"
+  }
+}

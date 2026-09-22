@@ -1,0 +1,83 @@
+name: Docs site
+
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'docs/simple-test.html'
+      - 'docs/static/vue.min.js'
+      - 'docs/src/croppa/**'
+      - 'README.md'
+      - '.github/workflows/docs-site.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'site/**'
+      - 'docs/simple-test.html'
+      - 'docs/static/vue.min.js'
+      - 'docs/src/croppa/**'
+      - 'README.md'
+      - '.github/workflows/docs-site.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: docs-site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package.json
+
+      - name: Install docs dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build docs and verify first-party demos
+        run: npm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-playwright-report
+          path: site/playwright-report
+          if-no-files-found: ignore
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/.vitepress/dist
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
