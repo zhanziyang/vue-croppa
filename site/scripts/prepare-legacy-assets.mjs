@@ -17,6 +17,7 @@ await Promise.all([
   copyFile(resolve(repoRoot, 'docs/static/vue.min.js'), resolve(vendorDir, 'vue2.min.js')),
   copyFile(resolve(repoRoot, 'docs/src/croppa/vue-croppa.js'), resolve(vendorDir, 'vue-croppa.js')),
   copyFile(resolve(repoRoot, 'docs/src/croppa/vue-croppa.css'), resolve(vendorDir, 'vue-croppa.css')),
+  copyFile(resolve(repoRoot, 'docs/static/500.jpeg'), resolve(publicDir, 'demo-photo.jpg')),
 ])
 
 // Keep the original broad manual harness executable, but make it deterministic and first-party:
