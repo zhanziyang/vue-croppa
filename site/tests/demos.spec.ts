@@ -125,3 +125,91 @@ test('adapted legacy simple-test harness still initializes core functions', asyn
   expect(result.hasRotateMethod).toBe(true)
   expect(result.after.scale).toBeGreaterThan(result.before.scale)
 })
+
+test('zoom slider changes the real scale state', async ({ page }) => {
+  await openReadyDemo(page, 'demos/zoom-slider.html')
+  const min = await page.locator('#zoom-range').getAttribute('min')
+  const max = await page.locator('#zoom-range').getAttribute('max')
+  const target = (Number(min) + Number(max)) / 2
+
+  await page.locator('#zoom-range').fill(String(target))
+  await page.locator('#zoom-range').dispatchEvent('input')
+
+  await expect.poll(() => page.evaluate(() => window.__croppa.scaleRatio)).toBeCloseTo(target, 2)
+})
+
+test('responsive demo updates auto-sized dimensions', async ({ page }) => {
+  await openReadyDemo(page, 'demos/responsive.html')
+  await page.locator('#large').click()
+
+  await expect.poll(() => page.evaluate(() => Math.round(window.__actualSize.width))).toBe(400)
+  await expect.poll(() => page.evaluate(() => Math.round(window.__actualSize.height))).toBe(300)
+})
+
+test('draw attachment hook runs and exports a PNG', async ({ page }) => {
+  await openReadyDemo(page, 'demos/attachment.html')
+  expect(await page.evaluate(() => window.__drawCount)).toBeGreaterThan(0)
+
+  await page.locator('#export').click()
+  await page.waitForFunction(() => typeof window.__lastDataUrl === 'string')
+  expect(await page.evaluate(() => window.__lastDataUrl.startsWith('data:image/png;base64,'))).toBe(true)
+})
+
+test('image placeholder is rendered before a file is chosen', async ({ page }) => {
+  await page.goto('demos/placeholder.html')
+  await page.waitForFunction(() => window.__demoMounted === true)
+  await page.waitForFunction(() => typeof window.__placeholderData === 'string')
+
+  expect(await page.evaluate(() => window.__placeholderData.startsWith('data:image/png;base64,'))).toBe(true)
+  expect(await page.evaluate(() => window.__croppa.hasImage())).toBe(false)
+})
+
+test('custom loading emits start/end around a real local file', async ({ page }) => {
+  await page.goto('demos/loading.html')
+  await page.waitForFunction(() => window.__demoMounted === true)
+
+  await page.locator('input[type=file]').setInputFiles(fixture)
+  await page.waitForFunction(() => window.__demoReady === true)
+
+  const events = await page.evaluate(() => window.__loadingEvents || [])
+  expect(events).toEqual(expect.arrayContaining(['loading-start', 'loading-end']))
+})
+
+test('clip plugin makes the output corner transparent', async ({ page }) => {
+  await openReadyDemo(page, 'demos/clip-plugin.html')
+  expect(await page.evaluate(() => window.__cornerAlpha)).toBe(0)
+})
+
+test('initial slot honors explicit EXIF orientation', async ({ page }) => {
+  await openReadyDemo(page, 'demos/exif.html')
+  expect(await page.evaluate(() => window.__orientation)).toBe(6)
+})
+
+test('customization demo initializes with real component props', async ({ page }) => {
+  await openReadyDemo(page, 'demos/customization.html')
+  expect(await page.evaluate(() => window.__croppa.canvasColor)).toBe('#ffffff')
+
+  await page.locator('#disabled-toggle').check()
+  await expect.poll(() => page.evaluate(() => window.__croppa.disabled)).toBe(true)
+})
+
+test('upload recipe builds a real FormData file', async ({ page }) => {
+  await openReadyDemo(page, 'demos/upload.html')
+  await page.locator('#prepare-upload').click()
+  await page.waitForFunction(() => !!window.__uploadPayload)
+
+  const payload = await page.evaluate(() => window.__uploadPayload)
+  expect(payload.hasFormData).toBe(true)
+  expect(payload.name).toBe('crop.jpg')
+  expect(payload.type).toBe('image/jpeg')
+  expect(payload.size).toBeGreaterThan(1000)
+})
+
+test('download recipe creates a downloadable PNG data URL', async ({ page }) => {
+  await openReadyDemo(page, 'demos/download.html')
+  await page.locator('#prepare-download').click()
+  await page.waitForFunction(() => typeof window.__downloadHref === 'string')
+
+  expect(await page.evaluate(() => window.__downloadHref.startsWith('data:image/png;base64,'))).toBe(true)
+  await expect(page.locator('#download-link')).toHaveAttribute('download', 'vue-croppa.png')
+})

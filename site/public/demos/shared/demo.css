@@ -155,7 +155,31 @@ pre {
   background: #fff;
 }
 
+label {
+  display: grid;
+  gap: 7px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 input[type="range"] { width: 100%; accent-color: #0f766e; }
+
+input:not([type="range"]):not([type="checkbox"]):not([type="file"]) {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid #d5dee8;
+  border-radius: 9px;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+}
+
+input[type="color"] {
+  padding: 3px !important;
+  cursor: pointer;
+}
 
 @media (max-width: 700px) {
   body { padding: 14px; }

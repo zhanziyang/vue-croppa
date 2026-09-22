@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vue Croppa · Custom loading</title>
+  <link rel="stylesheet" href="../vendor/vue-croppa.css"><link rel="stylesheet" href="./shared/demo.css">
+  <style>.loading-wrap{position:relative}.custom-loading{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.72);backdrop-filter:blur(3px);z-index:20;font-weight:700;color:#0f766e}.spinner{width:28px;height:28px;border:3px solid #ccfbf1;border-top-color:#0f766e;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
+</head>
+<body>
+<main id="app" class="demo" v-cloak>
+ <div class="demo-grid">
+  <section class="stage">
+   <div class="loading-wrap">
+    <croppa v-model="croppa" :width="330" :height="250" @init="onInit" @loading-start="loadingStart" @loading-end="loadingEnd" @new-image-drawn="onReady"></croppa>
+    <div v-if="loading" class="custom-loading"><div><div class="spinner"></div><small>Loading</small></div></div>
+   </div>
+  </section>
+  <section class="panel">
+   <div><p class="eyebrow">Lifecycle</p><h2>Custom loading UI</h2><p>Listen to loading-start and loading-end instead of using the built-in spinner.</p></div>
+   <button id="choose" class="primary" @click="croppa.chooseFile()">Choose an image</button>
+   <div :class="['status', !loading ? 'ready' : '']">{{ loading ? 'Loading image…' : 'Idle' }}</div>
+   <pre id="loading-events">{{ events.join('\n') || 'Choose a file to see events' }}</pre>
+  </section>
+ </div>
+</main>
+<script src="../vendor/vue2.min.js"></script><script src="../vendor/vue-croppa.js"></script>
+<script>
+Vue.use(Croppa)
+new Vue({
+ el:'#app',data:{croppa:null,loading:false,events:[]},
+ methods:{
+  onInit(vm){window.__croppa=vm;window.__demoMounted=true},
+  loadingStart(){this.loading=true;this.events.push('loading-start');window.__loadingEvents=this.events.slice()},
+  loadingEnd(){this.loading=false;this.events.push('loading-end');window.__loadingEvents=this.events.slice()},
+  onReady(){window.__demoReady=true}
+ }
+})
+</script>
+</body></html>

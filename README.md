@@ -453,7 +453,7 @@ These states will be synced:
 
 * type: `boolean`
 * default: `false`
-* [Demo](https://codepen.io/zhanziyang/pen/bvVKzL)
+* [Demo](https://zhanziyang.github.io/vue-croppa/examples/#responsive-auto-sizing)
 
 
 #### video-enabled
@@ -660,7 +660,7 @@ onInit(vm) {
 
 * Note: in the plugin function you should always start with `ctx.beginPath()` and end with `ctx.closePath()`.
 * Note: it only works when `prevent-white-space` is `true`.
-* [Demo](https://codepen.io/zhanziyang/pen/GQKmJq?editors=1011)
+* [Demo](https://zhanziyang.github.io/vue-croppa/examples/#clip-plugin)
 
 #### supportDetection()
 

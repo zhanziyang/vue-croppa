@@ -35,6 +35,8 @@ export default defineConfig({
             { text: 'Input & loading', link: '/guide/input' },
             { text: 'Manipulation & state', link: '/guide/manipulation' },
             { text: 'Output & upload', link: '/guide/output' },
+            { text: 'Customization', link: '/guide/customization' },
+            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
           ],
         },
       ],
