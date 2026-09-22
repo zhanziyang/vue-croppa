@@ -11,7 +11,7 @@ async function openReadyDemo(page, path) {
 }
 
 test('basic demo loads a real image and changes scale', async ({ page }) => {
-  await openReadyDemo(page, '/demos/basic.html')
+  await openReadyDemo(page, 'demos/basic.html')
 
   const before = await page.evaluate(() => window.__croppa.getMetadata())
   expect(before.scale).toBeGreaterThan(0)
@@ -22,7 +22,7 @@ test('basic demo loads a real image and changes scale', async ({ page }) => {
 })
 
 test('input demo loads and removes a real local file', async ({ page }) => {
-  await page.goto('/demos/input.html')
+  await page.goto('demos/input.html')
   await page.waitForFunction(() => window.__demoMounted === true)
 
   await page.locator('input[type=file]').setInputFiles(fixture)
@@ -37,7 +37,7 @@ test('input demo loads and removes a real local file', async ({ page }) => {
 })
 
 test('manipulation demo zooms and rotates', async ({ page }) => {
-  await openReadyDemo(page, '/demos/manipulation.html')
+  await openReadyDemo(page, 'demos/manipulation.html')
 
   const before = await page.evaluate(() => window.__croppa.getMetadata())
 
@@ -49,7 +49,7 @@ test('manipulation demo zooms and rotates', async ({ page }) => {
 })
 
 test('output demo creates Blob and data URL output', async ({ page }) => {
-  await openReadyDemo(page, '/demos/output.html')
+  await openReadyDemo(page, 'demos/output.html')
 
   await page.locator('#blob').click()
   await page.waitForFunction(() => !!window.__lastBlob)
@@ -63,7 +63,7 @@ test('output demo creates Blob and data URL output', async ({ page }) => {
 })
 
 test('metadata demo round-trips saved crop metadata', async ({ page }) => {
-  await openReadyDemo(page, '/demos/metadata.html')
+  await openReadyDemo(page, 'demos/metadata.html')
 
   await page.locator('#save').click()
   const saved = await page.evaluate(() => window.__savedMetadata)
@@ -82,7 +82,7 @@ test('metadata demo round-trips saved crop metadata', async ({ page }) => {
 })
 
 test('passive preview renders a second synchronized cropper', async ({ page }) => {
-  await openReadyDemo(page, '/demos/preview.html')
+  await openReadyDemo(page, 'demos/preview.html')
   await expect(page.locator('canvas')).toHaveCount(2)
 
   const before = await page.evaluate(() => window.__croppa.scaleRatio)
@@ -91,7 +91,7 @@ test('passive preview renders a second synchronized cropper', async ({ page }) =
 })
 
 test('rounded output produces a real PNG', async ({ page }) => {
-  await openReadyDemo(page, '/demos/rounded.html')
+  await openReadyDemo(page, 'demos/rounded.html')
 
   await page.locator('#generate').click()
   await page.waitForFunction(() => !!window.__lastBlob)
@@ -102,7 +102,7 @@ test('rounded output produces a real PNG', async ({ page }) => {
 })
 
 test('adapted legacy simple-test harness still initializes core functions', async ({ page }) => {
-  await page.goto('/demos/simple-test.html')
+  await page.goto('demos/simple-test.html')
   await page.waitForFunction(() => !!window.croppa && window.croppa.hasImage(), null, { timeout: 15_000 })
 
   const result = await page.evaluate(() => {
