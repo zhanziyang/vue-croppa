@@ -8,7 +8,13 @@ export interface Point {
   y: number
 }
 
-/** A source-relative rectangle using normalized coordinates in the range 0..1. */
+/**
+ * Source-relative rectangle.
+ *
+ * x/y may be outside 0..1 and width/height may be greater than 1.
+ * This is required to preserve v1's default behavior where whitespace may be
+ * visible inside the fixed crop viewport.
+ */
 export interface NormalizedRect {
   x: number
   y: number
@@ -17,8 +23,19 @@ export interface NormalizedRect {
 }
 
 export type Rotation = 0 | 90 | 180 | 270
+export type InitialSize = 'cover' | 'contain' | 'natural'
 
-/** Serializable, viewport-independent crop state. */
+export interface CropOperationOptions {
+  preventWhiteSpace?: boolean
+}
+
+export interface InitialCropOptions extends CropOperationOptions {
+  aspectRatio?: number
+  viewport?: Size
+  initialSize?: InitialSize
+  initialPosition?: string
+}
+
 export interface CropState {
   crop: NormalizedRect
   rotation: Rotation
@@ -54,7 +71,7 @@ export function assertSize(size: Size, name = 'size'): void {
     size.width <= 0 ||
     size.height <= 0
   ) {
-    throw new RangeError(`${name} must have finite width and height greater than 0`)
+    throw new RangeError(name + ' must have finite width and height greater than 0')
   }
 }
 
@@ -68,6 +85,29 @@ export function normalizeRotation(rotation: number): Rotation {
   throw new RangeError('rotation must be a multiple of 90 degrees')
 }
 
+export function normalizeCropRect(rect: NormalizedRect): NormalizedRect {
+  return {
+    x: finiteOrZero(rect.x),
+    y: finiteOrZero(rect.y),
+    width: positiveFiniteDimension(rect.width),
+    height: positiveFiniteDimension(rect.height),
+  }
+}
+
+export function constrainCropToSource(rect: NormalizedRect): NormalizedRect {
+  const current = normalizeCropRect(rect)
+  const fitScale = Math.min(1, 1 / current.width, 1 / current.height)
+  const width = stabilize(current.width * fitScale)
+  const height = stabilize(current.height * fitScale)
+
+  return {
+    x: stabilize(clamp(current.x, 0, Math.max(0, 1 - width))),
+    y: stabilize(clamp(current.y, 0, Math.max(0, 1 - height))),
+    width,
+    height,
+  }
+}
+
 export function getOrientedSize(source: Size, rotation: Rotation): Size {
   assertSize(source, 'source')
 
@@ -76,101 +116,124 @@ export function getOrientedSize(source: Size, rotation: Rotation): Size {
     : { width: source.width, height: source.height }
 }
 
-export function clampRect(rect: NormalizedRect): NormalizedRect {
-  const width = clampFiniteDimension(rect.width)
-  const height = clampFiniteDimension(rect.height)
-
-  return {
-    x: clampFiniteCoordinate(rect.x, 1 - width),
-    y: clampFiniteCoordinate(rect.y, 1 - height),
-    width,
-    height,
-  }
-}
-
-/**
- * Create the largest centered crop that fits inside the source while matching
- * the requested output aspect ratio. Without an aspect ratio, select all.
- */
-export function createInitialCrop(source: Size, aspectRatio?: number): NormalizedRect {
+export function createInitialCrop(
+  source: Size,
+  aspectRatioOrOptions?: number | InitialCropOptions,
+): NormalizedRect {
   assertSize(source, 'source')
 
-  if (aspectRatio === undefined) {
-    return { x: 0, y: 0, width: 1, height: 1 }
-  }
+  const options: InitialCropOptions =
+    typeof aspectRatioOrOptions === 'number'
+      ? { aspectRatio: aspectRatioOrOptions }
+      : { ...(aspectRatioOrOptions ?? {}) }
 
-  if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+  if (options.viewport) assertSize(options.viewport, 'viewport')
+
+  const aspectRatio =
+    options.aspectRatio ??
+    (options.viewport ? options.viewport.width / options.viewport.height : undefined)
+
+  if (aspectRatio !== undefined && (!Number.isFinite(aspectRatio) || aspectRatio <= 0)) {
     throw new RangeError('aspectRatio must be a finite number greater than 0')
   }
 
-  const sourceRatio = source.width / source.height
+  const initialSize: InitialSize = options.preventWhiteSpace
+    ? 'cover'
+    : options.initialSize ?? 'cover'
 
-  if (Math.abs(sourceRatio - aspectRatio) <= EPSILON) {
-    return { x: 0, y: 0, width: 1, height: 1 }
+  let crop: NormalizedRect
+
+  if (initialSize === 'natural') {
+    if (!options.viewport) {
+      throw new RangeError('viewport is required when initialSize is natural')
+    }
+
+    crop = {
+      x: 0,
+      y: 0,
+      width: options.viewport.width / source.width,
+      height: options.viewport.height / source.height,
+    }
+  } else if (aspectRatio === undefined) {
+    crop = { x: 0, y: 0, width: 1, height: 1 }
+  } else {
+    const sourceRatio = source.width / source.height
+
+    if (Math.abs(sourceRatio - aspectRatio) <= EPSILON) {
+      crop = { x: 0, y: 0, width: 1, height: 1 }
+    } else if (initialSize === 'cover') {
+      crop =
+        sourceRatio > aspectRatio
+          ? { x: 0, y: 0, width: aspectRatio / sourceRatio, height: 1 }
+          : { x: 0, y: 0, width: 1, height: sourceRatio / aspectRatio }
+    } else {
+      crop =
+        sourceRatio > aspectRatio
+          ? { x: 0, y: 0, width: 1, height: sourceRatio / aspectRatio }
+          : { x: 0, y: 0, width: aspectRatio / sourceRatio, height: 1 }
+    }
   }
 
-  if (sourceRatio > aspectRatio) {
-    const width = aspectRatio / sourceRatio
-    return { x: stabilize((1 - width) / 2), y: 0, width: stabilize(width), height: 1 }
-  }
+  crop = positionInitialCrop(normalizeCropRect(crop), options.initialPosition ?? 'center')
 
-  const height = sourceRatio / aspectRatio
-  return { x: 0, y: stabilize((1 - height) / 2), width: 1, height: stabilize(height) }
+  return options.preventWhiteSpace ? constrainCropToSource(crop) : crop
 }
 
-export function createCropState(source: Size, aspectRatio?: number): CropState {
+export function createCropState(
+  source: Size,
+  aspectRatioOrOptions?: number | InitialCropOptions,
+): CropState {
   return {
-    crop: createInitialCrop(source, aspectRatio),
+    crop: createInitialCrop(source, aspectRatioOrOptions),
     rotation: 0,
     flipX: false,
     flipY: false,
   }
 }
 
-/** Move a crop by normalized source-image deltas. */
-export function moveCrop(rect: NormalizedRect, delta: Point): NormalizedRect {
-  const current = clampRect(rect)
-
-  return {
+export function moveCrop(
+  rect: NormalizedRect,
+  delta: Point,
+  options: CropOperationOptions = {},
+): NormalizedRect {
+  const current = normalizeCropRect(rect)
+  const moved = stabilizeRect({
     ...current,
-    x: stabilize(clamp(current.x + finiteOrZero(delta.x), 0, 1 - current.width)),
-    y: stabilize(clamp(current.y + finiteOrZero(delta.y), 0, 1 - current.height)),
-  }
+    x: current.x + finiteOrZero(delta.x),
+    y: current.y + finiteOrZero(delta.y),
+  })
+
+  return options.preventWhiteSpace ? constrainCropToSource(moved) : moved
 }
 
-/** factor > 1 zooms in; factor < 1 zooms out. */
 export function zoomCrop(
   rect: NormalizedRect,
   factor: number,
   anchor: Point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 },
+  options: CropOperationOptions = {},
 ): NormalizedRect {
   if (!Number.isFinite(factor) || factor <= 0) {
     throw new RangeError('zoom factor must be a finite number greater than 0')
   }
 
-  const current = clampRect(rect)
+  const current = normalizeCropRect(rect)
   const anchorX = clamp(finiteOrZero(anchor.x), current.x, current.x + current.width)
   const anchorY = clamp(finiteOrZero(anchor.y), current.y, current.y + current.height)
-  const relativeX = current.width <= EPSILON ? 0.5 : (anchorX - current.x) / current.width
-  const relativeY = current.height <= EPSILON ? 0.5 : (anchorY - current.y) / current.height
-  const requestedWidth = current.width / factor
-  const requestedHeight = current.height / factor
+  const relativeX = (anchorX - current.x) / current.width
+  const relativeY = (anchorY - current.y) / current.height
+  const nextWidth = Math.max(EPSILON, current.width / factor)
+  const nextHeight = Math.max(EPSILON, current.height / factor)
 
-  // Preserve the crop aspect ratio when zooming out reaches a source edge.
-  // Clamping width/height independently would distort the viewport geometry.
-  const fitScale = Math.min(1, 1 / requestedWidth, 1 / requestedHeight)
-  const nextWidth = stabilize(clamp(requestedWidth * fitScale, EPSILON, 1))
-  const nextHeight = stabilize(clamp(requestedHeight * fitScale, EPSILON, 1))
-
-  return clampRect({
+  const next = stabilizeRect({
     x: anchorX - nextWidth * relativeX,
     y: anchorY - nextHeight * relativeY,
     width: nextWidth,
     height: nextHeight,
   })
+
+  return options.preventWhiteSpace ? constrainCropToSource(next) : next
 }
 
-/** Rotate clockwise while preserving the selected source region. */
 export function rotateCropState(state: CropState, degrees: number): CropState {
   const step = normalizeRotation(degrees)
   let next = cloneState(state)
@@ -190,7 +253,7 @@ export function rotateCropState(state: CropState, degrees: number): CropState {
     next = {
       ...next,
       ...transform,
-      crop: clampRect({
+      crop: stabilizeRect({
         x: 1 - y - height,
         y: x,
         width: height,
@@ -202,7 +265,6 @@ export function rotateCropState(state: CropState, degrees: number): CropState {
   return next
 }
 
-/** Flip in the currently visible x or y axis. */
 export function flipCropState(state: CropState, axis: 'x' | 'y'): CropState {
   const { x, y, width, height } = state.crop
   const operation: TransformState = {
@@ -222,8 +284,8 @@ export function flipCropState(state: CropState, axis: 'x' | 'y'): CropState {
     ...transform,
     crop:
       axis === 'x'
-        ? clampRect({ x: 1 - x - width, y, width, height })
-        : clampRect({ x, y: 1 - y - height, width, height }),
+        ? stabilizeRect({ x: 1 - x - width, y, width, height })
+        : stabilizeRect({ x, y: 1 - y - height, width, height }),
   }
 }
 
@@ -233,7 +295,7 @@ export function cropToPixels(
   rotation: Rotation = 0,
 ): PixelRect {
   const oriented = getOrientedSize(source, rotation)
-  const rect = clampRect(crop)
+  const rect = normalizeCropRect(crop)
 
   return {
     x: rect.x * oriented.width,
@@ -241,6 +303,27 @@ export function cropToPixels(
     width: rect.width * oriented.width,
     height: rect.height * oriented.height,
   }
+}
+
+function positionInitialCrop(rect: NormalizedRect, position: string): NormalizedRect {
+  let x = stabilize((1 - rect.width) / 2)
+  let y = stabilize((1 - rect.height) / 2)
+
+  const percentage = /^(-?\d+(?:\.\d+)?)% (-?\d+(?:\.\d+)?)%$/.exec(position)
+
+  if (percentage) {
+    x = stabilize((Number(percentage[1]) / 100) * (1 - rect.width))
+    y = stabilize((Number(percentage[2]) / 100) * (1 - rect.height))
+    return { ...rect, x, y }
+  }
+
+  if (/top/.test(position)) y = 0
+  else if (/bottom/.test(position)) y = stabilize(1 - rect.height)
+
+  if (/left/.test(position)) x = 0
+  else if (/right/.test(position)) x = stabilize(1 - rect.width)
+
+  return { ...rect, x, y }
 }
 
 function composeTransform(
@@ -317,14 +400,18 @@ function finiteOrZero(value: number): number {
   return Number.isFinite(value) ? value : 0
 }
 
-function clampFiniteDimension(value: number): number {
+function positiveFiniteDimension(value: number): number {
   if (!Number.isFinite(value)) return 1
-  return stabilize(clamp(value, EPSILON, 1))
+  return Math.max(EPSILON, value)
 }
 
-function clampFiniteCoordinate(value: number, max: number): number {
-  if (!Number.isFinite(value)) return 0
-  return stabilize(clamp(value, 0, Math.max(0, max)))
+function stabilizeRect(rect: NormalizedRect): NormalizedRect {
+  return {
+    x: stabilize(rect.x),
+    y: stabilize(rect.y),
+    width: stabilize(rect.width),
+    height: stabilize(rect.height),
+  }
 }
 
 function stabilize(value: number): number {
