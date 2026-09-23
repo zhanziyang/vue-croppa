@@ -20,6 +20,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Examples', link: '/examples/' },
       { text: 'API', link: '/api/' },
+      { text: 'v2 Lab', link: '/v2-lab' },
       {
         text: 'v1.3.8',
         items: [
