@@ -99,10 +99,14 @@ export function constrainCropToSource(rect: NormalizedRect): NormalizedRect {
   const fitScale = Math.min(1, 1 / current.width, 1 / current.height)
   const width = stabilize(current.width * fitScale)
   const height = stabilize(current.height * fitScale)
+  const centerX = current.x + current.width / 2
+  const centerY = current.y + current.height / 2
+  const candidateX = fitScale < 1 ? centerX - width / 2 : current.x
+  const candidateY = fitScale < 1 ? centerY - height / 2 : current.y
 
   return {
-    x: stabilize(clamp(current.x, 0, Math.max(0, 1 - width))),
-    y: stabilize(clamp(current.y, 0, Math.max(0, 1 - height))),
+    x: stabilize(clamp(candidateX, 0, Math.max(0, 1 - width))),
+    y: stabilize(clamp(candidateY, 0, Math.max(0, 1 - height))),
     width,
     height,
   }
