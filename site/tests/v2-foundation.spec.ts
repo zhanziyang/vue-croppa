@@ -70,6 +70,15 @@ test('real v2 component keeps the viewport fixed and supports input, transforms,
   await expect(viewport.getByText('Choose an image')).toBeVisible()
   await expect(viewport.getByRole('button', { name: 'Remove image' })).toHaveCount(0)
 
+  await page.getByTestId('png-only').check()
+  await page.getByTestId('limit-file-size').check()
+  await viewport.locator('input[type=file]').setInputFiles({ name: 'wrong.jpg', mimeType: 'image/jpeg', buffer: Buffer.from([1, 2, 3]) })
+  await expect(page.getByTestId('events')).toContainText('file-type-mismatch')
+  await expect.poll(readState).toBeNull()
+  await viewport.locator('input[type=file]').setInputFiles({ name: 'large.png', mimeType: 'image/png', buffer: Buffer.alloc(1000000) })
+  await expect(page.getByTestId('events')).toContainText('file-size-exceed')
+  await expect.poll(readState).toBeNull()
+
   await viewport.locator('input[type=file]').setInputFiles({
     name: 'sample.png', mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64'),
