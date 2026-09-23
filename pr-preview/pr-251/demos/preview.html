@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vue Croppa · Passive preview</title>
+  <link rel="stylesheet" href="../vendor/vue-croppa.css">
+  <link rel="stylesheet" href="./shared/demo.css">
+  <style>
+    .preview-row { display:flex; gap:20px; align-items:center; justify-content:center; flex-wrap:wrap; }
+    .preview-label { display:grid; gap:8px; text-align:center; color:#64748b; font-size:12px; }
+  </style>
+</head>
+<body>
+  <main id="app" class="demo" v-cloak>
+    <div class="panel">
+      <div>
+        <p class="eyebrow">Passive mode</p>
+        <h2>One crop, synchronized preview</h2>
+        <p>Both components share the same v-model object; the second instance is passive.</p>
+      </div>
+      <div class="stage preview-row">
+        <div class="preview-label">
+          <croppa v-model="croppa" :width="300" :height="220" :initial-image="imageUrl" prevent-white-space @init="onInit" @new-image-drawn="onReady"></croppa>
+          <span>Editable</span>
+        </div>
+        <div class="preview-label">
+          <croppa v-if="croppa" v-model="croppa" passive :width="160" :height="120" prevent-white-space></croppa>
+          <span>Passive preview</span>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="move" @click="move">Move source</button>
+        <button id="zoom" class="primary" @click="zoom">Zoom source</button>
+      </div>
+      <div class="status ready">Preview stays synchronized</div>
+    </div>
+  </main>
+  <script src="../vendor/vue2.min.js"></script>
+  <script src="../vendor/vue-croppa.js"></script>
+  <script>
+    Vue.use(Croppa)
+    new Vue({
+      el: '#app',
+      data: { croppa: null, imageUrl: '../demo-image.svg' },
+      methods: {
+        onInit(vm) { window.__croppa = vm; window.__demoMounted = true },
+        onReady() { window.__demoReady = true },
+        move() { this.croppa.moveLeftwards(18) },
+        zoom() { this.croppa.zoomIn() }
+      }
+    })
+  </script>
+</body>
+</html>
