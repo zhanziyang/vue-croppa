@@ -78,7 +78,9 @@ const cropper = ref<InstanceType<typeof Croppa> | null>(null)
 </template>
 ```
 
-The component exposes `chooseFile()`, `setFile(file)`, `remove()`, `rotate(step)`, `flipX()`, `flipY()`, `generateDataUrl()`, `generateBlob(callback)`, and `promisedBlob()`. The component remains private alpha code, not a released Vue 3 package.
+The component exposes `chooseFile()`, `setFile(file)`, `remove()`, `rotate(step)`, `flipX()`, `flipY()`, `generateDataUrl()`, `generateBlob(callback)`, and `promisedBlob()`. It emits `loading-start` and `loading-end` around image loads and `load-error` when decoding fails. `showLoading`, `loadingSize`, and `loadingColor` control the optional indicator.
+
+`getMetadata()` returns versioned v2 state and `applyMetadata(metadata)` restores it after an image is loaded. Restoration requires the same source dimensions and viewport aspect ratio. v1 pixel-based metadata is not accepted as v2 metadata; its migration remains on the parity checklist. The component remains private alpha code, not a released Vue 3 package.
 
 ## Commands
 

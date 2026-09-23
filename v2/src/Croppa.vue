@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { clamp, constrainCropToSource, createCropState, flipCropState, moveCrop, rotateCropState, zoomCrop, type CropState, type InitialSize, type Point } from './index'
+import { clamp, constrainCropToSource, createCropState, flipCropState, moveCrop, rotateCropState, zoomCrop, type CropMetadata, type CropState, type InitialSize, type Point } from './index'
 import { renderCrop } from './render'
 
 const props = withDefaults(defineProps<{
@@ -11,6 +11,9 @@ const props = withDefaults(defineProps<{
   initialPosition?: string
   placeholder?: string
   placeholderColor?: string
+  showLoading?: boolean
+  loadingSize?: number
+  loadingColor?: string
   canvasColor?: string
   preventWhiteSpace?: boolean
   showRemoveButton?: boolean
@@ -37,6 +40,9 @@ const props = withDefaults(defineProps<{
   initialPosition: 'center',
   placeholder: 'Choose an image',
   placeholderColor: '#606060',
+  showLoading: false,
+  loadingSize: 20,
+  loadingColor: '#606060',
   canvasColor: 'transparent',
   preventWhiteSpace: false,
   showRemoveButton: true,
@@ -56,6 +62,9 @@ const emit = defineEmits<{
   'image-remove': []
   move: []
   zoom: []
+  'loading-start': []
+  'loading-end': []
+  'load-error': [error: Error]
 }>()
 
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -64,11 +73,19 @@ const image = ref<HTMLImageElement | null>(null)
 const state = ref<CropState | null>(null)
 const chosenFile = ref<File | null>(null)
 const fileDraggedOver = ref(false)
+const loading = ref(false)
 const pointers = new Map<number, Point>()
 let lastPoint: Point | null = null
 let lastPinch: { distance: number; midpoint: Point } | null = null
 let moved = false
 let generation = 0
+
+function setLoading(value: boolean) {
+  if (loading.value === value) return
+  loading.value = value
+  if (value) emit('loading-start')
+  else emit('loading-end')
+}
 
 function dimensions() {
   return { width: props.width, height: props.height }
@@ -117,12 +134,18 @@ async function loadInitial(value: string | HTMLImageElement | undefined) {
     remove()
     return
   }
-  const loaded = typeof value === 'string'
-    ? await loadImage(value)
-    : value.complete && value.naturalWidth ? value : await loadImage(value.src)
-  if (request !== generation) return
-  installImage(loaded, null)
-  emit('initial-image-loaded')
+  const alreadyLoaded = typeof value !== 'string' && value.complete && value.naturalWidth
+  if (!alreadyLoaded) setLoading(true)
+  try {
+    const loaded = typeof value === 'string' ? await loadImage(value) : alreadyLoaded ? value : await loadImage(value.src)
+    if (request !== generation) return
+    installImage(loaded, null)
+    emit('initial-image-loaded')
+  } catch (error) {
+    if (request === generation) emit('load-error', error as Error)
+  } finally {
+    if (request === generation) setLoading(false)
+  }
 }
 
 function chooseFile() { if (!props.disabled) fileInput.value?.click() }
@@ -139,31 +162,38 @@ function accepts(file: File): boolean {
 }
 
 async function setFile(file: File) {
+  const request = ++generation
+  setLoading(true)
   emit('file-choose', file)
   if (props.fileSizeLimit && file.size >= props.fileSizeLimit) {
     emit('file-size-exceed', file)
+    setLoading(false)
     return
   }
   if (!accepts(file)) {
     emit('file-type-mismatch', file)
+    setLoading(false)
     return
   }
-  const request = ++generation
   const url = URL.createObjectURL(file)
   try {
     const loaded = await loadImage(url)
     if (request !== generation) return
     installImage(loaded, file)
     emit('new-image')
+  } catch (error) {
+    if (request === generation) emit('load-error', error as Error)
+    throw error
   } finally {
     URL.revokeObjectURL(url)
+    if (request === generation) setLoading(false)
   }
 }
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (file) void setFile(file)
+  if (file) void setFile(file).catch(() => {})
   input.value = ''
 }
 
@@ -199,11 +229,12 @@ function onDrop(event: DragEvent) {
   fileDraggedOver.value = false
   if (!canDropFile()) return
   const file = event.dataTransfer?.files[0]
-  if (file) void setFile(file)
+  if (file) void setFile(file).catch(() => {})
 }
 
 function remove() {
   ++generation
+  setLoading(false)
   const hadImage = !!image.value
   image.value = null
   state.value = null
@@ -218,6 +249,30 @@ function remove() {
 function hasImage() { return !!image.value }
 function getChosenFile() { return chosenFile.value }
 function getCropState() { return state.value ? { ...state.value, crop: { ...state.value.crop } } : null }
+function getMetadata(): CropMetadata | null {
+  if (!image.value || !state.value) return null
+  return {
+    version: 2,
+    source: { width: image.value.naturalWidth, height: image.value.naturalHeight },
+    viewport: dimensions(),
+    state: getCropState()!,
+  }
+}
+function applyMetadata(metadata: CropMetadata) {
+  if (!image.value) throw new Error('Load an image before applying metadata')
+  const crop = metadata?.state?.crop
+  if (!metadata || metadata.version !== 2 || !crop ||
+    metadata.source?.width !== image.value.naturalWidth || metadata.source?.height !== image.value.naturalHeight ||
+    !Number.isFinite(metadata.viewport?.width) || !Number.isFinite(metadata.viewport?.height) || metadata.viewport.width <= 0 || metadata.viewport.height <= 0 ||
+    Math.abs(metadata.viewport?.width / metadata.viewport?.height - props.width / props.height) > 1e-9 ||
+    ![crop.x, crop.y, crop.width, crop.height].every(Number.isFinite) || crop.width <= 0 || crop.height <= 0 ||
+    ![0, 90, 180, 270].includes(metadata.state.rotation) ||
+    typeof metadata.state.flipX !== 'boolean' || typeof metadata.state.flipY !== 'boolean') {
+    throw new RangeError('Invalid or incompatible v2 crop metadata')
+  }
+  state.value = { ...metadata.state, crop: props.preventWhiteSpace ? constrainCropToSource(crop) : { ...crop } }
+  draw()
+}
 
 function moveByPixels(dx: number, dy: number) {
   const current = state.value
@@ -337,7 +392,7 @@ function promisedBlob(type?: string, quality?: number): Promise<Blob | null> {
   return new Promise((resolve) => generateBlob(resolve, type, quality))
 }
 
-defineExpose({ chooseFile, setFile, remove, hasImage, getChosenFile, getCropState, rotate, flipX, flipY, generateDataUrl, generateBlob, promisedBlob })
+defineExpose({ chooseFile, setFile, remove, hasImage, getChosenFile, getCropState, getMetadata, applyMetadata, rotate, flipX, flipY, generateDataUrl, generateBlob, promisedBlob })
 
 watch(() => props.initialImage, (value) => { void loadInitial(value) })
 watch(() => props.preventWhiteSpace, (enabled) => {
@@ -363,6 +418,9 @@ onBeforeUnmount(() => { ++generation; pointers.clear() })
     <div v-if="!image" class="croppa-v2__placeholder" :style="{ color: placeholderColor }">
       <slot name="placeholder">{{ placeholder }}</slot>
     </div>
+    <div v-if="loading && showLoading" class="croppa-v2__loading" role="status" aria-label="Loading image">
+      <span class="croppa-v2__spinner" :style="{ width: `${loadingSize}px`, height: `${loadingSize}px`, borderColor: loadingColor, borderTopColor: 'transparent' }" />
+    </div>
     <button v-if="image && showRemoveButton" type="button" class="croppa-v2__remove" aria-label="Remove image" :disabled="disabled"
       :style="{ width: `${removeButtonSize || width / 10}px`, height: `${removeButtonSize || width / 10}px`, backgroundColor: removeButtonColor }"
       @click.stop="remove">×</button>
@@ -376,5 +434,8 @@ onBeforeUnmount(() => { ++generation; pointers.clear() })
 .croppa-v2__canvas { display: block; cursor: grab; touch-action: none; }
 .croppa-v2__canvas:active { cursor: grabbing; }
 .croppa-v2__placeholder { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center; }
+.croppa-v2__loading { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.croppa-v2__spinner { display: block; box-sizing: border-box; border: 2px solid; border-radius: 50%; animation: croppa-v2-spin .7s linear infinite; }
+@keyframes croppa-v2-spin { to { transform: rotate(360deg); } }
 .croppa-v2__remove { position: absolute; top: -4px; right: -4px; transform: translate(35%, -35%); border: 0; border-radius: 50%; color: white; font-size: 1.1em; line-height: 1; cursor: pointer; }
 </style>

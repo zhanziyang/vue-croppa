@@ -1,6 +1,46 @@
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 
+test('loading indicator follows a delayed real image load', async ({ page }) => {
+  let release!: () => void
+  const held = new Promise<void>((resolve) => { release = resolve })
+  await page.route('**/demo-image.svg', async (route) => {
+    await held
+    await route.continue()
+  })
+  await page.goto('v2-lab', { waitUntil: 'domcontentloaded' })
+  const viewport = page.getByTestId('v2-viewport')
+  try {
+    await expect(viewport.getByRole('status', { name: 'Loading image' })).toBeVisible()
+    await page.getByTestId('show-loading').uncheck()
+    await expect(viewport.getByRole('status', { name: 'Loading image' })).toHaveCount(0)
+    await page.getByTestId('show-loading').check()
+    await expect(viewport.getByRole('status', { name: 'Loading image' })).toBeVisible()
+  } finally {
+    release()
+  }
+  await expect(viewport.getByRole('status', { name: 'Loading image' })).toHaveCount(0)
+  await expect(viewport.getByRole('button', { name: 'Remove image' })).toBeVisible()
+})
+
+test('v2 metadata restores crop and transform on the same source', async ({ page }) => {
+  await page.goto('v2-lab')
+  const readState = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')
+  await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
+  const canvas = page.getByTestId('v2-viewport').locator('canvas')
+  const box = (await canvas.boundingBox())!
+  await page.mouse.move(box.x + 160, box.y + 160)
+  await page.mouse.wheel(0, -160)
+  await page.getByTestId('rotate').click()
+  await page.getByTestId('flip-x').click()
+  const saved = await readState()
+  await page.getByTestId('save-crop').click()
+  await page.getByTestId('rotate').click()
+  expect(await readState()).not.toEqual(saved)
+  await page.getByTestId('restore-crop').click()
+  expect(await readState()).toEqual(saved)
+})
+
 test('real v2 component keeps the viewport fixed and supports input, transforms, remove, and export', async ({ page }) => {
   await page.goto('v2-lab')
   const viewport = page.getByTestId('v2-viewport')

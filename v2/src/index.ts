@@ -43,6 +43,13 @@ export interface CropState {
   flipY: boolean
 }
 
+export interface CropMetadata {
+  version: 2
+  source: Size
+  viewport: Size
+  state: CropState
+}
+
 export interface PixelRect {
   x: number
   y: number

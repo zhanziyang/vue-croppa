@@ -2,12 +2,14 @@
 import { computed, ref } from 'vue'
 import { withBase } from 'vitepress'
 import { Croppa } from '../../v2/src'
-import type { CropState } from '../../v2/src'
+import type { CropMetadata, CropState } from '../../v2/src'
 
 type CroppaInstance = InstanceType<typeof Croppa>
 const croppa = ref<CroppaInstance | null>(null)
 const preventWhiteSpace = ref(false)
 const showRemoveButton = ref(true)
+const showLoading = ref(true)
+let savedMetadata: CropMetadata | null = null
 const pngOnly = ref(false)
 const limitFileSize = ref(false)
 const replaceDrop = ref(false)
@@ -29,6 +31,8 @@ function flipX() { croppa.value?.flipX(); refresh() }
 function flipY() { croppa.value?.flipY(); refresh() }
 function remove() { croppa.value?.remove(); refresh() }
 function reset() { initialImage.value = undefined; requestAnimationFrame(() => { initialImage.value = withBase('/demo-image.svg') }) }
+function saveCrop() { savedMetadata = croppa.value?.getMetadata() ?? null }
+function restoreCrop() { if (savedMetadata) { croppa.value?.applyMetadata(savedMetadata); refresh() } }
 async function download() {
   const blob = await croppa.value?.promisedBlob('image/png')
   if (!blob) return
@@ -54,6 +58,7 @@ async function download() {
           <Croppa ref="croppa" :width="320" :height="320" :initial-image="initialImage"
             :prevent-white-space="preventWhiteSpace"
             :show-remove-button="showRemoveButton" remove-button-color="#e11d48" :remove-button-size="28"
+            :show-loading="showLoading"
             :accept="pngOnly ? 'image/png' : 'image/*'" :file-size-limit="limitFileSize ? 1000000 : 0"
             :replace-drop="replaceDrop" :disabled="disabled" :disable-drag-and-drop="disableDragAndDrop"
             :disable-click-to-choose="disableClickToChoose" :disable-drag-to-move="disableDragToMove"
@@ -66,6 +71,7 @@ async function download() {
         <div class="v2-lab__controls">
           <label><input v-model="preventWhiteSpace" type="checkbox" data-testid="prevent-whitespace" @change="refresh"> Prevent whitespace</label>
           <label><input v-model="showRemoveButton" type="checkbox" data-testid="show-remove-button"> Show remove button</label>
+          <label><input v-model="showLoading" type="checkbox" data-testid="show-loading"> Show loading</label>
           <label><input v-model="pngOnly" type="checkbox" data-testid="png-only"> PNG only</label>
           <label><input v-model="limitFileSize" type="checkbox" data-testid="limit-file-size"> 1 MB file limit</label>
           <button type="button" data-testid="choose" @click="croppa?.chooseFile()">Choose image</button>
@@ -74,6 +80,8 @@ async function download() {
           <button type="button" data-testid="flip-y" @click="flipY">Flip Y</button>
           <button type="button" data-testid="remove" @click="remove">Remove</button>
           <button type="button" data-testid="reset" @click="reset">Reset image</button>
+          <button type="button" data-testid="save-crop" @click="saveCrop">Save crop</button>
+          <button type="button" data-testid="restore-crop" @click="restoreCrop">Restore crop</button>
           <button type="button" data-testid="download" @click="download">Download PNG</button>
         </div>
         <details class="v2-lab__options">
