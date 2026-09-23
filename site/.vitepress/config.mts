@@ -1,8 +1,17 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath } from 'node:url'
 
 const base = process.env.DOCS_BASE || '/vue-croppa/'
 
 export default defineConfig({
+  vite: {
+    resolve: {
+      alias: [
+        { find: /^vue$/, replacement: fileURLToPath(new URL('../node_modules/vue/dist/vue.runtime.esm-bundler.js', import.meta.url)) },
+        { find: /^vue\/server-renderer$/, replacement: fileURLToPath(new URL('../node_modules/vue/server-renderer/index.mjs', import.meta.url)) },
+      ],
+    },
+  },
   title: 'Vue Croppa',
   description: 'A simple, customizable, mobile-friendly image cropper for Vue.',
   base,
