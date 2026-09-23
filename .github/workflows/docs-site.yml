@@ -2,10 +2,16 @@ name: Docs site
 
 on:
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
     paths:
       - 'site/**'
       - 'docs/simple-test.html'
       - 'docs/static/vue.min.js'
+      - 'docs/static/500.jpeg'
       - 'docs/src/croppa/**'
       - 'README.md'
       - '.github/workflows/docs-site.yml'
@@ -16,14 +22,15 @@ on:
       - 'site/**'
       - 'docs/simple-test.html'
       - 'docs/static/vue.min.js'
+      - 'docs/static/500.jpeg'
       - 'docs/src/croppa/**'
       - 'README.md'
       - '.github/workflows/docs-site.yml'
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
+  pull-requests: write
+  deployments: write
 
 concurrency:
   group: docs-site-${{ github.ref }}
@@ -31,6 +38,7 @@ concurrency:
 
 jobs:
   verify:
+    if: github.event_name == 'push' || github.event.action != 'closed'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -63,21 +71,85 @@ jobs:
           path: site/playwright-report
           if-no-files-found: ignore
 
-      - name: Upload Pages artifact
+      - name: Upload production docs artifact
         if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: docs-site-${{ github.sha }}
           path: site/.vitepress/dist
+          include-hidden-files: true
+          if-no-files-found: error
+
+  preview:
+    if: >-
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action == 'closed' || needs.verify.result == 'success')
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR
+        if: github.event.action != 'closed'
+        uses: actions/checkout@v4
+
+      - name: Checkout base branch for cleanup
+        if: github.event.action == 'closed'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Set up Node
+        if: github.event.action != 'closed'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package.json
+
+      - name: Install docs dependencies
+        if: github.event.action != 'closed'
+        working-directory: site
+        run: npm install --no-audit --no-fund
+
+      - name: Build PR preview
+        if: github.event.action != 'closed'
+        working-directory: site
+        env:
+          DOCS_BASE: /vue-croppa/pr-preview/pr-${{ github.event.number }}/
+        run: npm run build
+
+      - name: Publish PR preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: site/.vitepress/dist/
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          pages-base-path: .
+          action: auto
+          comment: true
+          qr-code: false
+          wait-for-pages-deployment: false
 
   deploy:
     if: github.event_name == 'push'
     needs: verify
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 10
 
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Download production docs
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site-${{ github.sha }}
+          path: site-dist
+
+      - name: Publish production docs
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: site-dist
+          clean-exclude: pr-preview
+          force: false
