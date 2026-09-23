@@ -26,9 +26,13 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
   const rotated = await readState()
   expect(rotated.rotation).toBe(90)
 
+  const beforeFlip = await readState()
   await page.getByTestId('flip-x').click()
   const flipped = await readState()
-  expect(flipped.flipX).toBe(true)
+  expect(flipped).not.toEqual(beforeFlip)
+
+  await page.getByTestId('flip-x').click()
+  expect(await readState()).toEqual(beforeFlip)
 
   await page.getByTestId('reset').click()
   expect(await readState()).toEqual(initial)
