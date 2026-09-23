@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 
-const base = process.env.VERCEL ? '/' : '/vue-croppa/'
+const base = process.env.DOCS_BASE || '/vue-croppa/'
 
 export default defineConfig({
   title: 'Vue Croppa',
