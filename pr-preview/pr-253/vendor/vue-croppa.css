@@ -1,0 +1,162 @@
+.sk-fading-circle {
+  position: absolute; }
+  .sk-fading-circle .sk-circle {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0; }
+  .sk-fading-circle .sk-circle .sk-circle-indicator {
+    display: block;
+    margin: 0 auto;
+    width: 15%;
+    height: 15%;
+    border-radius: 100%;
+    -webkit-animation: sk-circleFadeDelay 1s infinite ease-in-out both;
+            animation: sk-circleFadeDelay 1s infinite ease-in-out both; }
+  .sk-fading-circle .sk-circle2 {
+    -webkit-transform: rotate(30deg);
+            transform: rotate(30deg); }
+  .sk-fading-circle .sk-circle3 {
+    -webkit-transform: rotate(60deg);
+            transform: rotate(60deg); }
+  .sk-fading-circle .sk-circle4 {
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg); }
+  .sk-fading-circle .sk-circle5 {
+    -webkit-transform: rotate(120deg);
+            transform: rotate(120deg); }
+  .sk-fading-circle .sk-circle6 {
+    -webkit-transform: rotate(150deg);
+            transform: rotate(150deg); }
+  .sk-fading-circle .sk-circle7 {
+    -webkit-transform: rotate(180deg);
+            transform: rotate(180deg); }
+  .sk-fading-circle .sk-circle8 {
+    -webkit-transform: rotate(210deg);
+            transform: rotate(210deg); }
+  .sk-fading-circle .sk-circle9 {
+    -webkit-transform: rotate(240deg);
+            transform: rotate(240deg); }
+  .sk-fading-circle .sk-circle10 {
+    -webkit-transform: rotate(270deg);
+            transform: rotate(270deg); }
+  .sk-fading-circle .sk-circle11 {
+    -webkit-transform: rotate(300deg);
+            transform: rotate(300deg); }
+  .sk-fading-circle .sk-circle12 {
+    -webkit-transform: rotate(330deg);
+            transform: rotate(330deg); }
+  .sk-fading-circle .sk-circle2 .sk-circle-indicator {
+    -webkit-animation-delay: -0.91667s;
+            animation-delay: -0.91667s; }
+  .sk-fading-circle .sk-circle3 .sk-circle-indicator {
+    -webkit-animation-delay: -0.83333s;
+            animation-delay: -0.83333s; }
+  .sk-fading-circle .sk-circle4 .sk-circle-indicator {
+    -webkit-animation-delay: -0.75s;
+            animation-delay: -0.75s; }
+  .sk-fading-circle .sk-circle5 .sk-circle-indicator {
+    -webkit-animation-delay: -0.66667s;
+            animation-delay: -0.66667s; }
+  .sk-fading-circle .sk-circle6 .sk-circle-indicator {
+    -webkit-animation-delay: -0.58333s;
+            animation-delay: -0.58333s; }
+  .sk-fading-circle .sk-circle7 .sk-circle-indicator {
+    -webkit-animation-delay: -0.5s;
+            animation-delay: -0.5s; }
+  .sk-fading-circle .sk-circle8 .sk-circle-indicator {
+    -webkit-animation-delay: -0.41667s;
+            animation-delay: -0.41667s; }
+  .sk-fading-circle .sk-circle9 .sk-circle-indicator {
+    -webkit-animation-delay: -0.33333s;
+            animation-delay: -0.33333s; }
+  .sk-fading-circle .sk-circle10 .sk-circle-indicator {
+    -webkit-animation-delay: -0.25s;
+            animation-delay: -0.25s; }
+  .sk-fading-circle .sk-circle11 .sk-circle-indicator {
+    -webkit-animation-delay: -0.16667s;
+            animation-delay: -0.16667s; }
+  .sk-fading-circle .sk-circle12 .sk-circle-indicator {
+    -webkit-animation-delay: -0.08333s;
+            animation-delay: -0.08333s; }
+
+@-webkit-keyframes sk-circleFadeDelay {
+  0%,
+  39%,
+  100% {
+    opacity: 0; }
+  40% {
+    opacity: 1; } }
+
+@keyframes sk-circleFadeDelay {
+  0%,
+  39%,
+  100% {
+    opacity: 0; }
+  40% {
+    opacity: 1; } }
+
+.croppa-container {
+  display: inline-block;
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  position: relative;
+  font-size: 0;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
+  background-color: #e6e6e6;
+}
+.croppa-container canvas {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.croppa-container:hover {
+  opacity: 0.7;
+}
+.croppa-container.croppa--dropzone {
+  -webkit-box-shadow: inset 0 0 10px #333;
+          box-shadow: inset 0 0 10px #333;
+}
+.croppa-container.croppa--dropzone canvas {
+  opacity: 0.5;
+}
+.croppa-container.croppa--disabled-cc {
+  cursor: default;
+}
+.croppa-container.croppa--disabled-cc:hover {
+  opacity: 1;
+}
+.croppa-container.croppa--has-target {
+  cursor: move;
+}
+.croppa-container.croppa--has-target:hover {
+  opacity: 1;
+}
+.croppa-container.croppa--has-target.croppa--disabled-mz {
+  cursor: default;
+}
+.croppa-container.croppa--disabled {
+  cursor: not-allowed;
+}
+.croppa-container.croppa--disabled:hover {
+  opacity: 1;
+}
+.croppa-container.croppa--passive {
+  cursor: default;
+}
+.croppa-container.croppa--passive:hover {
+  opacity: 1;
+}
+.croppa-container svg.icon-remove {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  -webkit-filter: drop-shadow(-2px 2px 2px rgba(0,0,0,0.7));
+          filter: drop-shadow(-2px 2px 2px rgba(0,0,0,0.7));
+  z-index: 10;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
