@@ -6,6 +6,20 @@ This directory is the isolated reboot of `vue-croppa` for Vue 3. The published `
 
 v2 is intentionally focused on upload-oriented image cropping: load an image, position/zoom it inside a crop viewport, and export or persist the crop. It is not intended to become a general-purpose image editor.
 
+## Interaction contract
+
+The v2 rewrite preserves vue-croppa's defining WYSIWYG interaction model:
+
+- The crop viewport is fixed and represents the exact output.
+- The user moves and zooms the **image underneath the viewport**.
+- There is no draggable or resizable crop-selection rectangle over the source image.
+- Crop size/aspect is controlled by component configuration/layout, not by corner handles.
+- Rotation and flips transform the image under the same fixed viewport.
+- Exported pixels must match what is visible inside the viewport.
+- `CropState.crop` is an internal source-relative representation of what the fixed viewport currently sees; it is not the UI interaction model.
+
+This is a product-level invariant for v2, not a compatibility detail.
+
 ## Foundation principles
 
 - Vue 3 + TypeScript.
