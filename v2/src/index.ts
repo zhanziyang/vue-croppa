@@ -153,8 +153,14 @@ export function zoomCrop(
   const anchorY = clamp(finiteOrZero(anchor.y), current.y, current.y + current.height)
   const relativeX = current.width <= EPSILON ? 0.5 : (anchorX - current.x) / current.width
   const relativeY = current.height <= EPSILON ? 0.5 : (anchorY - current.y) / current.height
-  const nextWidth = clamp(current.width / factor, EPSILON, 1)
-  const nextHeight = clamp(current.height / factor, EPSILON, 1)
+  const requestedWidth = current.width / factor
+  const requestedHeight = current.height / factor
+
+  // Preserve the crop aspect ratio when zooming out reaches a source edge.
+  // Clamping width/height independently would distort the viewport geometry.
+  const fitScale = Math.min(1, 1 / requestedWidth, 1 / requestedHeight)
+  const nextWidth = stabilize(clamp(requestedWidth * fitScale, EPSILON, 1))
+  const nextHeight = stabilize(clamp(requestedHeight * fitScale, EPSILON, 1))
 
   return clampRect({
     x: anchorX - nextWidth * relativeX,

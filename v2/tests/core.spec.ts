@@ -59,6 +59,14 @@ describe('crop transforms', () => {
     })
   })
 
+  it('preserves aspect ratio when zooming out reaches the source bounds', () => {
+    const initial = createInitialCrop({ width: 1200, height: 800 }, 1)
+    const zoomedOut = zoomCrop(initial, 0.5)
+
+    expect(zoomedOut).toEqual(initial)
+    expect(zoomedOut.width / zoomedOut.height).toBeCloseTo(initial.width / initial.height, 12)
+  })
+
   it('maps crop coordinates through clockwise rotation', () => {
     const state = {
       crop: { x: 0.1, y: 0.2, width: 0.3, height: 0.4 },

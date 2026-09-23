@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { withBase } from 'vitepress'
 import {
+  clamp,
   createCropState,
   cropToPixels,
   flipCropState,
@@ -16,14 +17,17 @@ import {
 const source = { width: 1200, height: 800 }
 const imageUrl = withBase('/demo-image.svg')
 const state = ref<CropState>(createCropState(source, 1))
+const viewport = ref<HTMLElement | null>(null)
+const activePointers = new Map<number, Point>()
+const dragging = ref(false)
+let lastDragPoint: Point | null = null
+let lastPinch: { distance: number; midpoint: Point } | null = null
 
 const orientedSize = computed(() => getOrientedSize(source, state.value.rotation))
 const cropPixels = computed(() => cropToPixels(state.value.crop, source, state.value.rotation))
 
-// The viewport is fixed. This is the full oriented image positioned behind it.
 const imageLayerStyle = computed(() => {
   const crop = state.value.crop
-
   return {
     left: `${(-crop.x / crop.width) * 100}%`,
     top: `${(-crop.y / crop.height) * 100}%`,
@@ -34,10 +38,15 @@ const imageLayerStyle = computed(() => {
 
 const svgTransform = computed(() => {
   const p0 = transformSourcePoint({ x: 0, y: 0 }, state.value)
-  const px = transformSourcePoint({ x: 1, y: 0 }, state.value)
-  const py = transformSourcePoint({ x: 0, y: 1 }, state.value)
+  const px = transformSourcePoint({ x: source.width, y: 0 }, state.value)
+  const py = transformSourcePoint({ x: 0, y: source.height }, state.value)
 
-  return `matrix(${px.x - p0.x} ${px.y - p0.y} ${py.x - p0.x} ${py.y - p0.y} ${p0.x} ${p0.y})`
+  const a = (px.x - p0.x) / source.width
+  const b = (px.y - p0.y) / source.width
+  const c = (py.x - p0.x) / source.height
+  const d = (py.y - p0.y) / source.height
+
+  return `matrix(${a} ${b} ${c} ${d} ${p0.x} ${p0.y})`
 })
 
 const stateJson = computed(() => JSON.stringify(state.value, null, 2))
@@ -51,18 +60,114 @@ const pixelJson = computed(() =>
   ),
 )
 
-function moveImage(x: number, y: number) {
-  // Moving the image left reveals source content farther to the right.
-  state.value = {
-    ...state.value,
-    crop: moveCrop(state.value.crop, { x: -x, y: -y }),
+function onPointerDown(event: PointerEvent) {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+
+  viewport.value?.setPointerCapture(event.pointerId)
+  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+  if (activePointers.size === 1) {
+    dragging.value = true
+    lastDragPoint = { x: event.clientX, y: event.clientY }
+    lastPinch = null
+  } else if (activePointers.size === 2) {
+    dragging.value = false
+    lastDragPoint = null
+    lastPinch = currentPinch()
   }
 }
 
-function zoom(factor: number) {
+function onPointerMove(event: PointerEvent) {
+  if (!activePointers.has(event.pointerId)) return
+
+  activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+  if (activePointers.size === 1 && lastDragPoint) {
+    const next = { x: event.clientX, y: event.clientY }
+    moveImageByPixels(next.x - lastDragPoint.x, next.y - lastDragPoint.y)
+    lastDragPoint = next
+    return
+  }
+
+  if (activePointers.size === 2) {
+    const nextPinch = currentPinch()
+    if (!nextPinch || !lastPinch || lastPinch.distance <= 0) {
+      lastPinch = nextPinch
+      return
+    }
+
+    moveImageByPixels(
+      nextPinch.midpoint.x - lastPinch.midpoint.x,
+      nextPinch.midpoint.y - lastPinch.midpoint.y,
+    )
+
+    const factor = clamp(nextPinch.distance / lastPinch.distance, 0.8, 1.25)
+    zoomAtClientPoint(factor, nextPinch.midpoint.x, nextPinch.midpoint.y)
+    lastPinch = nextPinch
+  }
+}
+
+function onPointerEnd(event: PointerEvent) {
+  activePointers.delete(event.pointerId)
+
+  if (viewport.value?.hasPointerCapture(event.pointerId)) {
+    viewport.value.releasePointerCapture(event.pointerId)
+  }
+
+  const remaining = [...activePointers.values()]
+
+  if (remaining.length === 1) {
+    dragging.value = true
+    lastDragPoint = remaining[0]
+    lastPinch = null
+  } else {
+    dragging.value = false
+    lastDragPoint = null
+    lastPinch = remaining.length === 2 ? currentPinch() : null
+  }
+}
+
+function onWheel(event: WheelEvent) {
+  event.preventDefault()
+  const factor = clamp(Math.exp(-event.deltaY * 0.002), 0.8, 1.25)
+  zoomAtClientPoint(factor, event.clientX, event.clientY)
+}
+
+function moveImageByPixels(dx: number, dy: number) {
+  const element = viewport.value
+  if (!element) return
+
+  const rect = element.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return
+
+  const crop = state.value.crop
   state.value = {
     ...state.value,
-    crop: zoomCrop(state.value.crop, factor),
+    crop: moveCrop(crop, {
+      x: -(dx / rect.width) * crop.width,
+      y: -(dy / rect.height) * crop.height,
+    }),
+  }
+}
+
+function zoomAtClientPoint(factor: number, clientX: number, clientY: number) {
+  const element = viewport.value
+  if (!element) return
+
+  const rect = element.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return
+
+  const crop = state.value.crop
+  const u = clamp((clientX - rect.left) / rect.width, 0, 1)
+  const v = clamp((clientY - rect.top) / rect.height, 0, 1)
+  const anchor = {
+    x: crop.x + u * crop.width,
+    y: crop.y + v * crop.height,
+  }
+
+  state.value = {
+    ...state.value,
+    crop: zoomCrop(crop, factor, anchor),
   }
 }
 
@@ -80,6 +185,20 @@ function flipY() {
 
 function reset() {
   state.value = createCropState(source, 1)
+}
+
+function currentPinch() {
+  const points = [...activePointers.values()]
+  if (points.length !== 2) return null
+
+  const [a, b] = points
+  return {
+    distance: Math.hypot(b.x - a.x, b.y - a.y),
+    midpoint: {
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+    },
+  }
 }
 
 function transformSourcePoint(point: Point, transform: CropState): Point {
@@ -111,6 +230,10 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
     y: result.y * orientedSize.value.height,
   }
 }
+
+onBeforeUnmount(() => {
+  activePointers.clear()
+})
 </script>
 
 <template>
@@ -118,19 +241,30 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
     <div class="v2-lab__intro">
       <div>
         <span class="v2-lab__badge">v2 foundation</span>
-        <h2>WYSIWYG crop-state lab</h2>
+        <h2>WYSIWYG interaction lab</h2>
       </div>
       <p>
-        The crop viewport is fixed. The image moves and zooms underneath it,
-        preserving vue-croppa's original what-you-see-is-what-you-get interaction.
-        <code>CropState.crop</code> is internal state, not a draggable crop box.
+        Drag the image directly. Scroll over the viewport to zoom at the pointer.
+        On touch devices, drag with one finger and pinch with two.
+        The viewport never moves and exactly represents the output.
       </p>
     </div>
 
     <div class="v2-lab__layout">
       <div>
         <div class="v2-lab__viewport-shell">
-          <div class="v2-lab__viewport" data-testid="v2-viewport">
+          <div
+            ref="viewport"
+            class="v2-lab__viewport"
+            :class="{ 'is-dragging': dragging }"
+            data-testid="v2-viewport"
+            tabindex="0"
+            @pointerdown="onPointerDown"
+            @pointermove="onPointerMove"
+            @pointerup="onPointerEnd"
+            @pointercancel="onPointerEnd"
+            @wheel="onWheel"
+          >
             <div
               class="v2-lab__image-layer"
               :style="imageLayerStyle"
@@ -156,32 +290,15 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
           </div>
 
           <div class="v2-lab__viewport-caption">
-            Fixed crop viewport · what is visible here is the output
+            Drag to move · scroll / pinch to zoom
           </div>
         </div>
 
-        <div class="v2-lab__controls" aria-label="v2 foundation controls">
-          <div class="v2-lab__control-group" aria-label="Move image">
-            <button type="button" data-testid="move-left" @click="moveImage(-0.05, 0)">← Image</button>
-            <button type="button" data-testid="move-up" @click="moveImage(0, -0.05)">↑ Image</button>
-            <button type="button" data-testid="move-down" @click="moveImage(0, 0.05)">↓ Image</button>
-            <button type="button" data-testid="move-right" @click="moveImage(0.05, 0)">→ Image</button>
-          </div>
-
-          <div class="v2-lab__control-group">
-            <button type="button" data-testid="zoom-out" @click="zoom(0.8)">− Zoom</button>
-            <button type="button" data-testid="zoom-in" @click="zoom(1.25)">+ Zoom</button>
-          </div>
-
-          <div class="v2-lab__control-group">
-            <button type="button" data-testid="rotate" @click="rotate">Rotate 90°</button>
-            <button type="button" data-testid="flip-x" @click="flipX">Flip X</button>
-            <button type="button" data-testid="flip-y" @click="flipY">Flip Y</button>
-          </div>
-
-          <button type="button" class="v2-lab__reset" data-testid="reset" @click="reset">
-            Reset
-          </button>
+        <div class="v2-lab__controls" aria-label="v2 transform controls">
+          <button type="button" data-testid="rotate" @click="rotate">Rotate 90°</button>
+          <button type="button" data-testid="flip-x" @click="flipX">Flip X</button>
+          <button type="button" data-testid="flip-y" @click="flipY">Flip Y</button>
+          <button type="button" class="v2-lab__reset" data-testid="reset" @click="reset">Reset</button>
         </div>
       </div>
 
@@ -189,7 +306,7 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
         <div class="v2-lab__inspector">
           <div class="v2-lab__inspector-heading">
             <strong>Serializable CropState</strong>
-            <span>source selection behind the fixed viewport</span>
+            <span>internal source selection behind the fixed viewport</span>
           </div>
           <pre data-testid="state-json">{{ stateJson }}</pre>
         </div>
@@ -205,10 +322,8 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
     </div>
 
     <div class="v2-lab__notice">
-      <strong>Interaction contract:</strong>
-      v2 keeps the fixed viewport / moving-image model. The next interactive slice replaces
-      these buttons with direct drag, wheel, pinch, and keyboard interaction on the image.
-      It will not introduce a movable or resizable crop-selection rectangle.
+      This still uses the foundation state engine directly; it is not the final Vue component.
+      The interaction being validated here is the v2 contract: fixed viewport, image manipulation underneath it.
     </div>
   </section>
 </template>
@@ -281,6 +396,9 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
   overflow: hidden;
   border: 2px solid var(--vp-c-text-1);
   border-radius: 16px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   background:
     linear-gradient(45deg, rgba(148,163,184,.14) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(148,163,184,.14) 25%, transparent 25%),
@@ -292,9 +410,19 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
   box-shadow: 0 16px 40px rgba(15,23,42,.14);
 }
 
+.v2-lab__viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.v2-lab__viewport:focus-visible {
+  outline: 3px solid var(--vp-c-brand-soft);
+  outline-offset: 3px;
+}
+
 .v2-lab__image-layer {
   position: absolute;
-  transition: left 160ms ease, top 160ms ease, width 160ms ease, height 160ms ease;
+  pointer-events: none;
+  will-change: left, top, width, height;
 }
 
 .v2-lab__source {
@@ -311,23 +439,23 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
   background:
     linear-gradient(to right,
       transparent calc(33.333% - .5px),
-      rgba(255,255,255,.48) calc(33.333% - .5px),
-      rgba(255,255,255,.48) calc(33.333% + .5px),
+      rgba(255,255,255,.42) calc(33.333% - .5px),
+      rgba(255,255,255,.42) calc(33.333% + .5px),
       transparent calc(33.333% + .5px),
       transparent calc(66.666% - .5px),
-      rgba(255,255,255,.48) calc(66.666% - .5px),
-      rgba(255,255,255,.48) calc(66.666% + .5px),
+      rgba(255,255,255,.42) calc(66.666% - .5px),
+      rgba(255,255,255,.42) calc(66.666% + .5px),
       transparent calc(66.666% + .5px)),
     linear-gradient(to bottom,
       transparent calc(33.333% - .5px),
-      rgba(255,255,255,.48) calc(33.333% - .5px),
-      rgba(255,255,255,.48) calc(33.333% + .5px),
+      rgba(255,255,255,.42) calc(33.333% - .5px),
+      rgba(255,255,255,.42) calc(33.333% + .5px),
       transparent calc(33.333% + .5px),
       transparent calc(66.666% - .5px),
-      rgba(255,255,255,.48) calc(66.666% - .5px),
-      rgba(255,255,255,.48) calc(66.666% + .5px),
+      rgba(255,255,255,.42) calc(66.666% - .5px),
+      rgba(255,255,255,.42) calc(66.666% + .5px),
       transparent calc(66.666% + .5px));
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.32);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
 }
 
 .v2-lab__viewport-caption {
@@ -341,12 +469,6 @@ function transformSourcePoint(point: Point, transform: CropState): Point {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 14px;
-}
-
-.v2-lab__control-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 
 .v2-lab button {
