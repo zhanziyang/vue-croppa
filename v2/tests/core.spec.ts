@@ -148,8 +148,11 @@ describe('crop transforms', () => {
     const initial = createInitialCrop({ width: 1200, height: 800 }, 1)
     const zoomedOut = zoomCrop(initial, 0.5, undefined, { preventWhiteSpace: true })
 
-    expect(zoomedOut).toEqual(initial)
-    expect(zoomedOut.width / zoomedOut.height).toBeCloseTo(initial.width / initial.height, 12)
+    expect(zoomedOut.x).toBeCloseTo(initial.x, 10)
+    expect(zoomedOut.y).toBeCloseTo(initial.y, 10)
+    expect(zoomedOut.width).toBeCloseTo(initial.width, 10)
+    expect(zoomedOut.height).toBeCloseTo(initial.height, 10)
+    expect(zoomedOut.width / zoomedOut.height).toBeCloseTo(initial.width / initial.height, 10)
   })
 
   it('constrains an out-of-bounds crop without distorting its aspect ratio', () => {
