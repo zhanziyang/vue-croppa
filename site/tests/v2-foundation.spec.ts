@@ -27,11 +27,12 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
 
   await page.getByTestId('move-right').click()
   const moved = await readState()
-  const imageAfterMove = await page.getByTestId('v2-image-layer').boundingBox()
 
   // WYSIWYG contract: the user moves the image right while the source selection moves left.
   expect(moved.crop.x).toBeLessThan(zoomed.crop.x)
-  expect(imageAfterMove.x).toBeGreaterThan(imageBeforeMove.x)
+  await expect
+    .poll(async () => (await page.getByTestId('v2-image-layer').boundingBox())?.x)
+    .toBeGreaterThan(imageBeforeMove.x)
 
   await page.getByTestId('rotate').click()
   const rotated = await readState()
