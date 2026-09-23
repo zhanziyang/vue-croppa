@@ -1,6 +1,4 @@
-node_modules
-.history
-docs/webpack-spa/node_modules
 .DS_Store
-.vscode
-v1.md
+node_modules/
+npm-debug.log
+yarn-error.log

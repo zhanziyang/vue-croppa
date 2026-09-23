@@ -1,23 +1,20 @@
-import component from './cropper.vue'
-import assign from 'object-assign'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import router from './router'
+// import Croppa from './croppa/vue-croppa'
+import './croppa/vue-croppa.css'
 
-const defaultOptions = {
-  componentName: 'croppa'
-}
+import Vuetify from 'vuetify'
+import hljs from 'vue-highlightjs'
 
-const VueCroppa = {
-  install: function (Vue, options) {
-    options = assign({}, defaultOptions, options)
-    let version = Number(Vue.version.split('.')[0])
-    if (version < 2) {
-      throw new Error(`vue-croppa supports vue version 2.0 and above. You are using Vue@${version}. Please upgrade to the latest version of Vue.`)
-    }
-    let componentName = options.componentName || 'croppa'
+Vue.use(VueRouter)
+Vue.use(Vuetify)
+Vue.component('croppa', resolve => {
+  var Croppa = require('./croppa/vue-croppa')
+  resolve(Croppa.component)
+})
+Vue.use(hljs)
 
-    // registration
-    Vue.component(componentName, component)
-  },
-
-  component
-}
-export default VueCroppa
+new Vue({
+  router
+}).$mount('#app')
