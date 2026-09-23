@@ -23,9 +23,15 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
   expect(zoomed.crop.width).toBeLessThan(initial.crop.width)
   expect(zoomed.crop.height).toBeLessThan(initial.crop.height)
 
+  const imageBeforeMove = await page.getByTestId('v2-image-layer').boundingBox()
+
   await page.getByTestId('move-right').click()
   const moved = await readState()
-  expect(moved.crop.x).toBeGreaterThan(zoomed.crop.x)
+  const imageAfterMove = await page.getByTestId('v2-image-layer').boundingBox()
+
+  // WYSIWYG contract: the user moves the image right while the source selection moves left.
+  expect(moved.crop.x).toBeLessThan(zoomed.crop.x)
+  expect(imageAfterMove.x).toBeGreaterThan(imageBeforeMove.x)
 
   await page.getByTestId('rotate').click()
   const rotated = await readState()
@@ -40,7 +46,10 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
   expect(await readState()).toEqual(beforeFlip)
 
   const viewportAfter = await page.getByTestId('v2-viewport').boundingBox()
-  expect(viewportAfter).toEqual(viewportBefore)
+  expect(viewportAfter.x).toBeCloseTo(viewportBefore.x, 4)
+  expect(viewportAfter.y).toBeCloseTo(viewportBefore.y, 4)
+  expect(viewportAfter.width).toBeCloseTo(viewportBefore.width, 4)
+  expect(viewportAfter.height).toBeCloseTo(viewportBefore.height, 4)
 
   await page.getByTestId('reset').click()
   expect(await readState()).toEqual(initial)
