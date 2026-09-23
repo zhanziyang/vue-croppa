@@ -1,5 +1,13 @@
 import { assertSize, type CropState, type Point, type Size } from './index'
 
+export type ClipPlugin = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) => void
+
+export interface RenderOptions {
+  viewport?: Size
+  borderRadius?: number
+  clipPlugins?: ClipPlugin[]
+}
+
 function transformPoint(point: Point, state: CropState): Point {
   const x = state.flipX ? 1 - point.x : point.x
   const y = state.flipY ? 1 - point.y : point.y
@@ -18,6 +26,7 @@ export function renderCrop(
   source: Size,
   state: CropState,
   background = 'transparent',
+  options: RenderOptions = {},
 ): void {
   const context = canvas.getContext('2d')
   if (!context) throw new Error('2D canvas is unavailable')
@@ -50,4 +59,17 @@ export function renderCrop(
   )
   context.drawImage(image, 0, 0, source.width, source.height)
   context.setTransform(1, 0, 0, 1, 0, 0)
+  const viewport = options.viewport ?? { width, height }
+  const radius = Math.max(0, Math.min(options.borderRadius ?? 0, viewport.width / 2, viewport.height / 2))
+  if (radius || options.clipPlugins?.length) {
+    context.save()
+    context.globalCompositeOperation = 'destination-in'
+    context.fillStyle = '#fff'
+    context.setTransform(width / viewport.width, 0, 0, height / viewport.height, 0, 0)
+    context.beginPath()
+    context.roundRect(0, 0, viewport.width, viewport.height, radius)
+    options.clipPlugins?.forEach((plugin) => plugin(context, 0, 0, viewport.width, viewport.height))
+    context.fill()
+    context.restore()
+  }
 }

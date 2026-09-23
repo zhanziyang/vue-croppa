@@ -11,10 +11,10 @@ hero:
   actions:
     - theme: brand
       text: Get started
-      link: /guide/getting-started
+      link: /v2-guide
     - theme: alt
-      text: Live examples
-      link: /examples/
+      text: Live Vue 3 preview
+      link: /v2-lab
     - theme: alt
       text: GitHub
       link: https://github.com/zhanziyang/vue-croppa
@@ -30,36 +30,35 @@ features:
     details: Read and apply crop metadata to restore a user crop later or synchronize a passive preview.
 ---
 
-## Try the real component
+## Try the real Vue 3 component
 
-The examples in these docs are first-party HTML pages shipped with this repository. They run the same Vue 2 and vue-croppa v1 bundle that applications consume—no CodePen, screenshots, or mocked cropper.
-
-<DemoFrame
-  src="/demos/basic.html"
-  title="Basic crop"
-  description="Drag the image, zoom it, move it programmatically, and inspect the live metadata."
-  :height="510"
-/>
+The [live preview](/v2-lab) mounts the Vue 3 component from this repository. Choose an image, drag and zoom it inside the fixed viewport, rotate or flip it, and export the visible pixels.
 
 ## Small API, useful escape hatches
 
-For the common path, vue-croppa is a single component with a model binding. When you need more control, the model exposes methods for movement, zoom, rotation, output, metadata, and direct canvas access.
+Vue Croppa exposes movement, zoom, rotation, output, metadata, and direct canvas methods through a component ref.
 
-~~~html
-<croppa
-  v-model="croppa"
-  :width="400"
-  :height="300"
-  prevent-white-space
-></croppa>
-~~~
+~~~vue
+<script setup>
+import { ref } from 'vue'
+import { Croppa } from 'vue-croppa'
+import 'vue-croppa/style.css'
 
-~~~js
-const blob = await this.croppa.promisedBlob('image/jpeg', 0.9)
+const cropper = ref(null)
+async function save() {
+  const blob = await cropper.value?.promisedBlob('image/jpeg', 0.9)
+  // Upload or download blob here.
+}
+</script>
+
+<template>
+  <Croppa ref="cropper" :width="400" :height="300" prevent-white-space />
+  <button @click="save">Save crop</button>
+</template>
 ~~~
 
 <div class="docs-callout">
 
-**Version status:** the current npm release is v1.3.8 for Vue 2. A Vue 3 / TypeScript v2 reboot is being developed separately so existing v1 applications are not broken.
+**Versions:** Vue 3 uses the [v2 guide](/v2-guide). Vue 2 applications can keep `vue-croppa@1` and use the [v1 guide](/guide/getting-started), [v1 examples](/examples/), and [migration guide](https://github.com/zhanziyang/vue-croppa/blob/master/v2/MIGRATION.md).
 
 </div>

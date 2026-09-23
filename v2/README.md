@@ -1,6 +1,6 @@
 # vue-croppa v2
 
-This directory is the isolated reboot of `vue-croppa` for Vue 3. The published `1.x` package and the repository's existing Vue 2 implementation remain untouched while v2 is developed.
+This directory contains the `vue-croppa` package for Vue 3. Vue 2 consumers can stay on the `1.x` release line.
 
 ## Product direction
 
@@ -58,9 +58,9 @@ interface CropState {
 
 `crop` is expressed against the currently oriented source image in normalized source units. The source itself occupies `0..1`, but the crop may use negative coordinates or dimensions greater than `1` when whitespace is visible. This preserves v1 behavior while keeping state stable across responsive layout changes and suitable for persistence or server-side reproduction.
 
-## Current scope
+## Component
 
-The Vue 3 `Croppa` component mounts a real image loader, fixed canvas viewport, Pointer Events interactions, remove control, and Blob/data URL export on the foundation core. File drop follows v1's default rule: it fills an empty viewport, and replaces an existing image only when `replaceDrop` is true. The component also supports the v1 disabled and per-interaction flags, reverse wheel direction, and `inputAttrs`. The docs preview mounts this component. This is not complete v1 parity; [COMPATIBILITY.md](./COMPATIBILITY.md) and issue #254 remain the release checklist.
+The Vue 3 `Croppa` component mounts a real image loader, fixed canvas viewport, Pointer Events interactions, remove control, and Blob/data URL export on the foundation core. File drop follows v1's default rule: it fills an empty viewport, and replaces an existing image only when `replaceDrop` is true. The component also supports the v1 disabled and per-interaction flags, reverse wheel direction, and `inputAttrs`. The docs preview mounts this component. [COMPATIBILITY.md](./COMPATIBILITY.md) records the migration contract.
 
 Basic usage:
 
@@ -78,9 +78,11 @@ const cropper = ref<InstanceType<typeof Croppa> | null>(null)
 </template>
 ```
 
-The component exposes `chooseFile()`, `setFile(file)`, `remove()`, `rotate(step)`, `flipX()`, `flipY()`, `generateDataUrl()`, `generateBlob(callback)`, and `promisedBlob()`. It emits `loading-start` and `loading-end` around image loads and `load-error` when decoding fails. `showLoading`, `loadingSize`, and `loadingColor` control the optional indicator.
+The component exposes `chooseFile()`, `setFile(file)`, `remove()`, `move()` and directional helpers, `zoom()` / `zoomIn()` / `zoomOut()`, `rotate(step)`, `flipX()`, `flipY()`, `getCanvas()`, `getContext()`, `addClipPlugin()`, `generateDataUrl()`, `generateBlob(callback)`, and `promisedBlob()`. It emits `init`, `draw`, `loading-start`, and `loading-end` at the corresponding lifecycle points, plus `load-error` when decoding fails. `showLoading`, `loadingSize`, and `loadingColor` control the optional indicator.
 
-`getMetadata()` returns versioned v2 state and `applyMetadata(metadata)` restores it after an image is loaded. Restoration requires the same source dimensions and viewport aspect ratio. v1 pixel-based metadata is not accepted as v2 metadata; its migration remains on the parity checklist. The component remains private alpha code, not a released Vue 3 package.
+`getMetadata()` returns versioned v2 state. `applyMetadata(metadata)` accepts both v2 metadata and v1 `{ startX, startY, scale, orientation }` metadata. It can queue metadata before an image loads. v2 restoration requires the same source dimensions and viewport aspect ratio. See [MIGRATION.md](./MIGRATION.md) for the Vue 2 to Vue 3 API changes.
+
+Import `vue-croppa/style.css` with the component. The default export supports `app.use(VueCroppa, { componentName: 'croppa' })`; `Croppa` is also a named export. `v-model` shares an in-memory image and crop state with a `passive` preview. `autoSizing` uses `ResizeObserver`, and `videoEnabled` accepts supported video files and lets the user toggle playback with a double click.
 
 ## Commands
 

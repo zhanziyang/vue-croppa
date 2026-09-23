@@ -12,6 +12,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['vue'],
+      output: { exports: 'named' },
     },
   },
   test: {

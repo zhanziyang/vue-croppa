@@ -41,6 +41,174 @@ test('v2 metadata restores crop and transform on the same source', async ({ page
   expect(await readState()).toEqual(saved)
 })
 
+test('v1 pixel metadata migrates and a passive v-model preview follows edits', async ({ page }) => {
+  await page.goto('v2-lab')
+  const readState = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')
+  await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
+  await page.getByTestId('rotate').click()
+  await page.getByTestId('legacy-crop').click()
+  const migrated = await readState()
+  expect(migrated.rotation).toBe(0)
+  expect(migrated.crop.x).toBeCloseTo(1 / 6, 5)
+  expect(migrated.crop.width).toBeCloseTo(2 / 3, 5)
+
+  await page.getByText('Synced and responsive previews').click()
+  const source = page.getByTestId('v2-viewport').locator('canvas')
+  const passive = page.getByTestId('passive-preview').locator('canvas')
+  const pixel = (canvas: typeof source) => canvas.evaluate((element: HTMLCanvasElement) =>
+    [...element.getContext('2d')!.getImageData(element.width / 4, element.height / 2, 1, 1).data])
+  const closeToSource = async () => {
+    const sourcePixel = await pixel(source)
+    return (await pixel(passive)).every((value, index) => Math.abs(value - sourcePixel[index]) <= 5)
+  }
+  await expect.poll(closeToSource).toBe(true)
+  const before = await pixel(passive)
+  await page.getByTestId('flip-x').click()
+  await expect.poll(closeToSource).toBe(true)
+  expect(await pixel(passive)).not.toEqual(before)
+  const stateBeforePassiveClick = await readState()
+  await passive.click()
+  expect(await readState()).toEqual(stateBeforePassiveClick)
+})
+
+test('rounded output and automatic sizing affect the real canvas', async ({ page }) => {
+  await page.goto('v2-lab')
+  const source = page.getByTestId('v2-viewport').locator('canvas')
+  await expect(page.getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await page.getByTestId('rounded').check()
+  await expect.poll(async () => source.evaluate((element: HTMLCanvasElement) => element.getContext('2d')!.getImageData(0, 0, 1, 1).data[3])).toBe(0)
+  const download = page.waitForEvent('download')
+  await page.getByTestId('download').click()
+  const png = await readFile(await (await download).path())
+  expect(await source.evaluate(async (_element, base64) => {
+    const image = new Image()
+    image.src = `data:image/png;base64,${base64}`
+    await image.decode()
+    const canvas = document.createElement('canvas')
+    canvas.width = image.width
+    canvas.height = image.height
+    canvas.getContext('2d')!.drawImage(image, 0, 0)
+    return canvas.getContext('2d')!.getImageData(0, 0, 1, 1).data[3]
+  }, png.toString('base64'))).toBe(0)
+
+  await page.getByText('Synced and responsive previews').click()
+  const responsive = page.getByTestId('auto-host').locator('canvas')
+  await expect(responsive).toHaveCSS('width', '240px')
+  await expect(responsive).toHaveCSS('height', '180px')
+  await page.getByTestId('resize-auto').click()
+  await expect(responsive).toHaveCSS('width', '300px')
+  await expect.poll(async () => responsive.evaluate((element: HTMLCanvasElement) => element.width)).toBe(600)
+  await expect(page.getByTestId('slot-initial').getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await expect(page.getByTestId('slot-rotation')).toContainText('90°')
+})
+
+test('clip plugin changes both visible and exported pixels', async ({ page }) => {
+  await page.goto('v2-lab')
+  const canvas = page.getByTestId('v2-viewport').locator('canvas')
+  await expect(page.getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await page.getByTestId('clip-circle').click()
+  const alpha = await canvas.evaluate((element: HTMLCanvasElement) => {
+    const context = element.getContext('2d')!
+    return [context.getImageData(0, 0, 1, 1).data[3], context.getImageData(element.width / 2, element.height / 2, 1, 1).data[3]]
+  })
+  expect(alpha).toEqual([0, 255])
+  const download = page.waitForEvent('download')
+  await page.getByTestId('download').click()
+  const png = await readFile(await (await download).path())
+  expect(await canvas.evaluate(async (_element, base64) => {
+    const image = new Image()
+    image.src = `data:image/png;base64,${base64}`
+    await image.decode()
+    const output = document.createElement('canvas')
+    output.width = image.width
+    output.height = image.height
+    output.getContext('2d')!.drawImage(image, 0, 0)
+    return output.getContext('2d')!.getImageData(0, 0, 1, 1).data[3]
+  }, png.toString('base64'))).toBe(0)
+})
+
+test('init, draw hook, canvas access, and imperative move and zoom work together', async ({ page }) => {
+  await page.goto('v2-lab')
+  const readState = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')
+  await expect(page.getByTestId('choose')).toBeEnabled()
+  await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
+  const before = await readState()
+  await page.getByTestId('move-left').click()
+  expect((await readState()).crop.x).toBeGreaterThan(before.crop.x)
+  await page.getByTestId('zoom-in').click()
+  expect((await readState()).crop.width).toBeLessThan(before.crop.width)
+
+  await page.getByTestId('draw-marker').check()
+  const canvas = page.getByTestId('v2-viewport').locator('canvas')
+  expect(await canvas.evaluate((element: HTMLCanvasElement) =>
+    [...element.getContext('2d')!.getImageData(0, 0, 1, 1).data])).toEqual([255, 0, 0, 255])
+  const download = page.waitForEvent('download')
+  await page.getByTestId('canvas-download').click()
+  const saved = await download
+  expect(saved.suggestedFilename()).toBe('croppa-v2-canvas.png')
+  const png = await readFile(await saved.path())
+  expect(png.length).toBeGreaterThan(100)
+
+  await page.getByTestId('remove').click()
+  await expect(page.getByTestId('v2-viewport').getByText('Choose an image')).toHaveCSS('font-size', '24px')
+})
+
+test('JPEG EXIF orientation is applied once and v1 metadata does not rotate it twice', async ({ page }) => {
+  await page.goto('v2-lab')
+  await expect(page.getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await page.getByTestId('v2-viewport').locator('input[type=file]').setInputFiles(
+    new URL('./fixtures/exif-6.jpg', import.meta.url).pathname,
+  )
+  const readState = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')
+  await expect.poll(async () => (await readState())?.crop?.height).toBeCloseTo(0.5, 5)
+  expect((await readState()).rotation).toBe(0)
+  await page.getByTestId('legacy-exif-crop').click()
+  expect((await readState()).rotation).toBe(0)
+  expect((await readState()).crop.height).toBeCloseTo(0.5, 5)
+})
+
+test('videoEnabled accepts a playable video and exports its current frame', async ({ page }) => {
+  await page.goto('v2-lab')
+  await expect(page.getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await page.locator('summary', { hasText: 'Interaction options' }).click()
+  await page.getByTestId('video-enabled').check()
+  const recording = await page.evaluate(async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 64
+    canvas.height = 64
+    const context = canvas.getContext('2d')!
+    const stream = canvas.captureStream(10)
+    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8' })
+    const chunks: Blob[] = []
+    recorder.ondataavailable = (event) => chunks.push(event.data)
+    const stopped = new Promise<void>((resolve) => { recorder.onstop = () => resolve() })
+    recorder.start()
+    for (let frame = 0; frame < 15; frame++) {
+      context.fillStyle = '#ff0000'
+      context.fillRect(0, 0, 64, 64)
+      await new Promise((resolve) => setTimeout(resolve, 80))
+    }
+    recorder.stop()
+    await stopped
+    stream.getTracks().forEach((track) => track.stop())
+    return [...new Uint8Array(await new Blob(chunks).arrayBuffer())]
+  })
+  await page.getByTestId('v2-viewport').locator('input[type=file]').setInputFiles({
+    name: 'red.webm', mimeType: 'video/webm', buffer: Buffer.from(recording),
+  })
+  const canvas = page.getByTestId('v2-viewport').locator('canvas')
+  await expect.poll(async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')?.crop?.width).toBe(1)
+  await canvas.dblclick()
+  await expect.poll(async () => canvas.evaluate((element: HTMLCanvasElement) => {
+    const pixel = element.getContext('2d')!.getImageData(element.width / 2, element.height / 2, 1, 1).data
+    return pixel[0] >= 250 && pixel[1] <= 5 && pixel[2] <= 5 && pixel[3] === 255
+  })).toBe(true)
+  const download = page.waitForEvent('download')
+  await page.getByTestId('download').click()
+  const blob = await readFile(await (await download).path())
+  expect(blob.length).toBeGreaterThan(100)
+})
+
 test('real v2 component keeps the viewport fixed and supports input, transforms, remove, and export', async ({ page }) => {
   await page.goto('v2-lab')
   const viewport = page.getByTestId('v2-viewport')
@@ -55,7 +223,7 @@ test('real v2 component keeps the viewport fixed and supports input, transforms,
   await page.getByTestId('show-remove-button').uncheck()
   await expect(viewport.getByRole('button', { name: 'Remove image' })).toHaveCount(0)
   await page.getByTestId('show-remove-button').check()
-  expect(await canvas.evaluate((element: HTMLCanvasElement) => [element.width, element.height])).toEqual([320, 320])
+  expect(await canvas.evaluate((element: HTMLCanvasElement) => [element.width, element.height])).toEqual([640, 640])
   const initial = await readState()
   const box = (await canvas.boundingBox())!
   const documentY = box.y + await page.evaluate(() => window.scrollY)
@@ -130,10 +298,12 @@ test('two touch points zoom the real component', async ({ page }) => {
   const readWidth = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')?.crop?.width
   await expect.poll(readWidth).toBeGreaterThan(0)
   const before = await readWidth()
+  await canvas.scrollIntoViewIfNeeded()
   const box = (await canvas.boundingBox())!
   const session = await page.context().newCDPSession(page)
   const point = (id: number, offset: number) => ({ id, x: box.x + box.width / 2 + offset, y: box.y + box.height / 2 })
   await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point(1, -30), point(2, 30)] })
+  await page.evaluate(() => new Promise(requestAnimationFrame))
   await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [point(1, -55), point(2, 55)] })
   await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
   await expect.poll(readWidth).toBeLessThan(before)

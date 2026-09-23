@@ -4,4 +4,4 @@ This preview mounts the actual Vue 3 `Croppa` component from `v2/src`. Choose or
 
 <V2FoundationLab />
 
-This is the first component slice, not complete v1 parity. [Issue #254](https://github.com/zhanziyang/vue-croppa/issues/254) tracks the remaining capabilities before v2 release.
+The preview uses the real Vue 3 component. See the [guide](/v2-guide) and [API](/v2-api) for integration, and the [migration guide](https://github.com/zhanziyang/vue-croppa/blob/master/v2/MIGRATION.md) when upgrading from Vue 2.

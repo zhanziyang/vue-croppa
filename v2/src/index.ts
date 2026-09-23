@@ -1,3 +1,6 @@
+import type { App } from 'vue'
+import Croppa from './Croppa.vue'
+
 export interface Size {
   width: number
   height: number
@@ -50,6 +53,23 @@ export interface CropMetadata {
   state: CropState
 }
 
+/** Metadata returned by vue-croppa 1.x. Coordinates use the output canvas. */
+export interface LegacyCropMetadata {
+  startX: number
+  startY: number
+  scale: number
+  orientation?: number
+}
+
+/** In-memory value for `v-model` and a synchronized passive preview. */
+export interface CroppaModelValue {
+  image: HTMLImageElement | null
+  video?: HTMLVideoElement | null
+  sourceOrientation?: number
+  state: CropState | null
+  file: File | null
+}
+
 export interface PixelRect {
   x: number
   y: number
@@ -57,8 +77,17 @@ export interface PixelRect {
   height: number
 }
 
-export { default as Croppa } from './Croppa.vue'
+export { Croppa }
 export { renderCrop } from './render'
+
+const VueCroppa: { install(app: App, options?: { componentName?: string }): void; component: typeof Croppa } = {
+  install(app: App, options: { componentName?: string } = {}) {
+    app.component(options.componentName || 'croppa', Croppa)
+  },
+  component: Croppa,
+}
+
+export default VueCroppa
 
 const EPSILON = 1e-12
 const ROTATIONS: Rotation[] = [0, 90, 180, 270]

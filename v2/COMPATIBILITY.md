@@ -18,6 +18,7 @@ No item below is approved for removal.
 | `preventWhiteSpace` behavior | KEEP |
 | Rotation and flips | KEEP |
 | Exact viewport → export correspondence | KEEP |
+| Local JPEG EXIF orientation | KEEP; avoid applying it twice in modern browsers |
 
 ## Props / configuration
 
@@ -42,6 +43,7 @@ No item below is approved for removal.
 | `showRemoveButton` | KEEP |
 | `removeButtonColor`, `removeButtonSize` | KEEP |
 | `initialImage` | KEEP |
+| `initial` image slot and explicit orientation hint | KEEP |
 | `initialSize: cover / contain / natural` | KEEP |
 | `initialPosition` keywords / percentages | KEEP |
 | `inputAttrs` | KEEP |
@@ -70,6 +72,7 @@ No item below is approved for removal.
 | `getCanvas()`, `getContext()` | KEEP low-level escape hatch or documented equivalent |
 | `addClipPlugin()` | KEEP extensibility capability |
 | support detection | MODERNIZE for modern browser baseline |
+| Vue plugin install and named component import | KEEP |
 
 ## Events
 
