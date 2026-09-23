@@ -60,7 +60,25 @@ interface CropState {
 
 ## Current scope
 
-This first foundation intentionally contains only the state/geometry engine, tests, and modern build/CI scaffolding. It does **not** expose the final Vue component yet. The next layer will add source decoding, the renderer/controller, Pointer Events, and the Vue component on top of this core.
+The first Vue 3 `Croppa` component slice now mounts a real image loader, fixed canvas viewport, Pointer Events interactions, remove control, and Blob/data URL export on the foundation core. The docs preview mounts this component. This is not complete v1 parity; [COMPATIBILITY.md](./COMPATIBILITY.md) and issue #254 remain the release checklist.
+
+Basic usage:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Croppa } from 'vue-croppa'
+
+const cropper = ref<InstanceType<typeof Croppa> | null>(null)
+</script>
+
+<template>
+  <Croppa ref="cropper" :width="320" :height="320" initial-size="cover" />
+  <button @click="cropper?.promisedBlob('image/png')">Export</button>
+</template>
+```
+
+The component exposes `chooseFile()`, `setFile(file)`, `remove()`, `rotate(step)`, `flipX()`, `flipY()`, `generateDataUrl()`, `generateBlob(callback)`, and `promisedBlob()`. The component remains private alpha code, not a released Vue 3 package.
 
 ## Commands
 

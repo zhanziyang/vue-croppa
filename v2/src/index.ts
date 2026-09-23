@@ -50,6 +50,9 @@ export interface PixelRect {
   height: number
 }
 
+export { default as Croppa } from './Croppa.vue'
+export { renderCrop } from './render'
+
 const EPSILON = 1e-12
 const ROTATIONS: Rotation[] = [0, 90, 180, 270]
 const SAMPLE_POINTS: Point[] = [
