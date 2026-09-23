@@ -56,8 +56,12 @@ body {
 
 .croppa-container {
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 10px 30px rgba(15,23,42,.16);
+}
+
+.croppa-container canvas {
+  border-radius: inherit;
 }
 
 .panel { display: grid; gap: 16px; }
