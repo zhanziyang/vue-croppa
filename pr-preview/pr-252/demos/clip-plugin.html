@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vue Croppa · Clip plugin</title>
+  <link rel="stylesheet" href="../vendor/vue-croppa.css"><link rel="stylesheet" href="./shared/demo.css">
+</head>
+<body>
+<main id="app" class="demo" v-cloak>
+ <div class="demo-grid">
+  <section class="stage">
+   <croppa v-model="croppa" :width="300" :height="300" :quality="2" :initial-image="imageUrl" prevent-white-space
+    @init="onInit" @new-image-drawn="onReady"></croppa>
+  </section>
+  <section class="panel">
+   <div><p class="eyebrow">Custom clipping</p><h2>Circle clip plugin</h2><p>A clip plugin defines a canvas path. Croppa applies it to the actual output.</p></div>
+   <button id="inspect-alpha" class="primary" @click="inspect">Inspect transparent corner</button>
+   <div :class="['status', cornerAlpha === 0 ? 'ready' : '']">Top-left alpha: {{ cornerAlpha }}</div>
+   <pre>addClipPlugin((ctx, x, y, w, h) => { ... })</pre>
+  </section>
+ </div>
+</main>
+<script src="../vendor/vue2.min.js"></script><script src="../vendor/vue-croppa.js"></script>
+<script>
+Vue.use(Croppa)
+new Vue({
+ el:'#app',data:{croppa:null,imageUrl:'../demo-image.svg',cornerAlpha:null},
+ methods:{
+  onInit(vm){
+   window.__croppa=vm;window.__demoMounted=true
+   vm.addClipPlugin(function(ctx,x,y,w,h){
+    ctx.beginPath();ctx.arc(x+w/2,y+h/2,Math.min(w,h)/2,0,Math.PI*2);ctx.closePath()
+   })
+  },
+  onReady(){this.inspect();window.__demoReady=true},
+  inspect(){this.cornerAlpha=this.croppa.getContext().getImageData(0,0,1,1).data[3];window.__cornerAlpha=this.cornerAlpha}
+ }
+})
+</script>
+</body></html>
