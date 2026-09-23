@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import { withBase } from 'vitepress'
 import {
   clamp,
+  constrainCropToSource,
   createCropState,
   cropToPixels,
   flipCropState,
@@ -17,6 +18,7 @@ import {
 const source = { width: 1200, height: 800 }
 const imageUrl = withBase('/demo-image.svg')
 const state = ref<CropState>(createCropState(source, 1))
+const preventWhiteSpace = ref(false)
 const viewport = ref<HTMLElement | null>(null)
 const activePointers = new Map<number, Point>()
 const dragging = ref(false)
@@ -143,10 +145,14 @@ function moveImageByPixels(dx: number, dy: number) {
   const crop = state.value.crop
   state.value = {
     ...state.value,
-    crop: moveCrop(crop, {
-      x: -(dx / rect.width) * crop.width,
-      y: -(dy / rect.height) * crop.height,
-    }),
+    crop: moveCrop(
+      crop,
+      {
+        x: -(dx / rect.width) * crop.width,
+        y: -(dy / rect.height) * crop.height,
+      },
+      { preventWhiteSpace: preventWhiteSpace.value },
+    ),
   }
 }
 
@@ -167,7 +173,18 @@ function zoomAtClientPoint(factor: number, clientX: number, clientY: number) {
 
   state.value = {
     ...state.value,
-    crop: zoomCrop(crop, factor, anchor),
+    crop: zoomCrop(crop, factor, anchor, { preventWhiteSpace: preventWhiteSpace.value }),
+  }
+}
+
+function setPreventWhiteSpace(enabled: boolean) {
+  preventWhiteSpace.value = enabled
+
+  if (enabled) {
+    state.value = {
+      ...state.value,
+      crop: constrainCropToSource(state.value.crop),
+    }
   }
 }
 
@@ -295,6 +312,15 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="v2-lab__controls" aria-label="v2 transform controls">
+          <label class="v2-lab__toggle">
+            <input
+              data-testid="prevent-whitespace"
+              type="checkbox"
+              :checked="preventWhiteSpace"
+              @change="setPreventWhiteSpace(($event.target as HTMLInputElement).checked)"
+            >
+            Prevent whitespace
+          </label>
           <button type="button" data-testid="rotate" @click="rotate">Rotate 90°</button>
           <button type="button" data-testid="flip-x" @click="flipX">Flip X</button>
           <button type="button" data-testid="flip-y" @click="flipY">Flip Y</button>
@@ -323,7 +349,8 @@ onBeforeUnmount(() => {
 
     <div class="v2-lab__notice">
       This still uses the foundation state engine directly; it is not the final Vue component.
-      The interaction being validated here is the v2 contract: fixed viewport, image manipulation underneath it.
+      The interaction being validated here is the v2 contract: fixed viewport, image manipulation underneath it,
+      and v1-compatible optional whitespace.
     </div>
   </section>
 </template>
@@ -469,6 +496,25 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 14px;
+}
+
+.v2-lab__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 9px;
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-bg);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.v2-lab__toggle input {
+  accent-color: var(--vp-c-brand-1);
 }
 
 .v2-lab button {
