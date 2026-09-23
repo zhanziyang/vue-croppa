@@ -10,48 +10,52 @@ import {
   rotateCropState,
   zoomCrop,
   type CropState,
+  type Point,
 } from '../../v2/src'
 
 const source = { width: 1200, height: 800 }
 const imageUrl = withBase('/demo-image.svg')
-
 const state = ref<CropState>(createCropState(source, 1))
 
 const orientedSize = computed(() => getOrientedSize(source, state.value.rotation))
 const cropPixels = computed(() => cropToPixels(state.value.crop, source, state.value.rotation))
 
-const cropStyle = computed(() => ({
-  left: `${state.value.crop.x * 100}%`,
-  top: `${state.value.crop.y * 100}%`,
-  width: `${state.value.crop.width * 100}%`,
-  height: `${state.value.crop.height * 100}%`,
-}))
+// The viewport is fixed. This is the full oriented image positioned behind it.
+const imageLayerStyle = computed(() => {
+  const crop = state.value.crop
 
-const stageStyle = computed(() => ({
-  aspectRatio: `${orientedSize.value.width} / ${orientedSize.value.height}`,
-}))
+  return {
+    left: `${(-crop.x / crop.width) * 100}%`,
+    top: `${(-crop.y / crop.height) * 100}%`,
+    width: `${100 / crop.width}%`,
+    height: `${100 / crop.height}%`,
+  }
+})
 
-const imageStyle = computed(() => ({
-  transform: [
-    `rotate(${state.value.rotation}deg)`,
-    `scaleX(${state.value.flipX ? -1 : 1})`,
-    `scaleY(${state.value.flipY ? -1 : 1})`,
-  ].join(' '),
-}))
+const svgTransform = computed(() => {
+  const p0 = transformSourcePoint({ x: 0, y: 0 }, state.value)
+  const px = transformSourcePoint({ x: 1, y: 0 }, state.value)
+  const py = transformSourcePoint({ x: 0, y: 1 }, state.value)
+
+  return `matrix(${px.x - p0.x} ${px.y - p0.y} ${py.x - p0.x} ${py.y - p0.y} ${p0.x} ${p0.y})`
+})
 
 const stateJson = computed(() => JSON.stringify(state.value, null, 2))
-const pixelJson = computed(() => JSON.stringify(
-  Object.fromEntries(
-    Object.entries(cropPixels.value).map(([key, value]) => [key, Number(value.toFixed(2))]),
+const pixelJson = computed(() =>
+  JSON.stringify(
+    Object.fromEntries(
+      Object.entries(cropPixels.value).map(([key, value]) => [key, Number(value.toFixed(2))]),
+    ),
+    null,
+    2,
   ),
-  null,
-  2,
-))
+)
 
-function move(x: number, y: number) {
+function moveImage(x: number, y: number) {
+  // Moving the image left reveals source content farther to the right.
   state.value = {
     ...state.value,
-    crop: moveCrop(state.value.crop, { x, y }),
+    crop: moveCrop(state.value.crop, { x: -x, y: -y }),
   }
 }
 
@@ -77,6 +81,36 @@ function flipY() {
 function reset() {
   state.value = createCropState(source, 1)
 }
+
+function transformSourcePoint(point: Point, transform: CropState): Point {
+  let x = point.x / source.width
+  let y = point.y / source.height
+
+  if (transform.flipX) x = 1 - x
+  if (transform.flipY) y = 1 - y
+
+  let result: Point
+
+  switch (transform.rotation) {
+    case 0:
+      result = { x, y }
+      break
+    case 90:
+      result = { x: 1 - y, y: x }
+      break
+    case 180:
+      result = { x: 1 - x, y: 1 - y }
+      break
+    case 270:
+      result = { x: y, y: 1 - x }
+      break
+  }
+
+  return {
+    x: result.x * orientedSize.value.width,
+    y: result.y * orientedSize.value.height,
+  }
+}
 </script>
 
 <template>
@@ -84,41 +118,54 @@ function reset() {
     <div class="v2-lab__intro">
       <div>
         <span class="v2-lab__badge">v2 foundation</span>
-        <h2>Crop-state lab</h2>
+        <h2>WYSIWYG crop-state lab</h2>
       </div>
       <p>
-        This imports the real <code>v2/src</code> geometry engine directly.
-        It validates state semantics before the renderer/controller/component layer exists.
+        The crop viewport is fixed. The image moves and zooms underneath it,
+        preserving vue-croppa's original what-you-see-is-what-you-get interaction.
+        <code>CropState.crop</code> is internal state, not a draggable crop box.
       </p>
     </div>
 
     <div class="v2-lab__layout">
       <div>
-        <div class="v2-lab__stage" :style="stageStyle" data-testid="v2-stage">
-          <img
-            class="v2-lab__image"
-            :src="imageUrl"
-            alt=""
-            :style="imageStyle"
-          >
-          <div
-            class="v2-lab__crop"
-            :style="cropStyle"
-            data-testid="v2-crop"
-          >
-            <span class="v2-lab__handle v2-lab__handle--tl"></span>
-            <span class="v2-lab__handle v2-lab__handle--tr"></span>
-            <span class="v2-lab__handle v2-lab__handle--bl"></span>
-            <span class="v2-lab__handle v2-lab__handle--br"></span>
+        <div class="v2-lab__viewport-shell">
+          <div class="v2-lab__viewport" data-testid="v2-viewport">
+            <div
+              class="v2-lab__image-layer"
+              :style="imageLayerStyle"
+              data-testid="v2-image-layer"
+            >
+              <svg
+                class="v2-lab__source"
+                :viewBox="`0 0 ${orientedSize.width} ${orientedSize.height}`"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <image
+                  :href="imageUrl"
+                  :width="source.width"
+                  :height="source.height"
+                  :transform="svgTransform"
+                  preserveAspectRatio="none"
+                />
+              </svg>
+            </div>
+
+            <div class="v2-lab__grid" aria-hidden="true"></div>
+          </div>
+
+          <div class="v2-lab__viewport-caption">
+            Fixed crop viewport · what is visible here is the output
           </div>
         </div>
 
         <div class="v2-lab__controls" aria-label="v2 foundation controls">
-          <div class="v2-lab__control-group">
-            <button type="button" data-testid="move-left" @click="move(-0.05, 0)">←</button>
-            <button type="button" data-testid="move-up" @click="move(0, -0.05)">↑</button>
-            <button type="button" data-testid="move-down" @click="move(0, 0.05)">↓</button>
-            <button type="button" data-testid="move-right" @click="move(0.05, 0)">→</button>
+          <div class="v2-lab__control-group" aria-label="Move image">
+            <button type="button" data-testid="move-left" @click="moveImage(-0.05, 0)">← Image</button>
+            <button type="button" data-testid="move-up" @click="moveImage(0, -0.05)">↑ Image</button>
+            <button type="button" data-testid="move-down" @click="moveImage(0, 0.05)">↓ Image</button>
+            <button type="button" data-testid="move-right" @click="moveImage(0.05, 0)">→ Image</button>
           </div>
 
           <div class="v2-lab__control-group">
@@ -142,14 +189,14 @@ function reset() {
         <div class="v2-lab__inspector">
           <div class="v2-lab__inspector-heading">
             <strong>Serializable CropState</strong>
-            <span>normalized / viewport-independent</span>
+            <span>source selection behind the fixed viewport</span>
           </div>
           <pre data-testid="state-json">{{ stateJson }}</pre>
         </div>
 
         <div class="v2-lab__inspector">
           <div class="v2-lab__inspector-heading">
-            <strong>Source pixel crop</strong>
+            <strong>Output source pixels</strong>
             <span>{{ orientedSize.width }} × {{ orientedSize.height }} oriented source</span>
           </div>
           <pre data-testid="pixel-json">{{ pixelJson }}</pre>
@@ -158,10 +205,10 @@ function reset() {
     </div>
 
     <div class="v2-lab__notice">
-      <strong>Not tested here yet:</strong>
-      drag-to-move, wheel/pinch zoom, Pointer Events, canvas rendering, loading, export, resize behavior,
-      and accessibility. Those belong to the next vertical slice and should replace this state-only stage
-      with the real v2 component.
+      <strong>Interaction contract:</strong>
+      v2 keeps the fixed viewport / moving-image model. The next interactive slice replaces
+      these buttons with direct drag, wheel, pinch, and keyboard interaction on the image.
+      It will not introduce a movable or resizable crop-selection rectangle.
     </div>
   </section>
 </template>
@@ -221,11 +268,18 @@ function reset() {
   align-items: start;
 }
 
-.v2-lab__stage {
+.v2-lab__viewport-shell {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.v2-lab__viewport {
   position: relative;
-  width: 100%;
-  min-height: 260px;
+  width: min(100%, 390px);
+  aspect-ratio: 1;
   overflow: hidden;
+  border: 2px solid var(--vp-c-text-1);
   border-radius: 16px;
   background:
     linear-gradient(45deg, rgba(148,163,184,.14) 25%, transparent 25%),
@@ -235,86 +289,63 @@ function reset() {
     var(--vp-c-bg);
   background-size: 22px 22px;
   background-position: 0 0, 0 11px, 11px -11px, -11px 0;
-  box-shadow: inset 0 0 0 1px var(--vp-c-divider);
+  box-shadow: 0 16px 40px rgba(15,23,42,.14);
 }
 
-.v2-lab__image {
+.v2-lab__image-layer {
   position: absolute;
-  inset: -10%;
-  width: 120%;
-  height: 120%;
-  object-fit: cover;
-  transform-origin: center;
-  transition: transform 180ms ease;
+  transition: left 160ms ease, top 160ms ease, width 160ms ease, height 160ms ease;
 }
 
-.v2-lab__stage::after {
+.v2-lab__source {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.v2-lab__grid {
   position: absolute;
   inset: 0;
-  content: "";
-  background: rgba(15, 23, 42, .46);
-  pointer-events: none;
-}
-
-.v2-lab__crop {
-  position: absolute;
   z-index: 2;
-  box-sizing: border-box;
-  border: 2px solid white;
-  background: rgba(255, 255, 255, .08);
-  box-shadow: 0 0 0 9999px rgba(15, 23, 42, .02), 0 8px 30px rgba(15,23,42,.24);
-  transition: inset 160ms ease, width 160ms ease, height 160ms ease, left 160ms ease, top 160ms ease;
-}
-
-.v2-lab__crop::before,
-.v2-lab__crop::after {
-  position: absolute;
-  content: "";
-  opacity: .55;
   pointer-events: none;
+  background:
+    linear-gradient(to right,
+      transparent calc(33.333% - .5px),
+      rgba(255,255,255,.48) calc(33.333% - .5px),
+      rgba(255,255,255,.48) calc(33.333% + .5px),
+      transparent calc(33.333% + .5px),
+      transparent calc(66.666% - .5px),
+      rgba(255,255,255,.48) calc(66.666% - .5px),
+      rgba(255,255,255,.48) calc(66.666% + .5px),
+      transparent calc(66.666% + .5px)),
+    linear-gradient(to bottom,
+      transparent calc(33.333% - .5px),
+      rgba(255,255,255,.48) calc(33.333% - .5px),
+      rgba(255,255,255,.48) calc(33.333% + .5px),
+      transparent calc(33.333% + .5px),
+      transparent calc(66.666% - .5px),
+      rgba(255,255,255,.48) calc(66.666% - .5px),
+      rgba(255,255,255,.48) calc(66.666% + .5px),
+      transparent calc(66.666% + .5px));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.32);
 }
 
-.v2-lab__crop::before {
-  left: 33.333%;
-  right: 33.333%;
-  top: 0;
-  bottom: 0;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
+.v2-lab__viewport-caption {
+  color: var(--vp-c-text-3);
+  font-size: 11px;
+  text-align: center;
 }
-
-.v2-lab__crop::after {
-  top: 33.333%;
-  bottom: 33.333%;
-  left: 0;
-  right: 0;
-  border-top: 1px solid white;
-  border-bottom: 1px solid white;
-}
-
-.v2-lab__handle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border: 2px solid white;
-  background: var(--vp-c-brand-1);
-  border-radius: 50%;
-}
-
-.v2-lab__handle--tl { left: -6px; top: -6px; }
-.v2-lab__handle--tr { right: -6px; top: -6px; }
-.v2-lab__handle--bl { left: -6px; bottom: -6px; }
-.v2-lab__handle--br { right: -6px; bottom: -6px; }
 
 .v2-lab__controls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .v2-lab__control-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -394,10 +425,6 @@ function reset() {
 
   .v2-lab__layout {
     grid-template-columns: 1fr;
-  }
-
-  .v2-lab__stage {
-    min-height: 220px;
   }
 
   .v2-lab__reset {
