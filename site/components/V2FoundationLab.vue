@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
             @pointermove="onPointerMove"
             @pointerup="onPointerEnd"
             @pointercancel="onPointerEnd"
-            @wheel="onWheel"
+            @wheel.prevent.stop="onWheel"
           >
             <div
               class="v2-lab__image-layer"
