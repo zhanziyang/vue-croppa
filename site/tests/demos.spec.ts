@@ -17,6 +17,23 @@ test('basic demo loads a real image and changes scale', async ({ page }) => {
   expect(before.scale).toBeGreaterThan(0)
   expect(await page.evaluate(() => window.__croppa.hasImage())).toBe(true)
 
+  const removeButtonGeometry = await page.evaluate(() => {
+    const container = document.querySelector('.croppa-container')
+    const button = document.querySelector('.croppa-container .icon-remove')
+    const containerRect = container.getBoundingClientRect()
+    const buttonRect = button.getBoundingClientRect()
+
+    return {
+      overflow: getComputedStyle(container).overflow,
+      extendsAbove: buttonRect.top < containerRect.top,
+      extendsRight: buttonRect.right > containerRect.right,
+    }
+  })
+
+  expect(removeButtonGeometry.overflow).toBe('visible')
+  expect(removeButtonGeometry.extendsAbove).toBe(true)
+  expect(removeButtonGeometry.extendsRight).toBe(true)
+
   await page.locator('#zoom-in').click()
   await expect.poll(() => page.evaluate(() => window.__croppa.getMetadata().scale)).toBeGreaterThan(before.scale)
 })
