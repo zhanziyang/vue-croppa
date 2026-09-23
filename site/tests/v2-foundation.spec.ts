@@ -17,6 +17,8 @@ test('v2 foundation lab preserves WYSIWYG interaction and optional whitespace', 
   expect(initial.crop.width / initial.crop.height).toBeCloseTo(2 / 3, 10)
 
   const viewportBox = await viewport.boundingBox()
+  const initialScrollY = await page.evaluate(() => window.scrollY)
+  const viewportDocumentY = viewportBox.y + initialScrollY
 
   await page.mouse.move(
     viewportBox.x + viewportBox.width * 0.7,
@@ -51,8 +53,8 @@ test('v2 foundation lab preserves WYSIWYG interaction and optional whitespace', 
   expect(constrained.crop.y + constrained.crop.height).toBeLessThanOrEqual(1)
 
   const viewportAfter = await viewport.boundingBox()
-  expect(viewportAfter.x).toBeCloseTo(viewportBox.x, 4)
-  expect(viewportAfter.y).toBeCloseTo(viewportBox.y, 4)
+  const finalScrollY = await page.evaluate(() => window.scrollY)
+  expect(viewportAfter.y + finalScrollY).toBeCloseTo(viewportDocumentY, 4)
   expect(viewportAfter.width).toBeCloseTo(viewportBox.width, 4)
   expect(viewportAfter.height).toBeCloseTo(viewportBox.height, 4)
 
