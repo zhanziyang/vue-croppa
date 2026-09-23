@@ -41,7 +41,7 @@ body {
   display: grid;
   place-items: center;
   padding: 18px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #dbe3ec;
   border-radius: 16px;
   background:
