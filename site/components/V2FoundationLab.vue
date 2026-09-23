@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { withBase } from 'vitepress'
 import { Croppa } from '../../v2/src'
 import type { CropState } from '../../v2/src'
@@ -12,13 +12,8 @@ const pngOnly = ref(false)
 const limitFileSize = ref(false)
 const initialImage = ref<string | undefined>(withBase('/demo-image.svg'))
 const state = ref<CropState | null>(null)
-const events = ref<string[]>([])
 const stateJson = computed(() => JSON.stringify(state.value, null, 2))
 
-function record(name: string) {
-  events.value.unshift(name)
-  void nextTick(refresh)
-}
 function refresh() { state.value = croppa.value?.getCropState() ?? null }
 function rotate() { croppa.value?.rotate(); refresh() }
 function flipX() { croppa.value?.flipX(); refresh() }
@@ -51,10 +46,8 @@ async function download() {
             :prevent-white-space="preventWhiteSpace"
             :show-remove-button="showRemoveButton" remove-button-color="#e11d48" :remove-button-size="28"
             :accept="pngOnly ? 'image/png' : 'image/*'" :file-size-limit="limitFileSize ? 1000000 : 0"
-            @file-choose="record('file-choose')" @new-image="record('new-image')"
-            @new-image-drawn="record('new-image-drawn')" @initial-image-loaded="record('initial-image-loaded')"
-            @image-remove="record('image-remove')" @move="record('move')" @zoom="record('zoom')"
-            @file-size-exceed="record('file-size-exceed')" @file-type-mismatch="record('file-type-mismatch')" />
+            @new-image-drawn="refresh" @initial-image-loaded="refresh"
+            @image-remove="refresh" @move="refresh" @zoom="refresh" />
         </div>
         <div class="v2-lab__controls">
           <label><input v-model="preventWhiteSpace" type="checkbox" data-testid="prevent-whitespace" @change="refresh"> Prevent whitespace</label>
@@ -73,8 +66,6 @@ async function download() {
       <div class="v2-lab__inspectors">
         <h3>Component state</h3>
         <pre data-testid="state-json">{{ stateJson }}</pre>
-        <h3>Events</h3>
-        <pre data-testid="events">{{ events.join('\n') }}</pre>
       </div>
     </div>
   </section>

@@ -73,10 +73,8 @@ test('real v2 component keeps the viewport fixed and supports input, transforms,
   await page.getByTestId('png-only').check()
   await page.getByTestId('limit-file-size').check()
   await viewport.locator('input[type=file]').setInputFiles({ name: 'wrong.jpg', mimeType: 'image/jpeg', buffer: Buffer.from([1, 2, 3]) })
-  await expect(page.getByTestId('events')).toContainText('file-type-mismatch')
   await expect.poll(readState).toBeNull()
   await viewport.locator('input[type=file]').setInputFiles({ name: 'large.png', mimeType: 'image/png', buffer: Buffer.alloc(1000000) })
-  await expect(page.getByTestId('events')).toContainText('file-size-exceed')
   await expect.poll(readState).toBeNull()
 
   await viewport.locator('input[type=file]').setInputFiles({
@@ -84,15 +82,13 @@ test('real v2 component keeps the viewport fixed and supports input, transforms,
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==', 'base64'),
   })
   await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
-  await expect(page.getByTestId('events')).toContainText('file-choose')
-  await expect(page.getByTestId('events')).toContainText('new-image')
 })
 
 test('two touch points zoom the real component', async ({ page }) => {
   await page.goto('v2-lab')
   const canvas = page.getByTestId('v2-viewport').locator('canvas')
-  await expect(page.getByTestId('events')).toContainText('initial-image-loaded')
   const readWidth = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')?.crop?.width
+  await expect.poll(readWidth).toBeGreaterThan(0)
   const before = await readWidth()
   const box = (await canvas.boundingBox())!
   const session = await page.context().newCDPSession(page)
