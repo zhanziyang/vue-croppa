@@ -60,7 +60,7 @@ interface CropState {
 
 ## Current scope
 
-The first Vue 3 `Croppa` component slice now mounts a real image loader, fixed canvas viewport, Pointer Events interactions, remove control, and Blob/data URL export on the foundation core. The docs preview mounts this component. This is not complete v1 parity; [COMPATIBILITY.md](./COMPATIBILITY.md) and issue #254 remain the release checklist.
+The Vue 3 `Croppa` component mounts a real image loader, fixed canvas viewport, Pointer Events interactions, remove control, and Blob/data URL export on the foundation core. File drop follows v1's default rule: it fills an empty viewport, and replaces an existing image only when `replaceDrop` is true. The component also supports the v1 disabled and per-interaction flags, reverse wheel direction, and `inputAttrs`. The docs preview mounts this component. This is not complete v1 parity; [COMPATIBILITY.md](./COMPATIBILITY.md) and issue #254 remain the release checklist.
 
 Basic usage:
 

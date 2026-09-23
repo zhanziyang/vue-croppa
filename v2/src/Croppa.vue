@@ -20,6 +20,16 @@ const props = withDefaults(defineProps<{
   fileSizeLimit?: number
   quality?: number
   zoomSpeed?: number
+  disabled?: boolean
+  disableDragAndDrop?: boolean
+  disableClickToChoose?: boolean
+  disableDragToMove?: boolean
+  disableScrollToZoom?: boolean
+  disablePinchToZoom?: boolean
+  disableRotation?: boolean
+  reverseScrollToZoom?: boolean
+  replaceDrop?: boolean
+  inputAttrs?: Record<string, string | number | boolean>
 }>(), {
   width: 200,
   height: 200,
@@ -53,6 +63,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const image = ref<HTMLImageElement | null>(null)
 const state = ref<CropState | null>(null)
 const chosenFile = ref<File | null>(null)
+const fileDraggedOver = ref(false)
 const pointers = new Map<number, Point>()
 let lastPoint: Point | null = null
 let lastPinch: { distance: number; midpoint: Point } | null = null
@@ -114,7 +125,7 @@ async function loadInitial(value: string | HTMLImageElement | undefined) {
   emit('initial-image-loaded')
 }
 
-function chooseFile() { fileInput.value?.click() }
+function chooseFile() { if (!props.disabled) fileInput.value?.click() }
 
 function accepts(file: File): boolean {
   if (!file.type.startsWith('image/')) return false
@@ -156,12 +167,48 @@ function onFileChange(event: Event) {
   input.value = ''
 }
 
+function hasDraggedFile(event: DragEvent): boolean {
+  return Array.from(event.dataTransfer?.types ?? []).includes('Files') || !!event.dataTransfer?.files.length
+}
+
+function canDropFile(): boolean {
+  return !props.disabled && !props.disableDragAndDrop && (!image.value || props.replaceDrop)
+}
+
+function onDragEnter(event: DragEvent) {
+  if (!hasDraggedFile(event)) return
+  event.preventDefault()
+  fileDraggedOver.value = canDropFile()
+}
+
+function onDragOver(event: DragEvent) {
+  if (!hasDraggedFile(event)) return
+  event.preventDefault()
+  if (event.dataTransfer) event.dataTransfer.dropEffect = canDropFile() ? 'copy' : 'none'
+}
+
+function onDragLeave(event: DragEvent) {
+  if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
+    fileDraggedOver.value = false
+  }
+}
+
+function onDrop(event: DragEvent) {
+  if (!hasDraggedFile(event)) return
+  event.preventDefault()
+  fileDraggedOver.value = false
+  if (!canDropFile()) return
+  const file = event.dataTransfer?.files[0]
+  if (file) void setFile(file)
+}
+
 function remove() {
   ++generation
   const hadImage = !!image.value
   image.value = null
   state.value = null
   chosenFile.value = null
+  fileDraggedOver.value = false
   if (fileInput.value) fileInput.value.value = ''
   pointers.clear()
   draw()
@@ -206,7 +253,7 @@ function pinch() {
 }
 
 function onPointerDown(event: PointerEvent) {
-  if (!image.value || event.pointerType === 'mouse' && event.button !== 0) return
+  if (props.disabled || !image.value || (props.disableDragToMove && props.disablePinchToZoom) || (event.pointerType === 'mouse' && event.button !== 0)) return
   canvas.value?.setPointerCapture(event.pointerId)
   pointers.set(event.pointerId, localPoint(event.clientX, event.clientY))
   moved = false
@@ -215,20 +262,20 @@ function onPointerDown(event: PointerEvent) {
 }
 
 function onPointerMove(event: PointerEvent) {
-  if (!pointers.has(event.pointerId)) return
+  if (props.disabled || !pointers.has(event.pointerId)) return
   const point = localPoint(event.clientX, event.clientY)
   pointers.set(event.pointerId, point)
   if (pointers.size === 1 && lastPoint) {
     const dx = point.x - lastPoint.x
     const dy = point.y - lastPoint.y
     if (Math.abs(dx) + Math.abs(dy) > 0) moved = true
-    moveByPixels(dx, dy)
+    if (!props.disableDragToMove) moveByPixels(dx, dy)
     lastPoint = point
   } else if (pointers.size === 2) {
     const next = pinch()
     if (next && lastPinch?.distance) {
-      moveByPixels(next.midpoint.x - lastPinch.midpoint.x, next.midpoint.y - lastPinch.midpoint.y)
-      zoomAt(clamp(next.distance / lastPinch.distance, 0.8, 1.25), next.midpoint.x, next.midpoint.y)
+      if (!props.disableDragToMove) moveByPixels(next.midpoint.x - lastPinch.midpoint.x, next.midpoint.y - lastPinch.midpoint.y)
+      if (!props.disablePinchToZoom) zoomAt(clamp(next.distance / lastPinch.distance, 0.8, 1.25), next.midpoint.x, next.midpoint.y)
       moved = true
     }
     lastPinch = next
@@ -243,30 +290,31 @@ function onPointerEnd(event: PointerEvent) {
 }
 
 function onCanvasClick() {
-  if (!moved) chooseFile()
+  if (!moved && !props.disableClickToChoose && !image.value) chooseFile()
   moved = false
 }
 
 function onWheel(event: WheelEvent) {
-  if (!image.value) return
+  if (props.disabled || props.disableScrollToZoom || !image.value) return
   event.preventDefault()
   const point = localPoint(event.clientX, event.clientY)
-  zoomAt(clamp(Math.exp(-event.deltaY * 0.002 * props.zoomSpeed / 3), 0.8, 1.25), point.x, point.y)
+  const direction = props.reverseScrollToZoom ? 1 : -1
+  zoomAt(clamp(Math.exp(direction * event.deltaY * 0.002 * props.zoomSpeed / 3), 0.8, 1.25), point.x, point.y)
 }
 
 function rotate(step = 1) {
-  if (!state.value) return
+  if (props.disabled || props.disableRotation || !state.value) return
   state.value = rotateCropState(state.value, step * 90)
   if (props.preventWhiteSpace) state.value.crop = constrainCropToSource(state.value.crop)
   draw()
 }
 function flipX() {
-  if (!state.value) return
+  if (props.disabled || props.disableRotation || !state.value) return
   state.value = flipCropState(state.value, 'x')
   draw()
 }
 function flipY() {
-  if (!state.value) return
+  if (props.disabled || props.disableRotation || !state.value) return
   state.value = flipCropState(state.value, 'y')
   draw()
 }
@@ -295,21 +343,27 @@ watch(() => props.initialImage, (value) => { void loadInitial(value) })
 watch(() => props.preventWhiteSpace, (enabled) => {
   if (enabled && state.value) { state.value = { ...state.value, crop: constrainCropToSource(state.value.crop) }; draw() }
 })
+watch(() => [props.disabled, props.disableDragAndDrop, props.replaceDrop], () => { fileDraggedOver.value = false })
 watch(() => [props.width, props.height, props.canvasColor], async () => { await nextTick(); draw() })
 onMounted(() => { draw(); if (props.initialImage) void loadInitial(props.initialImage) })
 onBeforeUnmount(() => { ++generation; pointers.clear() })
 </script>
 
 <template>
-  <div class="croppa-v2" :style="{ width: `${width}px`, height: `${height}px` }">
-    <input ref="fileInput" class="croppa-v2__input" type="file" :accept="accept" @change="onFileChange">
-    <canvas ref="canvas" class="croppa-v2__canvas" :style="{ width: `${width}px`, height: `${height}px` }"
+  <div class="croppa-v2" :class="{ 'croppa-v2--dropzone': fileDraggedOver }"
+    :style="{ width: `${width}px`, height: `${height}px` }"
+    @dragenter="onDragEnter" @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop">
+    <input ref="fileInput" class="croppa-v2__input" type="file" :accept="accept" :disabled="disabled"
+      v-bind="inputAttrs" @change="onFileChange">
+    <canvas ref="canvas" class="croppa-v2__canvas"
+      :style="{ width: `${width}px`, height: `${height}px`, cursor: disabled || disableDragToMove ? 'default' : undefined,
+        touchAction: disabled || (disableDragToMove && disablePinchToZoom) ? 'auto' : 'none' }"
       aria-label="Crop image" @pointerdown="onPointerDown" @pointermove="onPointerMove"
       @pointerup="onPointerEnd" @pointercancel="onPointerEnd" @click="onCanvasClick" @wheel="onWheel" />
     <div v-if="!image" class="croppa-v2__placeholder" :style="{ color: placeholderColor }">
       <slot name="placeholder">{{ placeholder }}</slot>
     </div>
-    <button v-if="image && showRemoveButton" type="button" class="croppa-v2__remove" aria-label="Remove image"
+    <button v-if="image && showRemoveButton" type="button" class="croppa-v2__remove" aria-label="Remove image" :disabled="disabled"
       :style="{ width: `${removeButtonSize || width / 10}px`, height: `${removeButtonSize || width / 10}px`, backgroundColor: removeButtonColor }"
       @click.stop="remove">×</button>
   </div>
@@ -317,6 +371,7 @@ onBeforeUnmount(() => { ++generation; pointers.clear() })
 
 <style scoped>
 .croppa-v2 { position: relative; display: inline-block; }
+.croppa-v2--dropzone { outline: 2px dashed #0f766e; outline-offset: 4px; }
 .croppa-v2__input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .croppa-v2__canvas { display: block; cursor: grab; touch-action: none; }
 .croppa-v2__canvas:active { cursor: grabbing; }

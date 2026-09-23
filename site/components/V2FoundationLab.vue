@@ -10,6 +10,15 @@ const preventWhiteSpace = ref(false)
 const showRemoveButton = ref(true)
 const pngOnly = ref(false)
 const limitFileSize = ref(false)
+const replaceDrop = ref(false)
+const disabled = ref(false)
+const disableDragAndDrop = ref(false)
+const disableClickToChoose = ref(false)
+const disableDragToMove = ref(false)
+const disableScrollToZoom = ref(false)
+const disablePinchToZoom = ref(false)
+const disableRotation = ref(false)
+const reverseScrollToZoom = ref(false)
 const initialImage = ref<string | undefined>(withBase('/demo-image.svg'))
 const state = ref<CropState | null>(null)
 const stateJson = computed(() => JSON.stringify(state.value, null, 2))
@@ -37,7 +46,7 @@ async function download() {
     <div>
       <span class="v2-lab__badge">Vue 3 component preview</span>
       <h2>Crop a real image</h2>
-      <p>Click to choose a file. Drag the image under the fixed viewport, scroll to zoom, or pinch on touch.</p>
+      <p>Choose an image, then drag it under the fixed viewport, scroll to zoom, or pinch on touch.</p>
     </div>
     <div class="v2-lab__layout">
       <div>
@@ -46,6 +55,11 @@ async function download() {
             :prevent-white-space="preventWhiteSpace"
             :show-remove-button="showRemoveButton" remove-button-color="#e11d48" :remove-button-size="28"
             :accept="pngOnly ? 'image/png' : 'image/*'" :file-size-limit="limitFileSize ? 1000000 : 0"
+            :replace-drop="replaceDrop" :disabled="disabled" :disable-drag-and-drop="disableDragAndDrop"
+            :disable-click-to-choose="disableClickToChoose" :disable-drag-to-move="disableDragToMove"
+            :disable-scroll-to-zoom="disableScrollToZoom" :disable-pinch-to-zoom="disablePinchToZoom"
+            :disable-rotation="disableRotation" :reverse-scroll-to-zoom="reverseScrollToZoom"
+            :input-attrs="{ 'data-croppa-input': 'preview' }"
             @new-image-drawn="refresh" @initial-image-loaded="refresh"
             @image-remove="refresh" @move="refresh" @zoom="refresh" />
         </div>
@@ -62,6 +76,18 @@ async function download() {
           <button type="button" data-testid="reset" @click="reset">Reset image</button>
           <button type="button" data-testid="download" @click="download">Download PNG</button>
         </div>
+        <details class="v2-lab__options">
+          <summary>Interaction options</summary>
+          <label><input v-model="replaceDrop" type="checkbox" data-testid="replace-drop"> Replace image on drop</label>
+          <label><input v-model="disabled" type="checkbox" data-testid="disabled"> Disable interactions</label>
+          <label><input v-model="disableDragAndDrop" type="checkbox" data-testid="disable-drag-and-drop"> Disable file drop</label>
+          <label><input v-model="disableClickToChoose" type="checkbox" data-testid="disable-click-to-choose"> Disable click to choose</label>
+          <label><input v-model="disableDragToMove" type="checkbox" data-testid="disable-drag-to-move"> Disable image drag</label>
+          <label><input v-model="disableScrollToZoom" type="checkbox" data-testid="disable-scroll-to-zoom"> Disable wheel zoom</label>
+          <label><input v-model="disablePinchToZoom" type="checkbox" data-testid="disable-pinch-to-zoom"> Disable pinch zoom</label>
+          <label><input v-model="disableRotation" type="checkbox" data-testid="disable-rotation"> Disable rotation</label>
+          <label><input v-model="reverseScrollToZoom" type="checkbox" data-testid="reverse-scroll-to-zoom"> Reverse wheel direction</label>
+        </details>
       </div>
       <div class="v2-lab__inspectors">
         <h3>Component state</h3>
@@ -79,6 +105,8 @@ async function download() {
 .v2-lab__controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
 .v2-lab__controls label { flex-basis: 100%; }
 .v2-lab__controls button { padding: .4rem .7rem; border: 1px solid #888; border-radius: 6px; cursor: pointer; }
+.v2-lab__options { margin-top: 1rem; }
+.v2-lab__options label { display: block; margin-top: .4rem; }
 .v2-lab__inspectors pre { min-height: 7rem; padding: 1rem; overflow: auto; background: #f5f5f5; border-radius: 6px; }
 @media (max-width: 700px) { .v2-lab__layout { grid-template-columns: 1fr; } }
 </style>
