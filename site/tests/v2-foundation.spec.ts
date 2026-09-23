@@ -4,6 +4,11 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
   await page.goto('v2-lab')
 
   await expect(page.getByTestId('v2-lab')).toBeVisible()
+  await expect(page.getByTestId('v2-viewport')).toBeVisible()
+  await expect(page.getByTestId('v2-image-layer')).toBeVisible()
+  await expect(page.locator('[data-testid="v2-crop"]')).toHaveCount(0)
+
+  const viewportBefore = await page.getByTestId('v2-viewport').boundingBox()
 
   const readState = async () =>
     JSON.parse((await page.getByTestId('state-json').textContent()) || '{}')
@@ -33,6 +38,9 @@ test('v2 foundation lab drives the real v2 crop-state engine', async ({ page }) 
 
   await page.getByTestId('flip-x').click()
   expect(await readState()).toEqual(beforeFlip)
+
+  const viewportAfter = await page.getByTestId('v2-viewport').boundingBox()
+  expect(viewportAfter).toEqual(viewportBefore)
 
   await page.getByTestId('reset').click()
   expect(await readState()).toEqual(initial)
