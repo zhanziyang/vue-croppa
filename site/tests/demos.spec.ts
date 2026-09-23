@@ -23,16 +23,36 @@ test('basic demo loads a real image and changes scale', async ({ page }) => {
     const containerRect = container.getBoundingClientRect()
     const buttonRect = button.getBoundingClientRect()
 
+    const clippingAncestors = []
+    let ancestor = container.parentElement
+
+    while (ancestor) {
+      const style = getComputedStyle(ancestor)
+      if (['hidden', 'clip', 'scroll', 'auto'].includes(style.overflow) ||
+          ['hidden', 'clip', 'scroll', 'auto'].includes(style.overflowX) ||
+          ['hidden', 'clip', 'scroll', 'auto'].includes(style.overflowY)) {
+        clippingAncestors.push({
+          className: ancestor.className,
+          overflow: style.overflow,
+          overflowX: style.overflowX,
+          overflowY: style.overflowY,
+        })
+      }
+      ancestor = ancestor.parentElement
+    }
+
     return {
       overflow: getComputedStyle(container).overflow,
       extendsAbove: buttonRect.top < containerRect.top,
       extendsRight: buttonRect.right > containerRect.right,
+      clippingAncestors,
     }
   })
 
   expect(removeButtonGeometry.overflow).toBe('visible')
   expect(removeButtonGeometry.extendsAbove).toBe(true)
   expect(removeButtonGeometry.extendsRight).toBe(true)
+  expect(removeButtonGeometry.clippingAncestors).toEqual([])
 
   await page.locator('#zoom-in').click()
   await expect.poll(() => page.evaluate(() => window.__croppa.getMetadata().scale)).toBeGreaterThan(before.scale)
