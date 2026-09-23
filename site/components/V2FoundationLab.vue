@@ -7,6 +7,7 @@ import type { CropState } from '../../v2/src'
 type CroppaInstance = InstanceType<typeof Croppa>
 const croppa = ref<CroppaInstance | null>(null)
 const preventWhiteSpace = ref(false)
+const showRemoveButton = ref(true)
 const initialImage = ref<string | undefined>(withBase('/demo-image.svg'))
 const state = ref<CropState | null>(null)
 const events = ref<string[]>([])
@@ -46,12 +47,14 @@ async function download() {
         <div class="v2-lab__viewport-shell" data-testid="v2-viewport">
           <Croppa ref="croppa" :width="320" :height="320" :initial-image="initialImage"
             :prevent-white-space="preventWhiteSpace"
+            :show-remove-button="showRemoveButton" remove-button-color="#e11d48" :remove-button-size="28"
             @file-choose="record('file-choose')" @new-image="record('new-image')"
             @new-image-drawn="record('new-image-drawn')" @initial-image-loaded="record('initial-image-loaded')"
             @image-remove="record('image-remove')" @move="record('move')" @zoom="record('zoom')" />
         </div>
         <div class="v2-lab__controls">
           <label><input v-model="preventWhiteSpace" type="checkbox" data-testid="prevent-whitespace" @change="refresh"> Prevent whitespace</label>
+          <label><input v-model="showRemoveButton" type="checkbox" data-testid="show-remove-button"> Show remove button</label>
           <button type="button" data-testid="choose" @click="croppa?.chooseFile()">Choose image</button>
           <button type="button" data-testid="rotate" @click="rotate">Rotate 90°</button>
           <button type="button" data-testid="flip-x" @click="flipX">Flip X</button>

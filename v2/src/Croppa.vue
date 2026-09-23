@@ -306,7 +306,9 @@ onBeforeUnmount(() => { ++generation; pointers.clear() })
     <canvas ref="canvas" class="croppa-v2__canvas" :style="{ width: `${width}px`, height: `${height}px` }"
       aria-label="Crop image" @pointerdown="onPointerDown" @pointermove="onPointerMove"
       @pointerup="onPointerEnd" @pointercancel="onPointerEnd" @click="onCanvasClick" @wheel="onWheel" />
-    <div v-if="!image" class="croppa-v2__placeholder" :style="{ color: placeholderColor }">{{ placeholder }}</div>
+    <div v-if="!image" class="croppa-v2__placeholder" :style="{ color: placeholderColor }">
+      <slot name="placeholder">{{ placeholder }}</slot>
+    </div>
     <button v-if="image && showRemoveButton" type="button" class="croppa-v2__remove" aria-label="Remove image"
       :style="{ width: `${removeButtonSize || width / 10}px`, height: `${removeButtonSize || width / 10}px`, backgroundColor: removeButtonColor }"
       @click.stop="remove">×</button>

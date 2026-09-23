@@ -10,6 +10,11 @@ test('real v2 component keeps the viewport fixed and supports input, transforms,
   await expect(canvas).toBeVisible()
   await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
   await expect(viewport.getByRole('button', { name: 'Remove image' })).toBeVisible()
+  await expect(viewport.getByRole('button', { name: 'Remove image' })).toHaveCSS('width', '28px')
+  await expect(viewport.getByRole('button', { name: 'Remove image' })).toHaveCSS('background-color', 'rgb(225, 29, 72)')
+  await page.getByTestId('show-remove-button').uncheck()
+  await expect(viewport.getByRole('button', { name: 'Remove image' })).toHaveCount(0)
+  await page.getByTestId('show-remove-button').check()
   expect(await canvas.evaluate((element: HTMLCanvasElement) => [element.width, element.height])).toEqual([320, 320])
   const initial = await readState()
   const box = (await canvas.boundingBox())!
