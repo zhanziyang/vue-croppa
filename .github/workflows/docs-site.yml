@@ -35,7 +35,7 @@ permissions:
   deployments: write
 
 concurrency:
-  group: docs-site-${{ github.ref }}
+  group: docs-site-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
