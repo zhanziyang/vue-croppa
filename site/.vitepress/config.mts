@@ -1,14 +1,16 @@
 import { defineConfig } from 'vitepress'
 
+const base = process.env.VERCEL ? '/' : '/vue-croppa/'
+
 export default defineConfig({
   title: 'Vue Croppa',
   description: 'A simple, customizable, mobile-friendly image cropper for Vue.',
-  base: '/vue-croppa/',
+  base,
   cleanUrls: true,
   lastUpdated: true,
   head: [
     ['meta', { name: 'theme-color', content: '#0f766e' }],
-    ['link', { rel: 'icon', href: '/vue-croppa/logo.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: `${base}logo.svg`, type: 'image/svg+xml' }],
   ],
   themeConfig: {
     logo: '/logo.svg',
