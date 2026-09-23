@@ -1,0 +1,42 @@
+{
+  "name": "vue-croppa",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "A simple, polished, Vue-native image cropper for upload flows.",
+  "license": "ISC",
+  "main": "./index.cjs",
+  "module": "./dist/vue-croppa.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/vue-croppa.js",
+      "require": "./index.cjs"
+    },
+    "./style.css": "./dist/vue-croppa.css"
+  },
+  "files": [
+    "dist",
+    "index.cjs",
+    "MIGRATION.md"
+  ],
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly",
+    "check:package-types": "tsc -p tsconfig.package.json",
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit",
+    "check": "npm run typecheck && npm run test && npm run build && npm run check:package-types"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1",
+    "vue": "^3.5.43",
+    "vue-tsc": "^3.3.11"
+  }
+}

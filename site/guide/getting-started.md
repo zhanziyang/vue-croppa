@@ -4,14 +4,14 @@ Vue Croppa v1 is a Vue 2 image cropper built around a simple interaction model: 
 
 ## Version status
 
-The current published line, **v1.3.8**, targets Vue 2. The existing API remains documented here because it still has active users. The Vue 3 / TypeScript reboot is being developed as v2 and intentionally does not mutate v1 in place.
+This page documents the **v1.3.8** release line for Vue 2. Install it with `npm install vue-croppa@1`. For Vue 3, use the [v2 guide](/v2-guide) and [migration guide](https://github.com/zhanziyang/vue-croppa/blob/master/v2/MIGRATION.md).
 
-For new Vue 3 work, follow the v2 development in the repository rather than assuming v1 can be mounted directly in Vue 3.
+The v1 component requires Vue 2; Vue 3 applications should install v2.
 
 ## Install
 
 ~~~bash
-npm install vue-croppa
+npm install vue-croppa@1
 ~~~
 
 Register the plugin once:
@@ -72,7 +72,7 @@ The v1 renderer couples the visible viewport and output resolution:
 - quality multiplies the backing canvas dimensions.
 - a 400 × 300 cropper with quality 2 produces an 800 × 600 canvas.
 
-This is a v1 architectural constraint, not a general image-cropping requirement. v2 is being redesigned so preview size and export size can be independent.
+In v2, `autoSizing` can follow a responsive container; `quality` still scales the backing canvas and export pixels.
 
 ## Live verification
 

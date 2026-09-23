@@ -1,0 +1,33 @@
+name: v2 CI
+
+on:
+  pull_request:
+    paths:
+      - 'v2/**'
+      - '.github/workflows/v2-ci.yml'
+  push:
+    branches:
+      - 'v2/**'
+    paths:
+      - 'v2/**'
+      - '.github/workflows/v2-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+      - name: Install dependencies
+        working-directory: v2
+        run: npm install --no-audit --no-fund
+      - name: Typecheck, test, and build
+        working-directory: v2
+        run: npm run check

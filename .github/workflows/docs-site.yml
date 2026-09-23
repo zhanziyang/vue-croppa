@@ -9,6 +9,7 @@ on:
       - closed
     paths:
       - 'site/**'
+      - 'v2/**'
       - 'docs/simple-test.html'
       - 'docs/static/vue.min.js'
       - 'docs/static/500.jpeg'
@@ -20,6 +21,7 @@ on:
       - master
     paths:
       - 'site/**'
+      - 'v2/**'
       - 'docs/simple-test.html'
       - 'docs/static/vue.min.js'
       - 'docs/static/500.jpeg'

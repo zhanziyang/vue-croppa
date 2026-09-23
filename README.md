@@ -18,17 +18,42 @@
 
 ## Version status
 
-**v1.3.8 is the current published Vue 2 line.** It remains available for existing applications and is the version documented by the current site.
+**v2 supports Vue 3.** Vue 2 applications can stay on `vue-croppa@1` (latest 1.x release: 1.3.8). See the [Vue 3 guide](https://zhanziyang.github.io/vue-croppa/v2-guide), [API](https://zhanziyang.github.io/vue-croppa/v2-api), and [migration guide](./v2/MIGRATION.md).
 
-A Vue 3 + TypeScript **v2 reboot** is being developed separately. The new architecture does not mutate v1 in place, so existing consumers are not used as migration testers.
-
-- Vue 2 / v1: current npm package
-- Vue 3 / v2: [foundation work in progress](https://github.com/zhanziyang/vue-croppa/pull/251)
-
-## Install
+## Install for Vue 3
 
 ~~~bash
-npm install vue-croppa
+npm install vue-croppa@2
+~~~
+
+~~~vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Croppa } from 'vue-croppa'
+import 'vue-croppa/style.css'
+
+const cropper = ref<InstanceType<typeof Croppa> | null>(null)
+
+async function save() {
+  const blob = await cropper.value?.promisedBlob('image/png')
+  // Upload or download the Blob.
+}
+</script>
+
+<template>
+  <Croppa ref="cropper" :width="320" :height="240" />
+  <button @click="save">Save crop</button>
+</template>
+~~~
+
+The [live Vue 3 preview](https://zhanziyang.github.io/vue-croppa/v2-lab) uses the real v2 component.
+
+## Vue 2 / v1 archive
+
+Install v1 explicitly:
+
+~~~bash
+npm install vue-croppa@1
 ~~~
 
 ~~~js
@@ -39,7 +64,7 @@ import 'vue-croppa/dist/vue-croppa.css'
 Vue.use(Croppa)
 ~~~
 
-## Basic usage
+### Basic v1 usage
 
 ~~~html
 <croppa
@@ -74,7 +99,7 @@ For the smallest possible setup:
 
 The v1 model resolves to the Croppa component instance, which exposes movement, zoom, rotation, metadata, and output methods.
 
-## What v1 supports
+### What v1 supports
 
 - Drag to reposition the image
 - Wheel and pinch zoom
@@ -90,7 +115,7 @@ The v1 model resolves to the Croppa component instance, which exposes movement, 
 - Responsive auto-sizing
 - Rounded and custom clipped output
 
-## Live, first-party demos
+### Live v1 demos
 
 The documentation examples are part of this repository—there are no CodePen embeds in the new docs.
 
@@ -113,7 +138,7 @@ The demo suite includes:
 
 Those pages execute the actual repository bundle and are exercised in Chromium by Playwright. The original `docs/simple-test.html` harness is also adapted to deterministic local assets and kept as an additional compatibility check.
 
-## Documentation
+### v1 documentation
 
 The full v1 reference is organized by task rather than duplicated into this README:
 
@@ -125,7 +150,7 @@ The full v1 reference is organized by task rather than duplicated into this READ
 - [Troubleshooting](https://zhanziyang.github.io/vue-croppa/guide/troubleshooting)
 - [Complete API reference](https://zhanziyang.github.io/vue-croppa/api/)
 
-## A note about v1 sizing
+### A note about v1 sizing
 
 In v1, the visible cropper dimensions and output resolution are coupled:
 
@@ -134,7 +159,7 @@ output width  = width × quality
 output height = height × quality
 ~~~
 
-If you need a responsive preview with independently chosen export dimensions, that is one of the architectural problems being solved in v2.
+In v2, the visible canvas and export use the same pixels at `quality` scale. Use `autoSizing` to follow a responsive container.
 
 ## Development
 
@@ -166,7 +191,7 @@ The docs build copies the local Vue 2 + vue-croppa bundle, adapts `docs/simple-t
 
 ### v2
 
-The Vue 3 / TypeScript reboot is isolated under `v2/` while it is being designed and validated.
+The Vue 3 / TypeScript package source is under `v2/`. Run `npm run check` there for typecheck, unit tests, and a library build.
 
 ## License
 

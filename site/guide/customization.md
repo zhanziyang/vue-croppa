@@ -80,7 +80,7 @@ v1 can size itself from the rendered component instead of the numeric width/heig
 ></croppa>
 ~~~
 
-In v1, auto-sizing reacts to the window resize event. v2 is being redesigned around `ResizeObserver` and independent preview/export dimensions.
+In v1, auto-sizing reacts to the window resize event. v2 uses `ResizeObserver`; its `quality` prop scales the backing canvas and export pixels.
 
 ## Zoom behavior
 

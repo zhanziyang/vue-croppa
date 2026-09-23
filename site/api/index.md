@@ -1,6 +1,6 @@
 # API reference
 
-This page documents the current v1.3.8 Vue 2 API. The v2 API is being redesigned separately and should not be inferred from these internals.
+This page documents the v1.3.8 Vue 2 API. For Vue 3, use the [v2 API](/v2-api) and [migration guide](https://github.com/zhanziyang/vue-croppa/blob/master/v2/MIGRATION.md).
 
 ## Props
 

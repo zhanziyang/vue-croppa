@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": false
+  },
+  "include": ["scripts/package-consumer.ts"]
+}

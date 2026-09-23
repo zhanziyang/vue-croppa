@@ -1,8 +1,17 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath } from 'node:url'
 
 const base = process.env.DOCS_BASE || '/vue-croppa/'
 
 export default defineConfig({
+  vite: {
+    resolve: {
+      alias: [
+        { find: /^vue$/, replacement: fileURLToPath(new URL('../node_modules/vue/dist/vue.runtime.esm-bundler.js', import.meta.url)) },
+        { find: /^vue\/server-renderer$/, replacement: fileURLToPath(new URL('../node_modules/vue/server-renderer/index.mjs', import.meta.url)) },
+      ],
+    },
+  },
   title: 'Vue Croppa',
   description: 'A simple, customizable, mobile-friendly image cropper for Vue.',
   base,
@@ -17,21 +26,43 @@ export default defineConfig({
     siteTitle: 'Vue Croppa',
     search: { provider: 'local' },
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Examples', link: '/examples/' },
-      { text: 'API', link: '/api/' },
+      { text: 'Guide', link: '/v2-guide' },
+      { text: 'Live preview', link: '/v2-lab' },
+      { text: 'API', link: '/v2-api' },
       {
-        text: 'v1.3.8',
+        text: 'Versions',
         items: [
-          { text: 'Vue 2 · current release', link: '/guide/getting-started#version-status' },
-          { text: 'Vue 3 · v2 reboot', link: 'https://github.com/zhanziyang/vue-croppa/pull/251' },
+          { text: 'Vue 3 · v2', link: '/v2-guide' },
+          { text: 'Vue 2 · v1 archive', link: '/guide/getting-started' },
+          { text: 'v1 examples', link: '/examples/' },
         ],
       },
     ],
     sidebar: {
+      '/v2-guide': [
+        { text: 'Vue 3', items: [
+          { text: 'Guide', link: '/v2-guide' },
+          { text: 'Live preview', link: '/v2-lab' },
+          { text: 'API', link: '/v2-api' },
+        ] },
+      ],
+      '/v2-api': [
+        { text: 'Vue 3', items: [
+          { text: 'Guide', link: '/v2-guide' },
+          { text: 'Live preview', link: '/v2-lab' },
+          { text: 'API', link: '/v2-api' },
+        ] },
+      ],
+      '/v2-lab': [
+        { text: 'Vue 3', items: [
+          { text: 'Guide', link: '/v2-guide' },
+          { text: 'Live preview', link: '/v2-lab' },
+          { text: 'API', link: '/v2-api' },
+        ] },
+      ],
       '/guide/': [
         {
-          text: 'Guide',
+          text: 'Vue 2 · v1 guide',
           items: [
             { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Input & loading', link: '/guide/input' },
@@ -45,13 +76,13 @@ export default defineConfig({
       '/examples/': [
         {
           text: 'Examples',
-          items: [{ text: 'Live demos', link: '/examples/' }],
+          items: [{ text: 'v1 live demos', link: '/examples/' }],
         },
       ],
       '/api/': [
         {
           text: 'Reference',
-          items: [{ text: 'API', link: '/api/' }],
+          items: [{ text: 'v1 API', link: '/api/' }],
         },
       ],
     },
