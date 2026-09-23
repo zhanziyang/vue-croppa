@@ -20,6 +20,14 @@ The v2 rewrite preserves vue-croppa's defining WYSIWYG interaction model:
 
 This is a product-level invariant for v2, not a compatibility detail.
 
+## Compatibility rule
+
+v2 is a rewrite, not a feature reset. Existing v1 user capabilities are retained by default; any removal requires an explicit, separately reviewed decision.
+
+The full inventory and migration requirements live in [COMPATIBILITY.md](./COMPATIBILITY.md).
+
+In particular, v1 allows whitespace by default. Therefore `CropState` must be able to represent source-relative rectangles outside the `0..1` source bounds. `preventWhiteSpace` is an interaction constraint, not a fundamental limitation of the state model.
+
 ## Foundation principles
 
 - Vue 3 + TypeScript.
@@ -48,7 +56,7 @@ interface CropState {
 }
 ```
 
-`crop` is expressed against the currently oriented source image in normalized coordinates (`0..1`). This makes state stable across responsive layout changes and suitable for persistence or server-side reproduction.
+`crop` is expressed against the currently oriented source image in normalized source units. The source itself occupies `0..1`, but the crop may use negative coordinates or dimensions greater than `1` when whitespace is visible. This preserves v1 behavior while keeping state stable across responsive layout changes and suitable for persistence or server-side reproduction.
 
 ## Current scope
 
