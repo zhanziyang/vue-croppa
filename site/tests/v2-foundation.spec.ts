@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('v2 foundation lab preserves the WYSIWYG interaction model', async ({ page }) => {
+test('v2 foundation lab preserves WYSIWYG interaction and optional whitespace', async ({ page }) => {
   await page.goto('v2-lab')
 
   const viewport = page.getByTestId('v2-viewport')
@@ -11,42 +11,45 @@ test('v2 foundation lab preserves the WYSIWYG interaction model', async ({ page 
   await expect(viewport).toBeVisible()
   await expect(imageLayer).toBeVisible()
   await expect(page.locator('[data-testid="v2-crop"]')).toHaveCount(0)
+  await expect(page.getByTestId('prevent-whitespace')).not.toBeChecked()
 
   const initial = await readState()
   expect(initial.crop.width / initial.crop.height).toBeCloseTo(2 / 3, 10)
 
-  // Wheel zoom happens under the fixed viewport and preserves crop aspect ratio.
   const viewportBox = await viewport.boundingBox()
+
   await page.mouse.move(
     viewportBox.x + viewportBox.width * 0.7,
     viewportBox.y + viewportBox.height * 0.4,
   )
   await page.mouse.wheel(0, -180)
-
   await expect.poll(async () => (await readState()).crop.width).toBeLessThan(initial.crop.width)
+
   const zoomed = await readState()
   expect(zoomed.crop.width / zoomed.crop.height).toBeCloseTo(initial.crop.width / initial.crop.height, 10)
 
-  // Dragging right moves the image right while the source selection moves left.
-  const imageBefore = await imageLayer.boundingBox()
   await page.mouse.move(
     viewportBox.x + viewportBox.width / 2,
     viewportBox.y + viewportBox.height / 2,
   )
   await page.mouse.down()
   await page.mouse.move(
-    viewportBox.x + viewportBox.width / 2 + 45,
+    viewportBox.x + viewportBox.width / 2 + viewportBox.width * 0.9,
     viewportBox.y + viewportBox.height / 2,
-    { steps: 4 },
+    { steps: 8 },
   )
   await page.mouse.up()
 
-  const dragged = await readState()
-  const imageAfter = await imageLayer.boundingBox()
-  expect(dragged.crop.x).toBeLessThan(zoomed.crop.x)
-  expect(imageAfter.x).toBeGreaterThan(imageBefore.x)
+  const withWhitespace = await readState()
+  expect(withWhitespace.crop.x).toBeLessThan(0)
 
-  // The viewport itself never moves or resizes during image manipulation.
+  await page.getByTestId('prevent-whitespace').check()
+  await expect.poll(async () => (await readState()).crop.x).toBeGreaterThanOrEqual(0)
+
+  const constrained = await readState()
+  expect(constrained.crop.x + constrained.crop.width).toBeLessThanOrEqual(1)
+  expect(constrained.crop.y + constrained.crop.height).toBeLessThanOrEqual(1)
+
   const viewportAfter = await viewport.boundingBox()
   expect(viewportAfter.x).toBeCloseTo(viewportBox.x, 4)
   expect(viewportAfter.y).toBeCloseTo(viewportBox.y, 4)
@@ -54,8 +57,7 @@ test('v2 foundation lab preserves the WYSIWYG interaction model', async ({ page 
   expect(viewportAfter.height).toBeCloseTo(viewportBox.height, 4)
 
   await page.getByTestId('rotate').click()
-  const rotated = await readState()
-  expect(rotated.rotation).toBe(90)
+  expect((await readState()).rotation).toBe(90)
 
   const beforeFlip = await readState()
   await page.getByTestId('flip-x').click()
