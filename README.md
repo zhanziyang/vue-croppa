@@ -64,6 +64,8 @@ import 'vue-croppa/dist/vue-croppa.css'
 Vue.use(Croppa)
 ~~~
 
+For script tags, pin v1 in CDN URLs: `https://unpkg.com/vue-croppa@1/dist/vue-croppa.min.js` and `https://unpkg.com/vue-croppa@1/dist/vue-croppa.min.css`. Unversioned `unpkg.com/vue-croppa/dist/...` URLs now resolve to v2 and return 404.
+
 ### Basic v1 usage
 
 ~~~html

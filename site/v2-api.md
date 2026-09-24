@@ -49,6 +49,43 @@ The `initial` slot accepts an image, including an optional `data-exif-orientatio
 
 `addClipPlugin()` receives `(context, x, y, width, height)` in logical viewport coordinates. `applyMetadata()` accepts versioned v2 state or 1.x pixel metadata. `getCanvas()` is the visible output canvas; its backing size includes `quality`.
 
+## Export formats and transparency
+
+The export methods pass `type` and `quality` to the browser's `toDataURL()` and `toBlob()`. That `quality` argument is the JPEG/WebP encoder quality from 0 to 1. The `quality` prop is different: it scales the backing canvas, so it sets the pixel size of the output.
+
+With the default `canvasColor="transparent"`, areas the image does not cover and transparent pixels in the source stay transparent in `image/png` and `image/webp` output. JPEG has no alpha channel, so browsers encode transparent pixels as black. Set `canvasColor`, for example `canvas-color="#fff"`, when you need JPEG output of a transparent image.
+
+## Render saved metadata outside the component
+
+`renderCrop(canvas, image, source, state, background?, options?)` is the renderer the component uses. Call it to redraw a crop saved with `getMetadata()` without mounting `<Croppa>`, for example to regenerate an export at a different resolution:
+
+```ts
+import { renderCrop, type CropMetadata } from 'vue-croppa'
+
+async function renderSavedCrop(file: Blob, metadata: CropMetadata, scale = 2): Promise<Blob | null> {
+  const image = new Image()
+  image.src = URL.createObjectURL(file)
+  try {
+    await image.decode()
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(metadata.viewport.width * scale)
+    canvas.height = Math.round(metadata.viewport.height * scale)
+    renderCrop(canvas, image, metadata.source, metadata.state, 'transparent', {
+      viewport: metadata.viewport,
+      borderRadius: 0,
+    })
+    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+  } finally {
+    URL.revokeObjectURL(image.src)
+  }
+}
+```
+
+- The canvas size sets the output resolution. Keep the aspect ratio of `metadata.viewport`.
+- Pass the same image, decoded by a browser. `metadata.source` must match its `naturalWidth` and `naturalHeight`, and EXIF orientation must be applied the same way the component applied it.
+- Pass the `canvasColor` and `imageBorderRadius` values the component used as `background` and `options.borderRadius` to reproduce its output. Clip plugins can be passed as `options.clipPlugins`.
+- `renderCrop()` accepts v2 metadata only. Load 1.x `{ startX, startY, scale, orientation }` metadata with `applyMetadata()` first, then read `getMetadata()`.
+
 ## Events
 
 `init` supplies the component instance. `draw` supplies the output 2D context. Image lifecycle events are `file-choose`, `file-size-exceed`, `file-type-mismatch`, `new-image`, `new-image-drawn`, `initial-image-loaded`, `image-remove`, `loading-start`, `loading-end`, and `load-error`. `move` and `zoom` report interaction changes. `update:modelValue` powers Vue 3 `v-model`.
