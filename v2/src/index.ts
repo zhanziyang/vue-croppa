@@ -277,6 +277,45 @@ export function zoomCrop(
   return options.preventWhiteSpace ? constrainCropToSource(next) : next
 }
 
+/** Hard bounds for zoom levels, far above the precision floor of crop coordinates. */
+export const ZOOM_LEVEL_LIMITS = { min: 1e-4, max: 1e4 } as const
+
+/**
+ * Zoom level of a crop relative to the cover fit: 1 means the source just covers
+ * the viewport, 2 shows half as much, 0.5 shows twice as much.
+ *
+ * `source` is the oriented source size (see `getOrientedSize`).
+ */
+export function getZoomLevel(crop: NormalizedRect, source: Size, viewport: Size): number {
+  assertSize(source, 'source')
+  assertSize(viewport, 'viewport')
+  const sourceRatio = source.width / source.height
+  const viewportRatio = viewport.width / viewport.height
+  const coverWidth = sourceRatio > viewportRatio ? viewportRatio / sourceRatio : 1
+  return coverWidth / normalizeCropRect(crop).width
+}
+
+/**
+ * Reduce a zoom factor so the resulting level stays within [min, max].
+ *
+ * A level already outside the range may only move back toward it, so an
+ * initial size or restored state outside the range is never rewritten.
+ * Returns 1 when no zoom in the requested direction is allowed.
+ */
+export function limitZoomFactor(level: number, factor: number, min: number, max: number): number {
+  if (!Number.isFinite(factor) || factor <= 0) {
+    throw new RangeError('zoom factor must be a finite number greater than 0')
+  }
+  const safeMin = Number.isFinite(min) && min > 0 ? min : ZOOM_LEVEL_LIMITS.min
+  const safeMax = Number.isFinite(max) && max > 0 ? max : ZOOM_LEVEL_LIMITS.max
+  const lower = clamp(Math.min(safeMin, safeMax), ZOOM_LEVEL_LIMITS.min, ZOOM_LEVEL_LIMITS.max)
+  const upper = clamp(Math.max(safeMin, safeMax), ZOOM_LEVEL_LIMITS.min, ZOOM_LEVEL_LIMITS.max)
+  if (!Number.isFinite(level) || level <= 0) return 1
+  if (factor > 1) return Math.min(factor, Math.max(1, upper / level))
+  if (factor < 1) return Math.max(factor, Math.min(1, lower / level))
+  return 1
+}
+
 export function rotateCropState(state: CropState, degrees: number): CropState {
   const step = normalizeRotation(degrees)
   let next = cloneState(state)

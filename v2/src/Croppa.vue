@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { clamp, constrainCropToSource, createCropState, flipCropState, moveCrop, rotateCropState, zoomCrop, type CropMetadata, type CropState, type CroppaModelValue, type InitialSize, type LegacyCropMetadata, type Point } from './index'
+import { clamp, constrainCropToSource, createCropState, flipCropState, getOrientedSize, getZoomLevel, limitZoomFactor, moveCrop, rotateCropState, zoomCrop, type CropMetadata, type CropState, type CroppaModelValue, type InitialSize, type LegacyCropMetadata, type Point } from './index'
 import { readExifOrientation, relativeOrientation } from './exif'
 import { renderCrop, type ClipPlugin } from './render'
 
@@ -28,6 +28,8 @@ const props = withDefaults(defineProps<{
   fileSizeLimit?: number
   quality?: number
   zoomSpeed?: number
+  minZoom?: number
+  maxZoom?: number
   disabled?: boolean
   disableDragAndDrop?: boolean
   disableClickToChoose?: boolean
@@ -59,6 +61,8 @@ const props = withDefaults(defineProps<{
   fileSizeLimit: 0,
   quality: 2,
   zoomSpeed: 3,
+  minZoom: 0.1,
+  maxZoom: 10,
 })
 
 const emit = defineEmits<{
@@ -504,11 +508,15 @@ function moveRightwards(amount = 1) { moveByPixels(amount, 0) }
 function zoomAt(factor: number, x = dimensions().width / 2, y = dimensions().height / 2) {
   if (props.passive) return
   const current = state.value
-  if (!current) return
+  const currentMedia = media()
+  if (!current || !currentMedia) return
   const crop = current.crop
   const viewport = dimensions()
+  const level = getZoomLevel(crop, getOrientedSize(currentMedia.size, current.rotation), viewport)
+  const limited = limitZoomFactor(level, factor, props.minZoom, props.maxZoom)
+  if (limited === 1) return
   const anchor = { x: crop.x + clamp(x / viewport.width, 0, 1) * crop.width, y: crop.y + clamp(y / viewport.height, 0, 1) * crop.height }
-  const next = zoomCrop(crop, factor, anchor, { preventWhiteSpace: props.preventWhiteSpace })
+  const next = zoomCrop(crop, limited, anchor, { preventWhiteSpace: props.preventWhiteSpace })
   if (next.width === crop.width && next.height === crop.height && next.x === crop.x && next.y === crop.y) return
   state.value = { ...current, crop: next }
   draw()

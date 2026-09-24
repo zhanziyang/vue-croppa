@@ -5,8 +5,11 @@ import {
   createInitialCrop,
   cropToPixels,
   flipCropState,
+  getZoomLevel,
+  limitZoomFactor,
   moveCrop,
   rotateCropState,
+  ZOOM_LEVEL_LIMITS,
   zoomCrop,
 } from '../src'
 
@@ -244,5 +247,55 @@ describe('cropToPixels', () => {
       width: 1440,
       height: 1200,
     })
+  })
+})
+
+describe('zoom limits', () => {
+  const source = { width: 1600, height: 900 }
+  const viewport = { width: 400, height: 400 }
+
+  it('measures zoom relative to the cover fit', () => {
+    const cover = createInitialCrop(source, { viewport, initialSize: 'cover' })
+    const contain = createInitialCrop(source, { viewport, initialSize: 'contain' })
+    expect(getZoomLevel(cover, source, viewport)).toBeCloseTo(1, 12)
+    expect(getZoomLevel(contain, source, viewport)).toBeCloseTo(900 / 1600, 12)
+    expect(getZoomLevel(zoomCrop(cover, 2), source, viewport)).toBeCloseTo(2, 12)
+  })
+
+  it('clamps a zoom step at the configured bounds', () => {
+    expect(limitZoomFactor(1, 1.5, 0.1, 10)).toBe(1.5)
+    expect(limitZoomFactor(8, 1.5, 0.1, 10)).toBeCloseTo(1.25, 12)
+    expect(limitZoomFactor(10, 1.5, 0.1, 10)).toBe(1)
+    expect(limitZoomFactor(0.12, 0.5, 0.1, 10)).toBeCloseTo(0.1 / 0.12, 12)
+    expect(limitZoomFactor(0.1, 0.5, 0.1, 10)).toBe(1)
+  })
+
+  it('only moves an out-of-range level back toward the range', () => {
+    expect(limitZoomFactor(20, 1.1, 0.1, 10)).toBe(1)
+    expect(limitZoomFactor(20, 0.5, 0.1, 10)).toBe(0.5)
+    expect(limitZoomFactor(0.01, 0.9, 0.1, 10)).toBe(1)
+    expect(limitZoomFactor(0.01, 2, 0.1, 10)).toBe(2)
+  })
+
+  it('falls back to the hard limits for invalid or extreme bounds', () => {
+    expect(limitZoomFactor(ZOOM_LEVEL_LIMITS.max, 2, 0.1, Infinity)).toBe(1)
+    expect(limitZoomFactor(ZOOM_LEVEL_LIMITS.max, 2, 0.1, 1e12)).toBe(1)
+    expect(limitZoomFactor(ZOOM_LEVEL_LIMITS.min, 0.5, Number.NaN, 10)).toBe(1)
+    expect(limitZoomFactor(1, 2, 10, 0.1)).toBe(2)
+    expect(limitZoomFactor(10, 2, 10, 0.1)).toBe(1)
+  })
+
+  it('keeps zoom in and out symmetric when repeatedly pushed past the limit', () => {
+    let crop = createInitialCrop(source, { viewport })
+    const start = crop
+    for (let i = 0; i < 2000; i++) crop = zoomCrop(crop, limitZoomFactor(getZoomLevel(crop, source, viewport), 1.03, 0.1, 10))
+    expect(getZoomLevel(crop, source, viewport)).toBeCloseTo(10, 9)
+    for (let i = 0; i < 2000; i++) crop = zoomCrop(crop, limitZoomFactor(getZoomLevel(crop, source, viewport), 1 / 1.03, 0.1, 10))
+    expect(getZoomLevel(crop, source, viewport)).toBeCloseTo(0.1, 9)
+    while (getZoomLevel(crop, source, viewport) < 1 - 1e-9) {
+      crop = zoomCrop(crop, limitZoomFactor(getZoomLevel(crop, source, viewport), Math.min(1.03, 1 / getZoomLevel(crop, source, viewport)), 0.1, 10))
+    }
+    expect(crop.width).toBeCloseTo(start.width, 9)
+    expect(crop.x).toBeCloseTo(start.x, 9)
   })
 })
