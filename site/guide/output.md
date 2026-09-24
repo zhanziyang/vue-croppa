@@ -15,6 +15,8 @@ body.append('image', blob, 'crop.jpg')
 
 promisedBlob() is a Promise wrapper around generateBlob().
 
+JPEG has no alpha channel. With the default transparent canvas-color, browsers encode transparent areas of a JPEG export as black. Use 'image/png' to keep transparency, or set canvas-color (for example canvas-color="#fff") before exporting a transparent image as JPEG.
+
 <DemoFrame
   src="/demos/output.html"
   title="Generate real output"

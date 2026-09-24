@@ -34,7 +34,7 @@ The default export also registers `<croppa>` through `app.use(VueCroppa)`. Pass 
 
 ## Interact and export
 
-Choose or drop an image, drag to move it, use the wheel or pinch to zoom, and call `rotate()`, `flipX()`, or `flipY()` from a component ref. `preventWhiteSpace` keeps the source inside the viewport; the default allows a transparent or `canvasColor` background to show. `quality` controls the backing canvas and Blob dimensions, without changing the CSS viewport size.
+Choose or drop an image, drag to move it, use the wheel or pinch to zoom, and call `rotate()`, `flipX()`, or `flipY()` from a component ref. `preventWhiteSpace` keeps the source inside the viewport; the default allows a transparent or `canvasColor` background to show. `quality` controls the backing canvas and Blob dimensions, without changing the CSS viewport size. PNG and WebP exports keep transparency; JPEG cannot, so set `canvasColor` when exporting a transparent image as JPEG.
 
 Use `getCanvas()` or `getContext()` to work with the same canvas returned by `generateDataUrl()`, `generateBlob()`, and `promisedBlob()`. `addClipPlugin()` adds a clipping path, and the `draw` event receives the 2D context after each frame. The preview and export share these pixels.
 

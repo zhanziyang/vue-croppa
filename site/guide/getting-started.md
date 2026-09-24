@@ -24,6 +24,19 @@ import 'vue-croppa/dist/vue-croppa.css'
 Vue.use(Croppa)
 ~~~
 
+### Script tags / CDN
+
+Pin the major version in CDN URLs. Unversioned URLs such as `https://unpkg.com/vue-croppa/dist/vue-croppa.min.css` now resolve to v2, which does not include these v1 files, so they return 404.
+
+~~~html
+<link rel="stylesheet" href="https://unpkg.com/vue-croppa@1/dist/vue-croppa.min.css">
+<script src="https://unpkg.com/vue@2"></script>
+<script src="https://unpkg.com/vue-croppa@1/dist/vue-croppa.min.js"></script>
+<script>
+  Vue.use(Croppa)
+</script>
+~~~
+
 Then bind the component:
 
 ~~~html
