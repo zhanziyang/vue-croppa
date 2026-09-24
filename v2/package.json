@@ -1,6 +1,6 @@
 {
   "name": "vue-croppa",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "description": "A simple, polished, Vue-native image cropper for upload flows.",
   "license": "ISC",
