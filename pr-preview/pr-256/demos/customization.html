@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vue Croppa · Customization</title>
+  <link rel="stylesheet" href="../vendor/vue-croppa.css"><link rel="stylesheet" href="./shared/demo.css">
+  <style>.custom-croppa{border:2px dashed #94a3b8;border-radius:18px}.custom-croppa:hover{opacity:1}</style>
+</head>
+<body>
+<main id="app" class="demo" v-cloak>
+ <div class="demo-grid">
+  <section class="stage">
+   <croppa class="custom-croppa" v-model="croppa" :width="320" :height="260"
+    :placeholder="placeholder" :placeholder-color="placeholderColor" :canvas-color="canvasColor"
+    :show-remove-button="showRemove" remove-button-color="#0f766e" :disabled="disabled"
+    @init="onInit"></croppa>
+  </section>
+  <section class="panel">
+   <div><p class="eyebrow">Appearance + behavior</p><h2>Customize without forking</h2><p>Props configure canvas output and built-in controls; ordinary CSS styles the surrounding component.</p></div>
+   <label>Placeholder <input id="placeholder-text" v-model="placeholder"></label>
+   <label>Canvas color <input id="canvas-color" type="color" v-model="canvasColor"></label>
+   <label>Text color <input id="placeholder-color" type="color" v-model="placeholderColor"></label>
+   <label><input id="remove-toggle" type="checkbox" v-model="showRemove"> Built-in remove button</label>
+   <label><input id="disabled-toggle" type="checkbox" v-model="disabled"> Disable interaction</label>
+   <div class="status ready">Live prop playground</div>
+  </section>
+ </div>
+</main>
+<script src="../vendor/vue2.min.js"></script><script src="../vendor/vue-croppa.js"></script>
+<script>
+Vue.use(Croppa)
+new Vue({
+ el:'#app',
+ data:{croppa:null,placeholder:'Choose an image',placeholderColor:'#0f766e',canvasColor:'#ffffff',showRemove:true,disabled:false},
+ methods:{onInit(vm){window.__croppa=vm;window.__demoMounted=true;window.__demoReady=true}}
+})
+</script>
+</body></html>
