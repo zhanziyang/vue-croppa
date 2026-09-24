@@ -38,4 +38,6 @@ Use `getMetadata()` to persist the crop as JSON. `applyMetadata()` accepts versi
 
 The fixed viewport remains WYSIWYG. The visible canvas is the output canvas at `width × quality` by `height × quality`; `getCanvas()`, `getContext()`, data URL export, and Blob export use that same canvas. The `draw` event receives its 2D context after each image frame. `addClipPlugin()` receives the context and viewport dimensions in logical pixels, so its path scales with the output resolution.
 
+Zoom is bounded in 2.x. 1.x let the image zoom without limit; 2.x stops wheel, pinch, and `zoom()` steps between `minZoom` (default `0.1`) and `maxZoom` (default `10`), measured relative to the size at which the image just covers the viewport. Raise `maxZoom` or lower `minZoom` if your users need more range.
+
 The existing image, remove, sizing, whitespace, loading, interaction-disable, and export props remain available. `autoSizing` now observes the component's container with `ResizeObserver`. `videoEnabled` accepts browser-playable video files; double click the canvas to play or pause.

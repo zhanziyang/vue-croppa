@@ -17,6 +17,7 @@ The v2 component is available as a named `Croppa` export or through the default 
 | `imageBorderRadius` | `0` | Rounded output corners in viewport pixels |
 | `quality` | `2` | Backing canvas and output scale |
 | `zoomSpeed` | `3` | Wheel and helper zoom speed |
+| `minZoom`, `maxZoom` | `0.1`, `10` | Zoom bounds, relative to the size at which the image just covers the viewport |
 | `accept`, `fileSizeLimit` | —, `0` | File type filter and byte limit |
 | `replaceDrop` | `false` | Allow a dropped file to replace an existing image |
 | `showRemoveButton`, `removeButtonColor`, `removeButtonSize` | `true`, `red`, width/10 | Remove control |
@@ -29,6 +30,8 @@ The v2 component is available as a named `Croppa` export or through the default 
 | `videoEnabled` | `false` | Accept browser-playable videos |
 | `inputAttrs` | — | Attributes for the underlying file input |
 | `modelValue` | — | In-memory Vue 3 `v-model` state |
+
+Zoom level 1 means the image just covers the viewport; 2 shows half as much of it, 0.5 twice as much. Wheel, pinch, and `zoom()` steps stop at `minZoom` and `maxZoom`. Bounds are clamped to `1e-4`–`1e4`. A state already outside the range, from `initialSize="natural"`, rotation, or `applyMetadata()`, is kept as-is and can only be zoomed back toward the range. `getZoomLevel(crop, orientedSource, viewport)` returns the current level, for example to drive a zoom slider.
 
 The `initial` slot accepts an image, including an optional `data-exif-orientation` hint. File input JPEGs use their EXIF orientation once in modern browsers.
 

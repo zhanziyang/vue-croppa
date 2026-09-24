@@ -436,3 +436,33 @@ test('pinch zoom can be disabled independently', async ({ page }) => {
   await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
   expect(await readWidth()).toBeCloseTo(before, 10)
 })
+
+test('wheel zoom stops at the default limits and the canvas never goes blank', async ({ page }) => {
+  await page.goto('v2-lab')
+  const readState = async () => JSON.parse((await page.getByTestId('state-json').textContent()) || 'null')
+  await expect.poll(async () => (await readState())?.crop?.width).toBeGreaterThan(0)
+  const initialWidth = (await readState()).crop.width
+  const canvas = page.getByTestId('v2-viewport').locator('canvas')
+  const painted = () => canvas.evaluate((element: HTMLCanvasElement) => {
+    const data = element.getContext('2d')!.getImageData(0, 0, element.width, element.height).data
+    let count = 0
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 0) count++
+    return count / (data.length / 4)
+  })
+  await canvas.scrollIntoViewIfNeeded()
+  const box = (await canvas.boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+
+  // 150 notches used to push the crop past the 12-decimal precision floor.
+  for (let i = 0; i < 150; i++) await page.mouse.wheel(0, -200)
+  await expect.poll(async () => (await readState()).crop.width).toBeCloseTo(initialWidth / 10, 6)
+  expect(await painted()).toBe(1)
+
+  for (let i = 0; i < 150; i++) await page.mouse.wheel(0, 200)
+  await expect.poll(async () => (await readState()).crop.width).toBeCloseTo(initialWidth * 10, 6)
+  expect(await painted()).toBeGreaterThan(0)
+
+  for (let i = 0; i < 150; i++) await page.mouse.wheel(0, -200)
+  await expect.poll(async () => (await readState()).crop.width).toBeCloseTo(initialWidth / 10, 6)
+  expect(await painted()).toBe(1)
+})
